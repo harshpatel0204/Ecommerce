@@ -2,7 +2,7 @@ import { Heart, Star, ShoppingBag, Eye } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-import { Badge } from "@/components/ui/badge";
+
 import { imageUrl } from "@/lib/image";
 import { formatPrice } from "@/lib/format";
 import type { ProductListItem } from "@/types/product";

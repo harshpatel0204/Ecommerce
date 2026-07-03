@@ -38,7 +38,6 @@ export default function ProductListing() {
     setParams(next);
   };
 
-  const activeSort = SORTS.find((s) => s.value === filters.sort) ?? SORTS[0];
   const hasActiveFilter = !!(filters.category_slug || filters.search);
 
   const FilterSidebar = () => (

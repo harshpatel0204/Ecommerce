@@ -5,7 +5,6 @@ import { ShoppingCart, Heart, Share2, Shield, Truck, RefreshCcw, Star, ChevronRi
 
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { VariantSelector } from "@/components/product/VariantSelector";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAddToCart } from "@/hooks/useCart";
@@ -69,6 +68,7 @@ export default function ProductDetail() {
 
   const unitPrice = product.selling_price + (selected?.price_delta ?? 0);
   const totalPrice = unitPrice * quantity;
+  const totalStock = product.variants.reduce((acc, v) => acc + v.stock_quantity, 0);
 
   const handleAddToCart = () => {
     if (!selected) {
@@ -214,14 +214,14 @@ export default function ProductDetail() {
                     ? "bg-green-600 hover:bg-green-600"
                     : "bg-primary hover:bg-primary/90 shadow-sm hover:shadow-glow"
                 }`}
-                disabled={addToCart.isPending || product.total_stock === 0}
+                disabled={addToCart.isPending || totalStock === 0}
                 onClick={handleAddToCart}
               >
                 {justAdded ? (
                   <><Check className="h-5 w-5" /> Added to Cart!</>
                 ) : addToCart.isPending ? (
                   "Adding..."
-                ) : product.total_stock === 0 ? (
+                ) : totalStock === 0 ? (
                   "Out of Stock"
                 ) : (
                   <><ShoppingCart className="h-5 w-5" /> Add to Cart</>

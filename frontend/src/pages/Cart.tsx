@@ -1,7 +1,7 @@
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Tag } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCart, useRemoveCartItem, useUpdateCartItem } from "@/hooks/useCart";
 import { formatPrice } from "@/lib/format";
@@ -58,10 +58,6 @@ export default function Cart() {
       </div>
     );
   }
-
-  const savings = cart.items.reduce((acc, item) => {
-    return acc; // placeholder; backend would compute this
-  }, 0);
 
   return (
     <div className="min-h-screen bg-muted/20">
