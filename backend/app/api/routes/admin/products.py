@@ -67,6 +67,12 @@ async def list_products(
     )
 
 
+@router.get("/products/{product_id}", response_model=ProductDetail)
+async def get_product(product_id: uuid.UUID, db: DbSession) -> ProductDetail:
+    product, avg, count = await catalog_service.get_product_admin_detail(db, product_id)
+    return to_detail(product, avg, count)
+
+
 @router.post("/products", response_model=ProductDetail, status_code=status.HTTP_201_CREATED)
 async def create_product(data: ProductCreate, db: DbSession) -> ProductDetail:
     product = await catalog_service.create_product(db, data)

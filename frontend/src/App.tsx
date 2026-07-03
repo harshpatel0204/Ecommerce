@@ -2,10 +2,15 @@ import { useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import { getMe } from "@/api/auth";
+import { StoreLayout } from "@/components/layout/StoreLayout";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import Placeholder from "@/pages/Placeholder";
+import ProductDetail from "@/pages/ProductDetail";
+import ProductListing from "@/pages/ProductListing";
 import Register from "@/pages/Register";
+import AdminProductForm from "@/pages/admin/ProductForm";
+import AdminProductList from "@/pages/admin/ProductList";
 import { AdminRoute } from "@/routes/AdminRoute";
 import { ProtectedRoute } from "@/routes/ProtectedRoute";
 import { useAuthStore } from "@/store/authStore";
@@ -13,9 +18,8 @@ import { useAuthStore } from "@/store/authStore";
 export default function App() {
   const { refreshToken, accessToken, setUser, clear } = useAuthStore();
 
-  // On load, if a refresh token was persisted but we have no access token yet,
-  // restore the session. getMe() 401s, the client interceptor refreshes the
-  // access token, then the retry returns the current user.
+  // Restore the session on load: getMe() 401s, the client interceptor refreshes
+  // the access token, then the retry returns the current user.
   useEffect(() => {
     if (refreshToken && !accessToken) {
       getMe()
@@ -27,25 +31,35 @@ export default function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/products" element={<Placeholder title="Product listing" />} />
-      <Route path="/products/:slug" element={<Placeholder title="Product detail" />} />
+      {/* Storefront (shared navbar) */}
+      <Route element={<StoreLayout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/products" element={<ProductListing />} />
+        <Route path="/products/:slug" element={<ProductDetail />} />
 
-      <Route element={<ProtectedRoute />}>
-        <Route path="/cart" element={<Placeholder title="Cart" />} />
-        <Route path="/checkout" element={<Placeholder title="Checkout" />} />
-        <Route path="/orders" element={<Placeholder title="Order history" />} />
-        <Route path="/orders/:orderNumber" element={<Placeholder title="Order detail" />} />
-        <Route path="/account" element={<Placeholder title="Account" />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/cart" element={<Placeholder title="Cart" />} />
+          <Route path="/checkout" element={<Placeholder title="Checkout" />} />
+          <Route path="/orders" element={<Placeholder title="Order history" />} />
+          <Route path="/orders/:orderNumber" element={<Placeholder title="Order detail" />} />
+          <Route path="/account" element={<Placeholder title="Account" />} />
+        </Route>
       </Route>
 
+      {/* Auth (no navbar) */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+
+      {/* Admin */}
       <Route element={<AdminRoute />}>
-        <Route path="/admin" element={<Placeholder title="Admin dashboard" />} />
-        <Route path="/admin/products" element={<Placeholder title="Admin products" />} />
-        <Route path="/admin/orders" element={<Placeholder title="Admin orders" />} />
-        <Route path="/admin/users" element={<Placeholder title="Admin users" />} />
+        <Route element={<StoreLayout />}>
+          <Route path="/admin" element={<Navigate to="/admin/products" replace />} />
+          <Route path="/admin/products" element={<AdminProductList />} />
+          <Route path="/admin/products/new" element={<AdminProductForm />} />
+          <Route path="/admin/products/:id/edit" element={<AdminProductForm />} />
+          <Route path="/admin/orders" element={<Placeholder title="Admin orders" />} />
+          <Route path="/admin/users" element={<Placeholder title="Admin users" />} />
+        </Route>
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

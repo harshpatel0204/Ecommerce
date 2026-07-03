@@ -1,57 +1,63 @@
 import { Link } from "react-router-dom";
-import { toast } from "sonner";
 
-import { logout as logoutApi } from "@/api/auth";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { useAuthStore } from "@/store/authStore";
+import { ProductCard } from "@/components/product/ProductCard";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useCategories, useFeatured } from "@/hooks/useProducts";
 
-/** Placeholder storefront home — the catalog UI arrives in Phase 2. */
 export default function Home() {
-  const { isAuthenticated, user, refreshToken, clear } = useAuthStore();
-
-  const handleLogout = async () => {
-    try {
-      if (refreshToken) await logoutApi(refreshToken);
-    } finally {
-      clear();
-      toast.success("Signed out");
-    }
-  };
+  const { data: featured, isLoading } = useFeatured();
+  const { data: categories } = useCategories();
 
   return (
-    <div className="container flex min-h-screen flex-col items-center justify-center gap-6 text-center">
-      <div>
-        <h1 className="text-4xl font-bold tracking-tight">BharatShop</h1>
-        <p className="mt-2 text-muted-foreground">Your D2C store — catalog coming in Phase 2.</p>
-      </div>
+    <div className="container space-y-10 py-8">
+      <section className="rounded-xl bg-gradient-to-r from-primary/90 to-primary p-10 text-primary-foreground">
+        <h1 className="text-3xl font-bold sm:text-4xl">Everyday essentials, thoughtfully made</h1>
+        <p className="mt-2 max-w-xl text-primary-foreground/90">
+          Discover our curated collection. Quality products delivered to your door.
+        </p>
+        <Link
+          to="/products"
+          className="mt-6 inline-block rounded-md bg-background px-5 py-2.5 text-sm font-medium text-foreground"
+        >
+          Shop all products
+        </Link>
+      </section>
 
-      {isAuthenticated ? (
-        <div className="flex flex-col items-center gap-3">
-          <p className="text-sm">
-            Signed in as <span className="font-medium">{user?.full_name ?? user?.email}</span>
-            {user?.is_admin && " (admin)"}
-          </p>
-          <div className="flex gap-3">
-            {user?.is_admin && (
-              <Link to="/admin" className={buttonVariants({ variant: "outline" })}>
-                Admin
+      {categories && categories.length > 0 && (
+        <section>
+          <h2 className="mb-3 text-lg font-semibold">Shop by category</h2>
+          <div className="flex flex-wrap gap-2">
+            {categories.map((c) => (
+              <Link
+                key={c.id}
+                to={`/products?category_slug=${c.slug}`}
+                className="rounded-full border px-4 py-2 text-sm hover:border-primary"
+              >
+                {c.name}
               </Link>
-            )}
-            <Button variant="secondary" onClick={handleLogout}>
-              Sign out
-            </Button>
+            ))}
           </div>
-        </div>
-      ) : (
-        <div className="flex gap-3">
-          <Link to="/login" className={buttonVariants()}>
-            Sign in
-          </Link>
-          <Link to="/register" className={buttonVariants({ variant: "outline" })}>
-            Create account
-          </Link>
-        </div>
+        </section>
       )}
+
+      <section>
+        <h2 className="mb-4 text-lg font-semibold">Featured products</h2>
+        {isLoading ? (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Skeleton key={i} className="aspect-square w-full" />
+            ))}
+          </div>
+        ) : featured && featured.length > 0 ? (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {featured.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        ) : (
+          <p className="text-muted-foreground">No featured products yet.</p>
+        )}
+      </section>
     </div>
   );
 }

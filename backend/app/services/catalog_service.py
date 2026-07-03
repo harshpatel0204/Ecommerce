@@ -169,6 +169,18 @@ async def get_product_by_id(db: AsyncSession, product_id: uuid.UUID) -> Product:
     return product
 
 
+async def get_product_admin_detail(db: AsyncSession, product_id: uuid.UUID):
+    """Full detail by id for the admin (includes inactive products)."""
+    product = await get_product_by_id(db, product_id)
+    product.images = sorted(
+        [i for i in product.images if not i.is_deleted],
+        key=lambda i: (not i.is_primary, i.display_order),
+    )
+    ratings = await _ratings_for(db, [product.id])
+    avg, count = ratings.get(product.id, (0.0, 0))
+    return product, avg, count
+
+
 async def get_product_detail(db: AsyncSession, slug: str, active_only: bool = True):
     stmt = select(Product).where(Product.slug == slug).options(*_PRODUCT_LOADERS)
     if active_only:
