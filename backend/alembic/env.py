@@ -26,6 +26,19 @@ if config.config_file_name is not None:
 
 target_metadata = Base.metadata
 
+# Functional GIN indexes (e.g. the products full-text index) are reflected by
+# Postgres in a normalized form that never matches the model's text() expression,
+# which makes autogenerate emit spurious "changed index" diffs on every run.
+# Exclude them by name here. This does NOT affect Base.metadata.create_all — the
+# index still lives in the model and is created by the initial migration.
+_AUTOGEN_EXCLUDED_INDEXES = {"idx_products_fts"}
+
+
+def include_object(obj, name, type_, reflected, compare_to) -> bool:
+    if type_ == "index" and name in _AUTOGEN_EXCLUDED_INDEXES:
+        return False
+    return True
+
 
 def _connect_args() -> dict:
     if settings.is_local_db:
@@ -40,6 +53,7 @@ def run_migrations_offline() -> None:
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
         compare_type=True,
+        include_object=include_object,
     )
     with context.begin_transaction():
         context.run_migrations()
@@ -50,6 +64,7 @@ def do_run_migrations(connection: Connection) -> None:
         connection=connection,
         target_metadata=target_metadata,
         compare_type=True,
+        include_object=include_object,
     )
     with context.begin_transaction():
         context.run_migrations()
