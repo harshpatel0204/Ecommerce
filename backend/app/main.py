@@ -1,0 +1,41 @@
+"""FastAPI application factory for BharatShop.
+
+Runs both locally (uvicorn) and on Vercel as a Python serverless function
+(see backend/api/index.py). In production the SPA and this API share one Vercel
+domain, so CORS is only enabled when DEV_ALLOWED_ORIGINS is set (local dev).
+
+All routes are mounted under /api so the root vercel.json can rewrite
+`/api/*` -> this app and `/*` -> the SPA.
+"""
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.core.config import settings
+
+app = FastAPI(
+    title=settings.APP_NAME,
+    version=settings.APP_VERSION,
+    debug=settings.DEBUG,
+    docs_url="/api/docs",
+    openapi_url="/api/openapi.json",
+)
+
+# CORS only for local cross-port dev; production is same-origin (no CORS).
+if settings.dev_allowed_origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.dev_allowed_origins,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type"],
+    )
+
+
+@app.get("/api/health", tags=["health"])
+async def health() -> dict[str, str]:
+    return {"status": "ok", "version": settings.APP_VERSION}
+
+
+# Routers are included here as features land, e.g.:
+#   from app.api.routes import auth
+#   app.include_router(auth.router, prefix="/api")

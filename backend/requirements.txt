@@ -1,0 +1,30 @@
+# ---- Web framework ----
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+
+# ---- Settings / validation ----
+pydantic==2.10.4
+pydantic-settings==2.7.1
+email-validator==2.2.0
+
+# ---- Database (async) ----
+sqlalchemy[asyncio]==2.0.36
+asyncpg==0.30.0
+alembic==1.14.0
+
+# ---- Auth / security ----
+pyjwt==2.10.1
+passlib[bcrypt]==1.7.4
+bcrypt==4.2.1
+
+# ---- Images (stored as BYTEA, processed in-process) ----
+pillow==11.1.0
+
+# ---- External services ----
+razorpay==1.4.2
+resend==2.5.1
+httpx==0.28.1
+
+# ---- Rate limiting ----
+slowapi==0.1.9
