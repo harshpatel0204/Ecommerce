@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -29,6 +29,7 @@ type FormValues = z.infer<typeof schema>;
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { isAuthenticated, setSession } = useAuthStore();
   const [submitting, setSubmitting] = useState(false);
   const {
@@ -46,8 +47,11 @@ export default function Login() {
     try {
       const tokens = await login(values);
       setSession(tokens);
-      const from = (location.state as { from?: string } | null)?.from ?? "/";
-      navigate(from, { replace: true });
+      const next =
+        searchParams.get("next") ??
+        (location.state as { from?: string } | null)?.from ??
+        "/";
+      navigate(next, { replace: true });
     } catch (err) {
       const message =
         err instanceof AxiosError && err.response?.data?.detail

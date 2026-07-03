@@ -6,12 +6,18 @@ import { toast } from "sonner";
 import { logout as logoutApi } from "@/api/auth";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useCart } from "@/hooks/useCart";
 import { useAuthStore } from "@/store/authStore";
+import { useCartStore } from "@/store/cartStore";
 
 export function Navbar() {
   const navigate = useNavigate();
   const { isAuthenticated, user, refreshToken, clear } = useAuthStore();
+  const itemCount = useCartStore((s) => s.itemCount);
   const [q, setQ] = useState("");
+
+  // Keeps the badge count in sync while authenticated.
+  useCart();
 
   const onSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,8 +53,16 @@ export function Navbar() {
         </form>
 
         <nav className="ml-auto flex items-center gap-2">
-          <Link to="/cart" className={buttonVariants({ variant: "ghost", size: "icon" })}>
+          <Link
+            to="/cart"
+            className={buttonVariants({ variant: "ghost", size: "icon", className: "relative" })}
+          >
             <ShoppingCart className="h-5 w-5" />
+            {itemCount > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
+                {itemCount}
+              </span>
+            )}
           </Link>
           {isAuthenticated ? (
             <>

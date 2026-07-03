@@ -3,12 +3,17 @@ import { Navigate, Route, Routes } from "react-router-dom";
 
 import { getMe } from "@/api/auth";
 import { StoreLayout } from "@/components/layout/StoreLayout";
+import Cart from "@/pages/Cart";
+import Checkout from "@/pages/Checkout";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
+import OrderDetail from "@/pages/OrderDetail";
+import OrderHistory from "@/pages/OrderHistory";
 import Placeholder from "@/pages/Placeholder";
 import ProductDetail from "@/pages/ProductDetail";
 import ProductListing from "@/pages/ProductListing";
 import Register from "@/pages/Register";
+import Wishlist from "@/pages/Wishlist";
 import AdminProductForm from "@/pages/admin/ProductForm";
 import AdminProductList from "@/pages/admin/ProductList";
 import { AdminRoute } from "@/routes/AdminRoute";
@@ -38,10 +43,11 @@ export default function App() {
         <Route path="/products/:slug" element={<ProductDetail />} />
 
         <Route element={<ProtectedRoute />}>
-          <Route path="/cart" element={<Placeholder title="Cart" />} />
-          <Route path="/checkout" element={<Placeholder title="Checkout" />} />
-          <Route path="/orders" element={<Placeholder title="Order history" />} />
-          <Route path="/orders/:orderNumber" element={<Placeholder title="Order detail" />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/orders" element={<OrderHistory />} />
+          <Route path="/orders/:orderNumber" element={<OrderDetail />} />
           <Route path="/account" element={<Placeholder title="Account" />} />
         </Route>
       </Route>

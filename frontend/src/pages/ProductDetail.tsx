@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
 import { ProductGallery } from "@/components/product/ProductGallery";
@@ -7,12 +7,17 @@ import { VariantSelector } from "@/components/product/VariantSelector";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAddToCart } from "@/hooks/useCart";
 import { useProduct } from "@/hooks/useProducts";
 import { formatPrice } from "@/lib/format";
+import { useAuthStore } from "@/store/authStore";
 import type { ProductVariant } from "@/types/product";
 
 export default function ProductDetail() {
   const { slug = "" } = useParams();
+  const navigate = useNavigate();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const addToCart = useAddToCart();
   const { data: product, isLoading, isError } = useProduct(slug);
   const [selected, setSelected] = useState<ProductVariant | null>(null);
 
@@ -35,13 +40,23 @@ export default function ProductDetail() {
 
   const unitPrice = product.selling_price + (selected?.price_delta ?? 0);
 
-  const addToCart = () => {
+  const handleAddToCart = () => {
     if (!selected) {
       toast.error("Please select an option");
       return;
     }
-    // Cart wiring arrives in Phase 3.
-    toast.success(`Added ${product.name} (${[selected.size, selected.color].filter(Boolean).join(" · ")})`);
+    if (!isAuthenticated) {
+      navigate(`/login?next=/products/${slug}`);
+      return;
+    }
+    addToCart.mutate([selected.id, 1], {
+      onSuccess: () => toast.success("Added to cart"),
+      onError: (e) =>
+        toast.error(
+          (e as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??
+            "Could not add to cart",
+        ),
+    });
   };
 
   return (
@@ -75,8 +90,13 @@ export default function ProductDetail() {
           onSelect={setSelected}
         />
 
-        <Button size="lg" className="w-full sm:w-auto" onClick={addToCart}>
-          Add to cart
+        <Button
+          size="lg"
+          className="w-full sm:w-auto"
+          disabled={addToCart.isPending}
+          onClick={handleAddToCart}
+        >
+          {addToCart.isPending ? "Adding…" : "Add to cart"}
         </Button>
 
         {product.description && (
