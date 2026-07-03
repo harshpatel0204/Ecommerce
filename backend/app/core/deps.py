@@ -19,6 +19,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.security import ACCESS_TOKEN_TYPE, decode_token
+from app.models.user import User
 
 bearer_scheme = HTTPBearer(auto_error=True)
 
@@ -32,10 +33,8 @@ _CREDENTIALS_ERROR = HTTPException(
 )
 
 
-async def get_current_user(credentials: BearerToken, db: DbSession):
+async def get_current_user(credentials: BearerToken, db: DbSession) -> User:
     """Decode the bearer access token and return the matching active User."""
-    from app.models.user import User  # lazy import — model added in Phase 1 (models)
-
     try:
         payload = decode_token(credentials.credentials, expected_type=ACCESS_TOKEN_TYPE)
         subject = payload.get("sub")
@@ -55,12 +54,12 @@ async def get_current_user(credentials: BearerToken, db: DbSession):
     return user
 
 
-CurrentUser = Annotated["object", Depends(get_current_user)]
+CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
-async def get_current_admin(current_user: CurrentUser):
+async def get_current_admin(current_user: CurrentUser) -> User:
     """Require the authenticated user to be an admin."""
-    if not getattr(current_user, "is_admin", False):
+    if not current_user.is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin privileges required",
@@ -68,4 +67,4 @@ async def get_current_admin(current_user: CurrentUser):
     return current_user
 
 
-CurrentAdmin = Annotated["object", Depends(get_current_admin)]
+CurrentAdmin = Annotated[User, Depends(get_current_admin)]
