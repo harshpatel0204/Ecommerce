@@ -60,10 +60,10 @@ export async function openRazorpayCheckout(
       amount: checkout.amount_paise,
       currency: checkout.currency,
       order_id: checkout.razorpay_order_id!,
-      name: "BharatShop",
+      name: "HariomCoins",
       description: checkout.order_number,
       prefill: customer,
-      theme: { color: "#2563eb" },
+      theme: { color: "#f97316" },
       handler: (r) => resolve(r),
       modal: { ondismiss: () => reject(new Error("Payment cancelled")) },
     });

@@ -43,6 +43,11 @@ if settings.dev_allowed_origins:
     )
 
 
+@app.get("/api", tags=["root"])
+async def root() -> dict[str, str]:
+    return {"name": settings.APP_NAME, "version": settings.APP_VERSION}
+
+
 @app.get("/api/health", tags=["health"])
 async def health() -> dict[str, str]:
     return {"status": "ok", "version": settings.APP_VERSION}
@@ -59,3 +64,7 @@ app.include_router(shipping.router, prefix="/api")
 app.include_router(orders.router, prefix="/api")
 app.include_router(webhooks.router, prefix="/api")
 app.include_router(admin_products.router, prefix="/api")
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)

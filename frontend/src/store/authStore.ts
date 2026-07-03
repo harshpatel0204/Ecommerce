@@ -42,7 +42,7 @@ export const useAuthStore = create<AuthState>()(
         }),
     }),
     {
-      name: "bharatshop-auth",
+      name: "hariomcoins-auth",
       partialize: (state) => ({ refreshToken: state.refreshToken, user: state.user }),
     },
   ),
