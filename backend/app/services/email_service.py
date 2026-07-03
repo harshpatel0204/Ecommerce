@@ -28,6 +28,18 @@ def _send(to: str, subject: str, html: str) -> None:
     )
 
 
+def send_order_confirmation(to_email: str, order_number: str, total_amount: float) -> None:
+    html = f"""
+    <div style="font-family: sans-serif; max-width: 480px; margin: auto;">
+      <h2>Thanks for your order!</h2>
+      <p>Your order <strong>{order_number}</strong> has been confirmed.</p>
+      <p>Total paid: <strong>₹{total_amount:.2f}</strong></p>
+      <p>We'll email you again when it ships.</p>
+    </div>
+    """
+    _send(to_email, f"Order confirmed — {order_number}", html)
+
+
 def send_password_reset(to_email: str, reset_link: str) -> None:
     html = f"""
     <div style="font-family: sans-serif; max-width: 480px; margin: auto;">
