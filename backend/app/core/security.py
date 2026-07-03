@@ -3,13 +3,24 @@
 Access tokens are short-lived (15 min); refresh tokens live 7 days and are also
 persisted in the DB so they can be revoked. Both are signed with SECRET_KEY.
 """
+import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
+import bcrypt as _bcrypt
 import jwt
 from passlib.context import CryptContext
 
 from app.core.config import settings
+
+# Compatibility shim: passlib 1.7.4 reads bcrypt.__about__.__version__, which was
+# removed in bcrypt >= 4.1. Without this, passlib logs a (harmless but noisy)
+# traceback on first use. Provide the attribute it expects.
+if not hasattr(_bcrypt, "__about__"):
+    class _About:  # noqa: D401
+        __version__ = getattr(_bcrypt, "__version__", "unknown")
+
+    _bcrypt.__about__ = _About  # type: ignore[attr-defined]
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -34,6 +45,9 @@ def _create_token(subject: str, token_type: str, expires_delta: timedelta) -> st
         "type": token_type,
         "iat": now,
         "exp": now + expires_delta,
+        # Unique per-token id so two tokens issued in the same second (same subject)
+        # are never byte-identical — required by the refresh_tokens unique constraint.
+        "jti": uuid.uuid4().hex,
     }
     return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 

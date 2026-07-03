@@ -10,6 +10,7 @@ All routes are mounted under /api so the root vercel.json can rewrite
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.routes import auth
 from app.core.config import settings
 
 app = FastAPI(
@@ -36,6 +37,5 @@ async def health() -> dict[str, str]:
     return {"status": "ok", "version": settings.APP_VERSION}
 
 
-# Routers are included here as features land, e.g.:
-#   from app.api.routes import auth
-#   app.include_router(auth.router, prefix="/api")
+# All API routers are mounted under /api (matches the vercel.json rewrite).
+app.include_router(auth.router, prefix="/api")
