@@ -1,0 +1,113 @@
+# ========================
+# Dependencies
+# ========================
+node_modules/
+vendor/
+bower_components/
+jspm_packages/
+.pnp/
+.pnp.js
+
+# ========================
+# Build / Output
+# ========================
+dist/
+build/
+out/
+.next/
+.nuxt/
+.output/
+.cache/
+*.tsbuildinfo
+
+# ========================
+# Environment Variables
+# ========================
+.env
+.env.*
+!.env.example
+
+# ========================
+# Logs
+# ========================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ========================
+# OS Files
+# ========================
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+
+# ========================
+# IDE / Editor
+# ========================
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.code-workspace
+
+# ========================
+# Testing / Coverage
+# ========================
+coverage/
+.nyc_output/
+*.lcov
+
+# ========================
+# Python (Backend)
+# ========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+*.egg
+.venv/
+venv/
+env/
+
+# ========================
+# Java / Spring (Backend)
+# ========================
+target/
+*.class
+*.jar
+*.war
+
+# ========================
+# .NET (Backend)
+# ========================
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+
+# ========================
+# Docker
+# ========================
+docker-compose.override.yml
+
+# ========================
+# Misc
+# ========================
+*.bak
+*.tmp
+*.temp
+.vercel/
+.turbo/
+
+# markdown files
+*.md
