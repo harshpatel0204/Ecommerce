@@ -1,0 +1,112 @@
+==============================================================================
+ HariomCoins — Deployment Guide (Phase 7)
+==============================================================================
+Single Vercel project: React static build + FastAPI Python serverless functions
+under /api/*, one domain (no CORS). Postgres on Neon. Images stored as BYTEA.
+
+------------------------------------------------------------------------------
+0. PREREQUISITES (create accounts / get credentials)
+------------------------------------------------------------------------------
+- Neon (Postgres)      : a project + the POOLED connection string (host has "-pooler")
+- Razorpay             : LIVE key id + key secret + a webhook secret
+- Shiprocket           : account email + password, a Pickup Location nickname,
+                         and your pickup pincode
+- Resend               : API key + a verified "from" address
+- Vercel               : account connected to the GitHub repo
+- A custom domain (optional)
+
+------------------------------------------------------------------------------
+1. DATABASE (Neon)
+------------------------------------------------------------------------------
+- Create a Neon project (Postgres 15+).
+- Copy the POOLED connection string and convert the driver to asyncpg:
+    postgresql+asyncpg://USER:PASS@ep-xxxx-pooler.REGION.aws.neon.tech/DB?sslmode=require
+- Run the migrations from your machine (NOT at serverless boot):
+    cd backend
+    python -m venv .venv && ./.venv/Scripts/pip install -r requirements.txt   # (or bin/pip on *nix)
+    DATABASE_URL="<neon-pooled-asyncpg-url>" alembic upgrade head
+- Seed your admin account:
+    DATABASE_URL="..." ADMIN_EMAIL="you@domain.com" ADMIN_PASSWORD="strong-pass" python seed_admin.py
+
+------------------------------------------------------------------------------
+2. VERCEL PROJECT
+------------------------------------------------------------------------------
+- Import the GitHub repo into Vercel (root of the monorepo).
+- The root vercel.json already:
+    * builds frontend/ (Vite) -> static
+    * deploys backend/api/index.py via @vercel/python
+    * rewrites /api/(.*) -> the function, everything else -> the SPA
+    * sets function maxDuration=60 (needed for the Ship-order flow)
+- If Vercel cannot find Python deps, ensure backend/requirements.txt is detected;
+  if not, copy it to the repo root as requirements.txt.
+
+------------------------------------------------------------------------------
+3. ENVIRONMENT VARIABLES (Vercel -> Project -> Settings -> Environment Variables)
+------------------------------------------------------------------------------
+Set these for Production (and Preview if you want):
+
+  SECRET_KEY               = <long random string>
+  DEBUG                    = false
+  FRONTEND_URL             = https://your-domain.com
+  # DEV_ALLOWED_ORIGINS  -> leave UNSET in prod (same-origin, no CORS)
+
+  DATABASE_URL             = <neon pooled asyncpg url>
+
+  RAZORPAY_KEY_ID          = rzp_live_xxxxxxxx
+  RAZORPAY_KEY_SECRET      = xxxxxxxx
+  RAZORPAY_WEBHOOK_SECRET  = xxxxxxxx
+
+  SHIPROCKET_EMAIL         = you@domain.com
+  SHIPROCKET_PASSWORD      = xxxxxxxx
+  SHIPROCKET_PICKUP_PINCODE= 395007
+
+  RESEND_API_KEY           = re_xxxxxxxx
+  EMAIL_FROM               = orders@your-domain.com
+
+  MAX_IMAGE_UPLOAD_MB      = 5
+  IMAGE_ALLOWED_TYPES      = image/jpeg,image/png,image/webp
+
+Frontend build vars (optional — the app defaults to relative "/api"):
+  VITE_APP_NAME            = HariomCoins
+  # VITE_API_URL -> leave UNSET in prod (same origin)
+
+------------------------------------------------------------------------------
+4. WEBHOOKS (after the first deploy, once you have the domain)
+------------------------------------------------------------------------------
+- Razorpay dashboard -> Webhooks -> add:
+    URL:    https://your-domain.com/api/webhooks/razorpay
+    Secret: <RAZORPAY_WEBHOOK_SECRET>
+    Events: payment.captured (at minimum)
+- Shiprocket dashboard -> configure the status webhook to:
+    https://your-domain.com/api/webhooks/shiprocket
+- Shiprocket: create a Pickup Location; ensure its nickname matches
+  shiprocket_service.PICKUP_LOCATION (default "Primary") or update that constant.
+
+------------------------------------------------------------------------------
+5. GO LIVE
+------------------------------------------------------------------------------
+- Push to the production branch -> Vercel auto-builds and deploys.
+- Smoke test:
+    * GET https://your-domain.com/api/health  ->  {"status":"ok","version":"1.0.0"}
+    * Register a customer, add a product (admin), place a ₹1 test order end-to-end.
+    * Confirm the Razorpay webhook marks the order paid (check payment_events).
+    * Ship the order from the admin panel; confirm AWB + tracking.
+- Attach your custom domain in Vercel (HTTPS is automatic).
+- Enable Neon automated backups.
+
+------------------------------------------------------------------------------
+6. CI (.github/workflows/ci.yml)
+------------------------------------------------------------------------------
+On push/PR it: applies+reverses migrations on a throwaway DB, runs the pytest
+suite (Postgres service), and type-checks + builds the frontend. Vercel's Git
+integration handles the actual deploy; run `alembic upgrade head` against Neon
+after merging any migration.
+
+------------------------------------------------------------------------------
+NOTES
+------------------------------------------------------------------------------
+- Neon free tier is 0.5GB; because product images are stored as BYTEA they
+  consume DB quota quickly — plan to upgrade the Neon plan as the catalog grows.
+- Never commit .env. Rotate SECRET_KEY / Razorpay keys if leaked.
+- Migrations never run at serverless boot — always via CLI/CI.
+==============================================================================
