@@ -10,6 +10,7 @@ from app.schemas.order import (
     OrderListItem,
     OrderListResponse,
     OrderResponse,
+    TrackingResponse,
     VerifyPaymentRequest,
     VerifyPaymentResponse,
 )
@@ -68,6 +69,12 @@ async def list_orders(
 async def get_order(order_number: str, current_user: CurrentUser, db: DbSession) -> OrderResponse:
     order = await order_service.get_order(db, current_user, order_number)
     return OrderResponse.model_validate(order)
+
+
+@router.get("/{order_number}/tracking", response_model=TrackingResponse)
+async def order_tracking(order_number: str, current_user: CurrentUser, db: DbSession) -> TrackingResponse:
+    data = await order_service.get_order_tracking(db, current_user, order_number)
+    return TrackingResponse(**data)
 
 
 @router.post("/{order_id}/cancel", response_model=OrderResponse)

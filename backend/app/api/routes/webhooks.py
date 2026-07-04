@@ -15,3 +15,11 @@ async def razorpay_webhook(request: Request, db: DbSession) -> Response:
     signature = request.headers.get("X-Razorpay-Signature", "")
     await order_service.process_webhook(db, body, signature)
     return Response(status_code=200)
+
+
+@router.post("/shiprocket")
+async def shiprocket_webhook(request: Request, db: DbSession) -> Response:
+    # Shipment status updates (picked up / in transit / delivered ...).
+    body = await request.body()
+    await order_service.process_shiprocket_webhook(db, body)
+    return Response(status_code=200)

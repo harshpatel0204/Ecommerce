@@ -107,3 +107,133 @@ async def check_serviceability(db: AsyncSession, delivery_pincode: str, weight_g
     ]
     cheapest = min(options, key=lambda o: o["rate"])
     return {"serviceable": True, "couriers": options, "cheapest": cheapest}
+
+
+PICKUP_LOCATION = "Primary"
+
+# Map Shiprocket scan/status strings to our internal order status.
+STATUS_MAP = {
+    "PICKUP SCHEDULED": "shipped",
+    "PICKED UP": "shipped",
+    "IN TRANSIT": "shipped",
+    "SHIPPED": "shipped",
+    "OUT FOR DELIVERY": "out_for_delivery",
+    "DELIVERED": "delivered",
+}
+
+
+def map_status(shiprocket_status: str | None) -> str | None:
+    if not shiprocket_status:
+        return None
+    return STATUS_MAP.get(shiprocket_status.strip().upper())
+
+
+async def _authed_request(
+    db: AsyncSession, method: str, path: str, *, json: dict | None = None, params: dict | None = None
+) -> dict:
+    token = await get_auth_token(db)
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            resp = await client.request(
+                method,
+                f"{BASE_URL}{path}",
+                json=json,
+                params=params,
+                headers={"Authorization": f"Bearer {token}"},
+            )
+        resp.raise_for_status()
+        return resp.json()
+    except httpx.HTTPError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Shipping provider is unavailable",
+        )
+
+
+async def create_shipment_order(db: AsyncSession, order, items) -> dict:
+    """Create an ad-hoc Shiprocket order from our Order + snapshot items."""
+    addr = order.shipping_address
+    total_weight_kg = max(sum((getattr(i, "quantity", 1) for i in items)) * 0.3, 0.5)
+    payload = {
+        "order_id": order.order_number,
+        "order_date": order.placed_at.strftime("%Y-%m-%d %H:%M"),
+        "pickup_location": PICKUP_LOCATION,
+        "billing_customer_name": addr.get("full_name", ""),
+        "billing_last_name": "",
+        "billing_address": addr.get("line1", ""),
+        "billing_address_2": addr.get("line2") or "",
+        "billing_city": addr.get("city", ""),
+        "billing_pincode": addr.get("pincode", ""),
+        "billing_state": addr.get("state", ""),
+        "billing_country": addr.get("country", "India"),
+        "billing_email": settings.EMAIL_FROM,
+        "billing_phone": addr.get("phone", ""),
+        "shipping_is_billing": True,
+        "order_items": [
+            {
+                "name": i.product_name,
+                "sku": i.variant_sku,
+                "units": i.quantity,
+                "selling_price": float(i.unit_price),
+            }
+            for i in items
+        ],
+        "payment_method": "Prepaid",
+        "sub_total": float(order.total_amount),
+        "length": 10,
+        "breadth": 10,
+        "height": 10,
+        "weight": total_weight_kg,
+    }
+    data = await _authed_request(db, "POST", "/orders/create/adhoc", json=payload)
+    return {
+        "shiprocket_order_id": str(data.get("order_id", "")),
+        "shipment_id": str(data.get("shipment_id", "")),
+    }
+
+
+async def assign_awb(db: AsyncSession, shipment_id: str, courier_id: int | None) -> dict:
+    body: dict = {"shipment_id": shipment_id}
+    if courier_id:
+        body["courier_id"] = courier_id
+    data = await _authed_request(db, "POST", "/courier/assign/awb", json=body)
+    resp = (data.get("response") or {}).get("data") or {}
+    awb = resp.get("awb_code")
+    return {
+        "awb_number": awb,
+        "courier_name": resp.get("courier_name"),
+        "tracking_url": f"https://shiprocket.co/tracking/{awb}" if awb else None,
+        "estimated_delivery": resp.get("etd"),
+    }
+
+
+async def schedule_pickup(db: AsyncSession, shipment_id: str) -> dict:
+    return await _authed_request(
+        db, "POST", "/courier/generate/pickup", json={"shipment_id": [shipment_id]}
+    )
+
+
+async def get_tracking(db: AsyncSession, shipment_id: str) -> dict:
+    data = await _authed_request(db, "GET", f"/courier/track/shipment/{shipment_id}")
+    tracking = (data.get("tracking_data") or {})
+    activities = tracking.get("shipment_track_activities") or []
+    scans = [
+        {
+            "date": a.get("date"),
+            "activity": a.get("activity"),
+            "location": a.get("location"),
+        }
+        for a in activities
+    ]
+    current = None
+    track = tracking.get("shipment_track") or []
+    if track:
+        current = track[0].get("current_status")
+    return {"current_status": current, "scans": scans}
+
+
+async def get_label(db: AsyncSession, shipment_id: str) -> str | None:
+    data = await _authed_request(
+        db, "POST", "/courier/generate/label", json={"shipment_id": [shipment_id]}
+    )
+    return data.get("label_url")

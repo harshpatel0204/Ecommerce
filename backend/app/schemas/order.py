@@ -98,3 +98,23 @@ class OrderResponse(BaseModel):
 class VerifyPaymentResponse(BaseModel):
     success: bool
     order_number: str
+
+
+class OrderStatusUpdate(BaseModel):
+    status: str
+    note: str | None = None
+
+
+class LabelResponse(BaseModel):
+    label_url: str | None
+
+
+class TrackingScan(BaseModel):
+    date: str | None = None
+    activity: str | None = None
+    location: str | None = None
+
+
+class TrackingResponse(BaseModel):
+    current_status: str | None = None
+    scans: list[TrackingScan] = []

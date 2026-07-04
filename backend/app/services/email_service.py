@@ -40,6 +40,32 @@ def send_order_confirmation(to_email: str, order_number: str, total_amount: floa
     _send(to_email, f"Order confirmed — {order_number}", html)
 
 
+def send_order_shipped(to_email: str, order_number: str, awb: str | None, tracking_url: str | None) -> None:
+    track = (
+        f'<p><a href="{tracking_url}">Track your shipment</a></p>' if tracking_url else ""
+    )
+    awb_line = f"<p>AWB: <strong>{awb}</strong></p>" if awb else ""
+    html = f"""
+    <div style="font-family: sans-serif; max-width: 480px; margin: auto;">
+      <h2>Your order is on its way! 🚚</h2>
+      <p>Order <strong>{order_number}</strong> has shipped.</p>
+      {awb_line}
+      {track}
+    </div>
+    """
+    _send(to_email, f"Your order {order_number} has shipped", html)
+
+
+def send_order_delivered(to_email: str, order_number: str) -> None:
+    html = f"""
+    <div style="font-family: sans-serif; max-width: 480px; margin: auto;">
+      <h2>Delivered! 🎉</h2>
+      <p>Order <strong>{order_number}</strong> has been delivered. We hope you love it!</p>
+    </div>
+    """
+    _send(to_email, f"Order {order_number} delivered", html)
+
+
 def send_password_reset(to_email: str, reset_link: str) -> None:
     html = f"""
     <div style="font-family: sans-serif; max-width: 480px; margin: auto;">

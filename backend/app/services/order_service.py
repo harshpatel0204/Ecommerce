@@ -26,6 +26,19 @@ from app.services import email_service, razorpay_service, shiprocket_service
 
 _CANCELLABLE = {"pending", "paid", "processing"}
 
+# Linear fulfilment order — used to only ever advance status forward from webhooks.
+_STATUS_RANK = {
+    "pending": 0,
+    "paid": 1,
+    "processing": 2,
+    "packed": 3,
+    "shipped": 4,
+    "out_for_delivery": 5,
+    "delivered": 6,
+}
+# Statuses an admin may set manually.
+_ADMIN_STATUSES = {"processing", "packed", "shipped", "out_for_delivery", "delivered"}
+
 
 def _now() -> datetime:
     return datetime.now(timezone.utc)
@@ -311,3 +324,158 @@ async def cancel_order(db: AsyncSession, user: User, order_id: uuid.UUID) -> Ord
     db.add(OrderStatusHistory(order_id=order.id, status="cancelled", note="Cancelled by customer"))
     await db.commit()
     return await get_order(db, user, order.order_number)
+
+
+# ============================ Admin / fulfilment ============================
+def _stamp_status(order: Order, new_status: str) -> None:
+    if new_status == "shipped" and order.shipped_at is None:
+        order.shipped_at = _now()
+    elif new_status == "delivered" and order.delivered_at is None:
+        order.delivered_at = _now()
+    order.status = new_status
+
+
+async def admin_list_orders(
+    db: AsyncSession, *, status_filter: str | None, search: str | None, page: int, limit: int
+):
+    conds = []
+    if status_filter:
+        conds.append(Order.status == status_filter)
+    if search:
+        conds.append(Order.order_number.ilike(f"%{search}%"))
+    count_stmt = select(func.count(Order.id))
+    stmt = select(Order).options(selectinload(Order.items)).order_by(Order.placed_at.desc())
+    for c in conds:
+        stmt = stmt.where(c)
+        count_stmt = count_stmt.where(c)
+    total = int(await db.scalar(count_stmt) or 0)
+    orders = list((await db.scalars(stmt.limit(limit).offset((page - 1) * limit))).all())
+    pages = (total + limit - 1) // limit if limit else 0
+    return orders, total, pages
+
+
+async def admin_get_order(db: AsyncSession, order_id: uuid.UUID) -> Order:
+    order = await db.scalar(
+        select(Order)
+        .where(Order.id == order_id)
+        .options(selectinload(Order.items), selectinload(Order.status_history))
+    )
+    if order is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
+    return order
+
+
+async def admin_update_status(
+    db: AsyncSession, order_id: uuid.UUID, new_status: str, note: str | None, admin_id: uuid.UUID
+) -> Order:
+    if new_status not in _ADMIN_STATUSES:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid status")
+    order = await db.get(Order, order_id)
+    if order is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
+    _stamp_status(order, new_status)
+    db.add(
+        OrderStatusHistory(order_id=order.id, status=new_status, note=note, changed_by=admin_id)
+    )
+    await db.commit()
+    return await admin_get_order(db, order_id)
+
+
+async def ship_order(db: AsyncSession, order_id: uuid.UUID, admin_id: uuid.UUID) -> Order:
+    order = await db.scalar(
+        select(Order).where(Order.id == order_id).options(selectinload(Order.items))
+    )
+    if order is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
+    if order.status not in ("paid", "processing", "packed"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Order cannot be shipped while {order.status}",
+        )
+    if order.awb_number:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Order already shipped")
+
+    pincode = order.shipping_address.get("pincode", "")
+    serviceability = await shiprocket_service.check_serviceability(db, pincode, 500)
+    if not serviceability["serviceable"]:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Pincode not serviceable"
+        )
+    courier_id = serviceability["cheapest"]["courier_id"] if serviceability["cheapest"] else None
+
+    created = await shiprocket_service.create_shipment_order(db, order, order.items)
+    awb = await shiprocket_service.assign_awb(db, created["shipment_id"], courier_id)
+
+    order.shiprocket_order_id = created["shiprocket_order_id"]
+    order.shiprocket_shipment_id = created["shipment_id"]
+    order.awb_number = awb["awb_number"]
+    order.courier_name = awb["courier_name"]
+    order.tracking_url = awb["tracking_url"]
+    _stamp_status(order, "shipped")
+    db.add(
+        OrderStatusHistory(
+            order_id=order.id, status="shipped", note=f"AWB {awb['awb_number']}", changed_by=admin_id
+        )
+    )
+    await db.commit()
+
+    # Best-effort pickup scheduling — don't lose the AWB if this fails.
+    try:
+        await shiprocket_service.schedule_pickup(db, created["shipment_id"])
+    except HTTPException:
+        pass
+
+    user = await db.get(User, order.user_id)
+    if user is not None:
+        email_service.send_order_shipped(user.email, order.order_number, order.awb_number, order.tracking_url)
+    return await admin_get_order(db, order_id)
+
+
+async def get_label_url(db: AsyncSession, order_id: uuid.UUID) -> str | None:
+    order = await db.get(Order, order_id)
+    if order is None or not order.shiprocket_shipment_id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Shipment not found")
+    return await shiprocket_service.get_label(db, order.shiprocket_shipment_id)
+
+
+async def get_order_tracking(db: AsyncSession, user: User, order_number: str) -> dict:
+    order = await get_order(db, user, order_number)
+    if not order.shiprocket_shipment_id:
+        return {"current_status": order.status, "scans": []}
+    return await shiprocket_service.get_tracking(db, order.shiprocket_shipment_id)
+
+
+async def process_shiprocket_webhook(db: AsyncSession, body: bytes) -> None:
+    try:
+        payload = json.loads(body.decode() or "{}")
+    except json.JSONDecodeError:
+        return
+    awb = payload.get("awb") or payload.get("awb_code")
+    raw_status = payload.get("current_status") or payload.get("shipment_status")
+    new_status = shiprocket_service.map_status(raw_status)
+    if not new_status:
+        return
+
+    order = None
+    if awb:
+        order = await db.scalar(select(Order).where(Order.awb_number == str(awb)))
+    if order is None:
+        sr_id = payload.get("order_id") or payload.get("channel_order_id")
+        if sr_id:
+            order = await db.scalar(
+                select(Order).where(Order.shiprocket_order_id == str(sr_id))
+            )
+    if order is None:
+        return
+
+    # Only ever advance forward.
+    if _STATUS_RANK.get(new_status, 0) <= _STATUS_RANK.get(order.status, 0):
+        return
+    _stamp_status(order, new_status)
+    db.add(OrderStatusHistory(order_id=order.id, status=new_status, note="Shiprocket update"))
+    await db.commit()
+
+    if new_status == "delivered":
+        user = await db.get(User, order.user_id)
+        if user is not None:
+            email_service.send_order_delivered(user.email, order.order_number)
