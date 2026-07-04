@@ -11,9 +11,11 @@ import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
 
 const NAV_LINKS = [
-  { label: "New Arrivals", href: "/products?sort=newest" },
-  { label: "All Products", href: "/products" },
-  { label: "Deals", href: "/products?sort=price_asc" },
+  { label: "Indian Coins", href: "/products?category_slug=indian-coins" },
+  { label: "Foreign Coins", href: "/products?category_slug=foreign-coins" },
+  { label: "Indian Notes", href: "/products?category_slug=indian-notes" },
+  { label: "Foreign Notes", href: "/products?category_slug=foreign-notes" },
+  { label: "All Collection", href: "/products" },
 ];
 
 export function Navbar() {
@@ -69,7 +71,7 @@ export function Navbar() {
       <div className="bg-gradient-hero py-2 text-center text-xs font-medium text-white tracking-wide">
         <span className="flex items-center justify-center gap-2">
           <Zap className="h-3 w-3" />
-          Free shipping on orders over ₹999 · Use code <strong>HARIOM10</strong> for 10% off
+          Free shipping on orders over ₹999 · India's Trusted Numismatic Store
           <Zap className="h-3 w-3" />
         </span>
       </div>
@@ -89,7 +91,7 @@ export function Navbar() {
               className="flex items-center gap-2 shrink-0 group"
             >
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-hero shadow-glow group-hover:shadow-lg transition-shadow">
-                <span className="text-lg font-bold text-white leading-none">B</span>
+                <span className="text-lg font-bold text-white leading-none">🪙</span>
               </div>
               <span className="text-lg font-bold tracking-tight hidden sm:block">
                 Hariom<span className="text-gradient">Coins</span>
@@ -121,7 +123,7 @@ export function Navbar() {
                   onChange={(e) => setQ(e.target.value)}
                   onFocus={() => setSearchFocused(true)}
                   onBlur={() => setSearchFocused(false)}
-                  placeholder="Search products, brands..."
+                  placeholder="Search coins, notes, era..."
                   className="pl-10 pr-4 h-10 rounded-xl bg-muted/60 border-transparent focus:border-primary focus:bg-white dark:focus:bg-gray-900 transition-all"
                 />
               </div>
@@ -281,7 +283,7 @@ export function Navbar() {
             <div className="flex items-center justify-between p-4 border-b border-border">
               <Link to="/" className="flex items-center gap-2" onClick={() => setMobileOpen(false)}>
                 <div className="h-8 w-8 rounded-xl bg-gradient-hero flex items-center justify-center">
-                  <span className="text-sm font-bold text-white">B</span>
+                  <span className="text-sm font-bold text-white">🪙</span>
                 </div>
                 <span className="font-bold">HariomCoins</span>
               </Link>
@@ -297,7 +299,7 @@ export function Navbar() {
                   <Input
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
-                    placeholder="Search products..."
+                    placeholder="Search coins, notes..."
                     className="pl-10 rounded-xl bg-muted border-transparent"
                   />
                 </div>

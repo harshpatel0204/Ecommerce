@@ -5,10 +5,12 @@ import { Facebook, Instagram, Twitter, Youtube, Mail, Phone, MapPin, ArrowRight,
 
 const FOOTER_LINKS = {
   shop: [
+    { label: "Indian Coins", href: "/products?category_slug=indian-coins" },
+    { label: "Foreign Coins", href: "/products?category_slug=foreign-coins" },
+    { label: "Indian Notes", href: "/products?category_slug=indian-notes" },
+    { label: "Foreign Notes", href: "/products?category_slug=foreign-notes" },
     { label: "New Arrivals", href: "/products?sort=newest" },
-    { label: "Best Sellers", href: "/products?sort=price_desc" },
-    { label: "Deals & Offers", href: "/products?sort=price_asc" },
-    { label: "All Products", href: "/products" },
+    { label: "All Collection", href: "/products" },
   ],
   account: [
     { label: "My Account", href: "/account" },
@@ -19,16 +21,17 @@ const FOOTER_LINKS = {
   support: [
     { label: "Contact Us", href: "#" },
     { label: "FAQ", href: "#" },
-    { label: "Shipping Policy", href: "#" },
+    { label: "Shipping & Packaging", href: "#" },
+    { label: "Authenticity Guarantee", href: "#" },
     { label: "Return Policy", href: "#" },
   ],
 };
 
 const TRUST_BADGES = [
-  { icon: Truck, label: "Free Delivery", sub: "On orders over ₹999" },
-  { icon: RefreshCcw, label: "Easy Returns", sub: "30-day return policy" },
-  { icon: Shield, label: "Secure Payments", sub: "100% protected" },
-  { icon: CreditCard, label: "EMI Available", sub: "No cost EMI options" },
+  { icon: Truck, label: "Insured Shipping", sub: "Tamper-proof packaging" },
+  { icon: Shield, label: "100% Authentic", sub: "Certificate of authenticity" },
+  { icon: RefreshCcw, label: "Easy Returns", sub: "15-day return policy" },
+  { icon: CreditCard, label: "Secure Payments", sub: "SSL encrypted checkout" },
 ];
 
 /** Shared storefront chrome (navbar + footer) wrapping public + customer pages. */
@@ -66,8 +69,8 @@ export function StoreLayout() {
           <div className="container py-10">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 justify-between">
               <div>
-                <h3 className="text-lg font-bold text-white">Stay in the loop</h3>
-                <p className="text-sm text-gray-400 mt-1">Get exclusive deals and new arrivals in your inbox.</p>
+                <h3 className="text-lg font-bold text-white">Join Our Collector's Circle</h3>
+                <p className="text-sm text-gray-400 mt-1">Get notified about rare finds, new arrivals, and exclusive collector offers.</p>
               </div>
               <form className="flex gap-2 w-full sm:w-auto" onSubmit={(e) => e.preventDefault()}>
                 <input
@@ -93,12 +96,12 @@ export function StoreLayout() {
             <div className="col-span-2 sm:col-span-2 md:col-span-1">
               <div className="flex items-center gap-2 mb-4">
                 <div className="h-9 w-9 rounded-xl bg-gradient-hero flex items-center justify-center">
-                  <span className="text-base font-bold text-white">B</span>
+                  <span className="text-base font-bold text-white">🪙</span>
                 </div>
                 <span className="text-lg font-bold text-white">HariomCoins</span>
               </div>
               <p className="text-sm text-gray-400 leading-relaxed mb-5">
-                Your trusted destination for quality products across India. Everyday essentials, thoughtfully curated.
+                India's most trusted marketplace for rare and collectible coins & banknotes. Every piece authenticated and graded by experts.
               </p>
               <div className="space-y-2 text-sm text-gray-400">
                 <a href="mailto:hello@hariomcoins.in" className="flex items-center gap-2 hover:text-white transition-colors">

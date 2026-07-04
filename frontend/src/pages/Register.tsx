@@ -26,10 +26,10 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 const BENEFITS = [
-  "Exclusive member-only deals",
-  "Early access to new arrivals",
-  "Free shipping on first order",
-  "Easy order tracking",
+  "Certificate of authenticity with every purchase",
+  "Early access to rare coin & note listings",
+  "Insured shipping & tamper-proof packaging",
+  "Easy order tracking & collection management",
 ];
 
 export default function Register() {
@@ -82,14 +82,14 @@ export default function Register() {
         <div className="relative">
           <Link to="/" className="flex items-center gap-2 mb-12">
             <div className="h-9 w-9 rounded-xl bg-gradient-hero flex items-center justify-center">
-              <span className="text-base font-bold text-white">B</span>
+              <span className="text-base font-bold text-white">🪙</span>
             </div>
             <span className="text-lg font-bold text-white">HariomCoins</span>
           </Link>
 
-          <h2 className="text-3xl font-bold text-white mb-3">Join HariomCoins Today</h2>
+          <h2 className="text-3xl font-bold text-white mb-3">Start Your Collection Today</h2>
           <p className="text-gray-400 mb-8 leading-relaxed">
-            Create your free account and unlock a world of premium shopping benefits.
+            Create your free account and discover rare coins & banknotes from around the world.
           </p>
 
           <div className="space-y-4">

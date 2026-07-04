@@ -68,17 +68,17 @@ export default function Login() {
         </div>
         <div className="relative text-center text-white">
           <div className="h-20 w-20 rounded-3xl bg-white/20 backdrop-blur-sm flex items-center justify-center mx-auto mb-6 border border-white/30">
-            <span className="text-4xl font-bold">B</span>
+            <span className="text-4xl font-bold">🪙</span>
           </div>
-          <h2 className="text-3xl font-bold mb-3">Welcome Back!</h2>
+          <h2 className="text-3xl font-bold mb-3">Welcome Back, Collector!</h2>
           <p className="text-white/80 max-w-xs text-base leading-relaxed">
-            Sign in to access your orders, wishlist, and exclusive deals on HariomCoins.
+            Sign in to access your collection, wishlist, and exclusive finds on HariomCoins.
           </p>
           <div className="mt-8 grid grid-cols-2 gap-4 text-center">
             {[
-              { value: "10K+", label: "Happy Shoppers" },
-              { value: "500+", label: "Products" },
-              { value: "4.9★", label: "Avg Rating" },
+              { value: "5K+", label: "Collectors" },
+              { value: "800+", label: "Coins & Notes" },
+              { value: "4.9★", label: "Rating" },
               { value: "100%", label: "Authentic" },
             ].map((s) => (
               <div key={s.label} className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
@@ -96,7 +96,7 @@ export default function Login() {
           {/* Mobile logo */}
           <Link to="/" className="flex items-center gap-2 mb-8 lg:hidden">
             <div className="h-9 w-9 rounded-xl bg-gradient-hero flex items-center justify-center">
-              <span className="text-base font-bold text-white">B</span>
+              <span className="text-base font-bold text-white">🪙</span>
             </div>
             <span className="text-lg font-bold">HariomCoins</span>
           </Link>

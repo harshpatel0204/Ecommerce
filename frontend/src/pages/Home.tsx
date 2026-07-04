@@ -6,9 +6,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useCategories, useFeatured } from "@/hooks/useProducts";
 
 const HERO_FEATURES = [
-  { icon: "🚀", text: "Lightning fast delivery" },
-  { icon: "✨", text: "Premium quality guaranteed" },
-  { icon: "💯", text: "100% authentic products" },
+  { icon: "🔍", text: "Expert-verified authenticity" },
+  { icon: "🛡️", text: "Tamper-proof packaging" },
+  { icon: "📜", text: "Certificate of authenticity" },
 ];
 
 export default function Home() {
@@ -29,17 +29,17 @@ export default function Home() {
               {/* Badge */}
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium">
                 <Sparkles className="h-4 w-4" />
-                New Collection 2025 — Shop Now
+                India's Trusted Numismatic Store
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight">
-                Everyday Essentials,{" "}
-                <span className="text-gradient">Thoughtfully</span>{" "}
-                Made
+                Rare Coins &{" "}
+                <span className="text-gradient">Banknotes</span>{" "}
+                Collection
               </h1>
 
               <p className="text-lg text-muted-foreground max-w-md leading-relaxed">
-                Discover our curated collection of premium products. Quality craftsmanship delivered straight to your door across India.
+                Explore our curated collection of rare Indian & foreign coins and banknotes. Every piece authenticated, graded, and delivered with a certificate of authenticity.
               </p>
 
               <div className="flex flex-wrap gap-3">
@@ -47,7 +47,7 @@ export default function Home() {
                   to="/products"
                   className="inline-flex items-center gap-2 h-12 px-7 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition-all shadow-glow hover:shadow-lg hover:-translate-y-0.5"
                 >
-                  Shop All Products <ArrowRight className="h-4 w-4" />
+                  Browse Collection <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link
                   to="/products?sort=newest"
@@ -72,17 +72,17 @@ export default function Home() {
               <div className="relative">
                 <div className="w-80 h-80 rounded-3xl bg-gradient-hero shadow-2xl flex items-center justify-center animate-float">
                   <div className="text-center text-white">
-                    <div className="text-7xl font-bold mb-2 font-display">B</div>
+                    <div className="text-7xl font-bold mb-2 font-display">🪙</div>
                     <div className="text-xl font-semibold tracking-wide">HariomCoins</div>
-                    <div className="text-sm opacity-80 mt-1">Premium Quality</div>
+                    <div className="text-sm opacity-80 mt-1">Coins & Notes</div>
                   </div>
                 </div>
                 {/* Floating badges */}
                 <div className="absolute -top-4 -right-4 px-4 py-2 rounded-2xl bg-white shadow-card-hover text-sm font-semibold animate-fade-in-up border border-border">
-                  🔥 50% OFF
+                  🏆 Certified Authentic
                 </div>
                 <div className="absolute -bottom-4 -left-4 px-4 py-2 rounded-2xl bg-white shadow-card-hover text-sm font-semibold border border-border" style={{animationDelay:"0.2s"}}>
-                  ⭐ 4.9 Rating
+                  ⭐ 4.9 Rated by Collectors
                 </div>
               </div>
             </div>
@@ -95,10 +95,10 @@ export default function Home() {
         <div className="container">
           <div className="grid grid-cols-3 gap-4 sm:flex sm:justify-around">
             {[
-              { value: "10K+", label: "Happy Customers" },
-              { value: "500+", label: "Premium Products" },
-              { value: "50+", label: "Top Brands" },
-              { value: "4.9★", label: "Average Rating" },
+              { value: "5K+", label: "Collectors Served" },
+              { value: "800+", label: "Coins & Notes" },
+              { value: "100%", label: "Authentic Verified" },
+              { value: "4.9★", label: "Collector Rating" },
             ].map((stat) => (
               <div key={stat.label} className="text-center last:hidden sm:last:block">
                 <div className="text-xl sm:text-2xl font-bold text-gradient">{stat.value}</div>
@@ -118,7 +118,7 @@ export default function Home() {
                 <div className="flex items-center gap-2 text-primary text-sm font-medium mb-1">
                   <Tag className="h-4 w-4" /> Browse Categories
                 </div>
-                <h2 className="text-2xl font-bold">Shop by Category</h2>
+                <h2 className="text-2xl font-bold">Shop by Type</h2>
               </div>
               <Link
                 to="/products"
@@ -150,9 +150,9 @@ export default function Home() {
           <div className="flex items-center justify-between mb-8">
             <div>
               <div className="flex items-center gap-2 text-primary text-sm font-medium mb-1">
-                <TrendingUp className="h-4 w-4" /> Trending Now
+                <TrendingUp className="h-4 w-4" /> Most Sought-After
               </div>
-              <h2 className="text-2xl font-bold">Featured Products</h2>
+              <h2 className="text-2xl font-bold">Featured Coins & Notes</h2>
             </div>
             <Link
               to="/products"
@@ -186,9 +186,9 @@ export default function Home() {
             </div>
           ) : (
             <div className="py-20 text-center text-muted-foreground">
-              <div className="text-5xl mb-4">🛍️</div>
-              <p className="text-lg font-medium">No featured products yet.</p>
-              <p className="text-sm mt-1">Check back soon for amazing deals!</p>
+              <div className="text-5xl mb-4">🪙</div>
+              <p className="text-lg font-medium">No featured coins or notes yet.</p>
+              <p className="text-sm mt-1">Check back soon for rare additions!</p>
             </div>
           )}
 
@@ -197,7 +197,7 @@ export default function Home() {
               to="/products"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition-all"
             >
-              View All Products <ArrowRight className="h-4 w-4" />
+              View Full Collection <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
@@ -212,9 +212,9 @@ export default function Home() {
               <div className="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full translate-y-1/2 -translate-x-1/2" />
             </div>
             <div className="relative text-white max-w-lg">
-              <div className="text-sm font-semibold opacity-80 mb-2 uppercase tracking-wider">Limited Time Offer</div>
-              <h2 className="text-3xl sm:text-4xl font-bold mb-3">Get 10% off your first order</h2>
-              <p className="opacity-90 text-base mb-6">Use code <strong>HARIOM10</strong> at checkout. Valid on orders above ₹500.</p>
+              <div className="text-sm font-semibold opacity-80 mb-2 uppercase tracking-wider">New Collector Offer</div>
+              <h2 className="text-3xl sm:text-4xl font-bold mb-3">Get 10% off your first purchase</h2>
+              <p className="opacity-90 text-base mb-6">Use code <strong>HARIOM10</strong> at checkout. Valid on orders above ₹500. Start your collection today!</p>
               <Link
                 to="/register"
                 className="inline-flex items-center gap-2 h-12 px-7 rounded-xl bg-white text-primary font-bold hover:bg-white/90 transition-all shadow-lg hover:-translate-y-0.5"
