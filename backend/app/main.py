@@ -21,8 +21,10 @@ from app.api.routes import (
     webhooks,
     wishlist,
 )
+from app.api.routes.admin import dashboard as admin_dashboard
 from app.api.routes.admin import orders as admin_orders
 from app.api.routes.admin import products as admin_products
+from app.api.routes.admin import users as admin_users
 from app.core.config import settings
 
 app = FastAPI(
@@ -66,6 +68,8 @@ app.include_router(orders.router, prefix="/api")
 app.include_router(webhooks.router, prefix="/api")
 app.include_router(admin_products.router, prefix="/api")
 app.include_router(admin_orders.router, prefix="/api")
+app.include_router(admin_dashboard.router, prefix="/api")
+app.include_router(admin_users.router, prefix="/api")
 
 if __name__ == "__main__":
     import uvicorn

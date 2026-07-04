@@ -20,9 +20,12 @@ const Wishlist = lazy(() => import("@/pages/Wishlist"));
 const OrderHistory = lazy(() => import("@/pages/OrderHistory"));
 const OrderDetail = lazy(() => import("@/pages/OrderDetail"));
 const Account = lazy(() => import("@/pages/Account"));
-const Placeholder = lazy(() => import("@/pages/Placeholder"));
+const AdminDashboard = lazy(() => import("@/pages/admin/Dashboard"));
 const AdminProductList = lazy(() => import("@/pages/admin/ProductList"));
 const AdminProductForm = lazy(() => import("@/pages/admin/ProductForm"));
+const AdminOrderList = lazy(() => import("@/pages/admin/OrderList"));
+const AdminOrderDetail = lazy(() => import("@/pages/admin/OrderDetail"));
+const AdminUserList = lazy(() => import("@/pages/admin/UserList"));
 
 function PageFallback() {
   return (
@@ -72,12 +75,13 @@ export default function App() {
         {/* Admin (sidebar shell) */}
         <Route element={<AdminRoute />}>
           <Route element={<AdminLayout />}>
-            <Route path="/admin" element={<Placeholder title="Dashboard" />} />
+            <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/products" element={<AdminProductList />} />
             <Route path="/admin/products/new" element={<AdminProductForm />} />
             <Route path="/admin/products/:id/edit" element={<AdminProductForm />} />
-            <Route path="/admin/orders" element={<Placeholder title="Orders" />} />
-            <Route path="/admin/users" element={<Placeholder title="Customers" />} />
+            <Route path="/admin/orders" element={<AdminOrderList />} />
+            <Route path="/admin/orders/:orderId" element={<AdminOrderDetail />} />
+            <Route path="/admin/users" element={<AdminUserList />} />
           </Route>
         </Route>
 
