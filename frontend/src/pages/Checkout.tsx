@@ -1,4 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Check, Lock, MapPin, Plus, ShieldCheck, Truck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -63,7 +64,8 @@ export default function Checkout() {
 
   const placeOrder = async () => {
     if (!selectedId) return toast.error("Select a delivery address");
-    if (serviceable === "not-serviceable") return toast.error("Delivery not available to this pincode");
+    if (serviceable === "not-serviceable")
+      return toast.error("Delivery not available to this pincode");
     setPlacing(true);
     try {
       const co = await checkout(selectedId);
@@ -87,91 +89,140 @@ export default function Checkout() {
   };
 
   if (cartLoading || addrLoading) {
-    return <div className="container py-8"><Skeleton className="h-64 w-full" /></div>;
+    return (
+      <div className="container py-8">
+        <Skeleton className="shimmer h-96 w-full rounded-2xl" />
+      </div>
+    );
   }
   if (!cart || cart.items.length === 0) {
-    return <div className="container py-20 text-center text-muted-foreground">Your cart is empty.</div>;
+    return <div className="container py-24 text-center text-muted-foreground">Your cart is empty.</div>;
   }
 
   return (
-    <div className="container grid gap-8 py-8 lg:grid-cols-[1fr_340px]">
-      <div className="space-y-6">
-        <section>
-          <h2 className="mb-3 text-lg font-semibold">Delivery address</h2>
-          <div className="space-y-2">
-            {addresses?.map((a) => (
-              <button
-                key={a.id}
-                onClick={() => setSelectedId(a.id)}
-                className={cn(
-                  "block w-full rounded-lg border p-3 text-left text-sm",
-                  a.id === selectedId ? "border-primary bg-primary/5" : "border-input",
-                )}
-              >
-                <span className="font-medium">{a.full_name}</span> · {a.phone}
-                <div className="text-muted-foreground">
-                  {a.line1}, {a.city}, {a.state} - {a.pincode}
-                </div>
-              </button>
-            ))}
-          </div>
-
-          {showForm ? (
-            <AddressForm
-              onCreated={(a) => {
-                qc.invalidateQueries({ queryKey: ["addresses"] });
-                setSelectedId(a.id);
-                setShowForm(false);
-              }}
-              onCancel={() => setShowForm(false)}
-            />
-          ) : (
-            <Button variant="outline" size="sm" className="mt-3" onClick={() => setShowForm(true)}>
-              + Add new address
-            </Button>
-          )}
-
-          {selected && serviceable && (
-            <p
-              className={cn(
-                "mt-3 text-sm",
-                serviceable === "not-serviceable" ? "text-destructive" : "text-green-600",
-              )}
-            >
-              {serviceable === "not-serviceable"
-                ? "✗ Delivery not available to this pincode"
-                : serviceable === "unknown"
-                  ? ""
-                  : `✓ ${serviceable}`}
-            </p>
-          )}
-        </section>
+    <div className="min-h-screen bg-muted/20">
+      <div className="border-b border-border bg-white dark:bg-gray-950">
+        <div className="container flex items-center gap-2 py-5">
+          <Lock className="h-5 w-5 text-primary" />
+          <h1 className="text-2xl font-bold">Secure Checkout</h1>
+        </div>
       </div>
 
-      <aside className="h-fit space-y-4 rounded-lg border p-5">
-        <h2 className="font-semibold">Order summary</h2>
-        <div className="space-y-2">
-          {cart.items.map((i) => (
-            <div key={i.id} className="flex items-center gap-2 text-sm">
-              <img src={imageUrlById(i.product.image_id, 60)} alt="" className="h-10 w-10 rounded object-cover" />
-              <span className="flex-1 truncate">
-                {i.product.name} × {i.quantity}
-              </span>
-              <span>{formatPrice(i.line_total)}</span>
+      <div className="container grid gap-8 py-8 lg:grid-cols-[1fr_360px]">
+        <div className="space-y-6">
+          <section className="rounded-2xl border border-border bg-white p-6 shadow-card dark:bg-gray-900">
+            <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
+              <MapPin className="h-5 w-5 text-primary" /> Delivery address
+            </h2>
+            <div className="space-y-3">
+              {addresses?.map((a) => (
+                <button
+                  key={a.id}
+                  onClick={() => setSelectedId(a.id)}
+                  className={cn(
+                    "flex w-full items-start gap-3 rounded-xl border p-4 text-left text-sm transition-all",
+                    a.id === selectedId
+                      ? "border-primary bg-primary/5 shadow-[0_0_0_1px_hsl(var(--primary))]"
+                      : "border-border hover:border-primary/50",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2",
+                      a.id === selectedId ? "border-primary bg-primary text-white" : "border-muted-foreground/40",
+                    )}
+                  >
+                    {a.id === selectedId && <Check className="h-3 w-3" />}
+                  </span>
+                  <span className="flex-1">
+                    <span className="font-semibold">{a.full_name}</span>
+                    {a.label && (
+                      <span className="ml-2 rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+                        {a.label}
+                      </span>
+                    )}
+                    <span className="mt-0.5 block text-muted-foreground">
+                      {a.line1}, {a.city}, {a.state} - {a.pincode}
+                    </span>
+                    <span className="block text-muted-foreground">{a.phone}</span>
+                  </span>
+                </button>
+              ))}
             </div>
-          ))}
+
+            {showForm ? (
+              <AddressForm
+                onCreated={(a) => {
+                  qc.invalidateQueries({ queryKey: ["addresses"] });
+                  setSelectedId(a.id);
+                  setShowForm(false);
+                }}
+                onCancel={() => setShowForm(false)}
+              />
+            ) : (
+              <button
+                onClick={() => setShowForm(true)}
+                className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+              >
+                <Plus className="h-4 w-4" /> Add a new address
+              </button>
+            )}
+
+            {selected && serviceable && serviceable !== "unknown" && (
+              <div
+                className={cn(
+                  "mt-4 flex items-center gap-2 rounded-xl p-3 text-sm font-medium",
+                  serviceable === "not-serviceable"
+                    ? "bg-destructive/10 text-destructive"
+                    : "bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-400",
+                )}
+              >
+                <Truck className="h-4 w-4" />
+                {serviceable === "not-serviceable"
+                  ? "Delivery is not available to this pincode"
+                  : serviceable}
+              </div>
+            )}
+          </section>
         </div>
-        <div className="flex justify-between border-t pt-3 text-sm">
-          <span className="text-muted-foreground">Subtotal</span>
-          <span>{formatPrice(cart.subtotal)}</span>
-        </div>
-        <p className="text-xs text-muted-foreground">
-          Final shipping & tax are computed securely on the server at payment.
-        </p>
-        <Button className="w-full" disabled={placing || !selectedId} onClick={placeOrder}>
-          {placing ? "Processing…" : "Place order & pay"}
-        </Button>
-      </aside>
+
+        <aside className="h-fit">
+          <div className="sticky top-24 space-y-5 rounded-2xl border border-border bg-white p-6 shadow-card dark:bg-gray-900">
+            <h2 className="text-lg font-bold">Order summary</h2>
+            <div className="max-h-64 space-y-3 overflow-y-auto">
+              {cart.items.map((i) => (
+                <div key={i.id} className="flex items-center gap-3 text-sm">
+                  <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
+                    <img src={imageUrlById(i.product.image_id, 80)} alt="" className="h-full w-full object-cover" />
+                  </div>
+                  <span className="min-w-0 flex-1 truncate">
+                    {i.product.name} <span className="text-muted-foreground">× {i.quantity}</span>
+                  </span>
+                  <span className="font-medium">{formatPrice(i.line_total)}</span>
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-between border-t border-border pt-4 text-sm">
+              <span className="text-muted-foreground">Subtotal</span>
+              <span className="font-semibold">{formatPrice(cart.subtotal)}</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Shipping &amp; tax are calculated securely on the server at payment.
+            </p>
+            <Button
+              className="h-12 w-full rounded-xl text-base font-semibold shadow-sm transition-all hover:shadow-glow"
+              disabled={placing || !selectedId}
+              onClick={placeOrder}
+            >
+              {placing ? "Processing…" : "Place order & pay"}
+            </Button>
+            <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+              <ShieldCheck className="h-4 w-4 text-green-600" />
+              Secured by Razorpay · 100% safe payments
+            </div>
+          </div>
+        </aside>
+      </div>
     </div>
   );
 }
@@ -195,9 +246,11 @@ function AddressForm({
   onCreated: (a: Address) => void;
   onCancel: () => void;
 }) {
-  const { register, handleSubmit, formState: { isSubmitting } } = useForm<AddressPayload>({
-    defaultValues: emptyAddr,
-  });
+  const {
+    register,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useForm<AddressPayload>({ defaultValues: emptyAddr });
 
   const submit = async (values: AddressPayload) => {
     try {
@@ -210,17 +263,20 @@ function AddressForm({
   };
 
   return (
-    <form onSubmit={handleSubmit(submit)} className="mt-3 grid grid-cols-2 gap-2 rounded-lg border p-3">
-      <Input placeholder="Full name" {...register("full_name", { required: true })} />
-      <Input placeholder="Phone" {...register("phone", { required: true })} />
-      <Input className="col-span-2" placeholder="Address line 1" {...register("line1", { required: true })} />
-      <Input className="col-span-2" placeholder="Address line 2 (optional)" {...register("line2")} />
-      <Input placeholder="City" {...register("city", { required: true })} />
-      <Input placeholder="State" {...register("state", { required: true })} />
-      <Input placeholder="Pincode" {...register("pincode", { required: true })} />
+    <form
+      onSubmit={handleSubmit(submit)}
+      className="mt-4 grid grid-cols-2 gap-3 rounded-xl border border-border bg-muted/30 p-4"
+    >
+      <Input placeholder="Full name" className="rounded-lg" {...register("full_name", { required: true })} />
+      <Input placeholder="Phone" className="rounded-lg" {...register("phone", { required: true })} />
+      <Input className="col-span-2 rounded-lg" placeholder="Address line 1" {...register("line1", { required: true })} />
+      <Input className="col-span-2 rounded-lg" placeholder="Address line 2 (optional)" {...register("line2")} />
+      <Input placeholder="City" className="rounded-lg" {...register("city", { required: true })} />
+      <Input placeholder="State" className="rounded-lg" {...register("state", { required: true })} />
+      <Input placeholder="Pincode" className="rounded-lg" {...register("pincode", { required: true })} />
       <div className="col-span-2 flex gap-2">
         <Button type="submit" size="sm" disabled={isSubmitting}>
-          Save
+          Save address
         </Button>
         <Button type="button" size="sm" variant="ghost" onClick={onCancel}>
           Cancel

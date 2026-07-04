@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, ChevronRight, MapPin, Truck } from "lucide-react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -34,117 +34,139 @@ export default function OrderDetail() {
     onError: () => toast.error("Could not cancel order"),
   });
 
-  if (isLoading) return <div className="container py-8"><Skeleton className="h-96 w-full" /></div>;
-  if (!order) return <div className="container py-20 text-center text-muted-foreground">Order not found.</div>;
+  if (isLoading) {
+    return (
+      <div className="container py-8">
+        <Skeleton className="shimmer h-96 w-full rounded-2xl" />
+      </div>
+    );
+  }
+  if (!order) {
+    return <div className="container py-24 text-center text-muted-foreground">Order not found.</div>;
+  }
 
   const addr = order.shipping_address;
 
   return (
-    <div className="container max-w-4xl space-y-6 py-8">
-      {justPaid && (
-        <div className="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4 text-green-800">
-          <CheckCircle2 className="h-6 w-6" />
-          <div>
-            <div className="font-semibold">Payment successful!</div>
-            <div className="text-sm">Your order {order.order_number} is confirmed.</div>
+    <div className="min-h-screen bg-muted/20">
+      <div className="container max-w-5xl space-y-6 py-8">
+        {justPaid && (
+          <div className="flex items-center gap-3 rounded-2xl border border-green-200 bg-green-50 p-5 shadow-card animate-scale-in dark:border-green-900 dark:bg-green-950/40">
+            <CheckCircle2 className="h-8 w-8 shrink-0 text-green-600" />
+            <div>
+              <div className="font-bold text-green-800 dark:text-green-300">Payment successful! 🎉</div>
+              <div className="text-sm text-green-700 dark:text-green-400">
+                Your order {order.order_number} is confirmed and being processed.
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <Link to="/orders" className="text-sm text-muted-foreground hover:underline">
-            ← Orders
-          </Link>
-          <h1 className="text-2xl font-bold">{order.order_number}</h1>
-          <p className="text-sm text-muted-foreground">
-            Placed {new Date(order.placed_at).toLocaleString()}
-          </p>
-        </div>
-        <Badge variant={statusBadgeVariant(order.status)} className="capitalize">
-          {order.status.replace(/_/g, " ")}
-        </Badge>
-      </div>
+        <nav className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <Link to="/orders" className="hover:text-primary">Orders</Link>
+          <ChevronRight className="h-3.5 w-3.5" />
+          <span className="font-medium text-foreground">{order.order_number}</span>
+        </nav>
 
-      <div className="grid gap-6 md:grid-cols-[1fr_260px]">
-        <div className="space-y-6">
-          <section className="rounded-lg border p-4">
-            <h2 className="mb-3 font-semibold">Items</h2>
-            <div className="space-y-3">
-              {order.items.map((it, idx) => (
-                <div key={idx} className="flex items-center gap-3">
-                  <img
-                    src={imageUrlById(it.image_id, 80)}
-                    alt=""
-                    className="h-14 w-14 rounded object-cover"
-                  />
-                  <div className="flex-1">
-                    <div className="text-sm font-medium">{it.product_name}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {[it.size, it.color].filter(Boolean).join(" · ")} · Qty {it.quantity}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-bold">{order.order_number}</h1>
+            <p className="text-sm text-muted-foreground">
+              Placed on{" "}
+              {new Date(order.placed_at).toLocaleString("en-IN", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+            </p>
+          </div>
+          <Badge variant={statusBadgeVariant(order.status)} className="px-3 py-1 text-sm capitalize">
+            {order.status.replace(/_/g, " ")}
+          </Badge>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
+          <div className="space-y-6">
+            <section className="rounded-2xl border border-border bg-white p-5 shadow-card dark:bg-gray-900">
+              <h2 className="mb-4 font-bold">Items in this order</h2>
+              <div className="space-y-4">
+                {order.items.map((it, idx) => (
+                  <div key={idx} className="flex items-center gap-4">
+                    <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-muted">
+                      <img src={imageUrlById(it.image_id, 120)} alt="" className="h-full w-full object-cover" />
                     </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-semibold">{it.product_name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {[it.size, it.color].filter(Boolean).join(" · ")} · Qty {it.quantity}
+                      </div>
+                    </div>
+                    <div className="text-sm font-semibold">{formatPrice(it.line_total)}</div>
                   </div>
-                  <div className="text-sm">{formatPrice(it.line_total)}</div>
-                </div>
-              ))}
-            </div>
-          </section>
+                ))}
+              </div>
+            </section>
 
-          <section className="rounded-lg border p-4">
-            <h2 className="mb-4 font-semibold">Tracking</h2>
-            <TrackingTimeline status={order.status} history={order.status_history} />
-            {order.tracking_url && (
-              <a
-                href={order.tracking_url}
-                target="_blank"
-                rel="noreferrer"
-                className={buttonVariants({ variant: "outline", size: "sm", className: "mt-4" })}
+            <section className="rounded-2xl border border-border bg-white p-5 shadow-card dark:bg-gray-900">
+              <h2 className="mb-5 flex items-center gap-2 font-bold">
+                <Truck className="h-5 w-5 text-primary" /> Order tracking
+              </h2>
+              <TrackingTimeline status={order.status} history={order.status_history} />
+              {order.tracking_url && (
+                <a
+                  href={order.tracking_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={buttonVariants({ variant: "outline", size: "sm", className: "mt-5" })}
+                >
+                  Track on courier site
+                </a>
+              )}
+            </section>
+          </div>
+
+          <aside className="space-y-6">
+            <section className="rounded-2xl border border-border bg-white p-5 text-sm shadow-card dark:bg-gray-900">
+              <h2 className="mb-3 flex items-center gap-2 font-bold">
+                <MapPin className="h-4 w-4 text-primary" /> Delivery address
+              </h2>
+              <p className="font-medium">{addr.full_name}</p>
+              <p className="mt-1 text-muted-foreground">
+                {addr.line1}
+                {addr.line2 ? `, ${addr.line2}` : ""}, {addr.city}, {addr.state} - {addr.pincode}
+              </p>
+              <p className="mt-1 text-muted-foreground">{addr.phone}</p>
+            </section>
+
+            <section className="rounded-2xl border border-border bg-white p-5 text-sm shadow-card dark:bg-gray-900">
+              <h2 className="mb-3 font-bold">Payment summary</h2>
+              <Row label="Subtotal" value={formatPrice(order.subtotal)} />
+              <Row label="Shipping" value={order.shipping_fee > 0 ? formatPrice(order.shipping_fee) : "Free"} />
+              {order.discount_amount > 0 && (
+                <Row label="Discount" value={`- ${formatPrice(order.discount_amount)}`} />
+              )}
+              <Row label="Tax" value={formatPrice(order.tax_amount)} />
+              <div className="mt-3 flex justify-between border-t border-border pt-3 text-base font-bold">
+                <span>Total</span>
+                <span>{formatPrice(order.total_amount)}</span>
+              </div>
+              <p className="mt-3 text-xs capitalize text-muted-foreground">
+                Payment status: <span className="font-medium text-foreground">{order.payment_status}</span>
+              </p>
+            </section>
+
+            {CANCELLABLE.has(order.status) && (
+              <Button
+                variant="outline"
+                className="w-full border-destructive/40 text-destructive hover:bg-destructive/5"
+                disabled={cancel.isPending}
+                onClick={() => cancel.mutate()}
               >
-                Track on courier site
-              </a>
+                {cancel.isPending ? "Cancelling…" : "Cancel order"}
+              </Button>
             )}
-          </section>
+          </aside>
         </div>
-
-        <aside className="space-y-4">
-          <section className="rounded-lg border p-4 text-sm">
-            <h2 className="mb-2 font-semibold">Delivery address</h2>
-            <p>{addr.full_name}</p>
-            <p className="text-muted-foreground">
-              {addr.line1}
-              {addr.line2 ? `, ${addr.line2}` : ""}, {addr.city}, {addr.state} - {addr.pincode}
-            </p>
-            <p className="text-muted-foreground">{addr.phone}</p>
-          </section>
-
-          <section className="rounded-lg border p-4 text-sm">
-            <h2 className="mb-2 font-semibold">Payment</h2>
-            <Row label="Subtotal" value={formatPrice(order.subtotal)} />
-            <Row label="Shipping" value={formatPrice(order.shipping_fee)} />
-            {order.discount_amount > 0 && (
-              <Row label="Discount" value={`- ${formatPrice(order.discount_amount)}`} />
-            )}
-            <Row label="Tax" value={formatPrice(order.tax_amount)} />
-            <div className="mt-2 flex justify-between border-t pt-2 font-semibold">
-              <span>Total</span>
-              <span>{formatPrice(order.total_amount)}</span>
-            </div>
-            <p className="mt-2 text-xs capitalize text-muted-foreground">
-              Payment: {order.payment_status}
-            </p>
-          </section>
-
-          {CANCELLABLE.has(order.status) && (
-            <Button
-              variant="destructive"
-              className="w-full"
-              disabled={cancel.isPending}
-              onClick={() => cancel.mutate()}
-            >
-              Cancel order
-            </Button>
-          )}
-        </aside>
       </div>
     </div>
   );
@@ -152,9 +174,9 @@ export default function OrderDetail() {
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between">
+    <div className="flex justify-between py-1">
       <span className="text-muted-foreground">{label}</span>
-      <span>{value}</span>
+      <span className="font-medium">{value}</span>
     </div>
   );
 }
