@@ -1,0 +1,9 @@
+{
+  "name": "hariomcoins",
+  "private": true,
+  "version": "1.0.0",
+  "description": "HariomCoins — build wrapper so Vercel produces the frontend static output alongside the Python /api function.",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build"
+  }
+}
