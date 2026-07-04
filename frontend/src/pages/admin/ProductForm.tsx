@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowLeft } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -15,7 +16,7 @@ import {
 } from "@/api/admin";
 import { ProductImageManager } from "@/components/admin/ProductImageManager";
 import { VariantManager } from "@/components/admin/VariantManager";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -46,6 +47,8 @@ function flatten(cats: Category[], depth = 0): { id: string; label: string }[] {
   ]);
 }
 
+const card = "rounded-2xl border border-border bg-white p-6 shadow-card dark:bg-gray-900";
+
 export default function AdminProductForm() {
   const { id } = useParams();
   const isEdit = !!id;
@@ -67,12 +70,7 @@ export default function AdminProductForm() {
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      tax_percent: 18,
-      weight_grams: 500,
-      is_active: true,
-      is_featured: false,
-    },
+    defaultValues: { tax_percent: 18, weight_grams: 500, is_active: true, is_featured: false },
   });
 
   useEffect(() => {
@@ -118,18 +116,20 @@ export default function AdminProductForm() {
   };
 
   return (
-    <div className="container max-w-3xl py-8">
+    <div className="mx-auto max-w-3xl px-6 py-8">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{isEdit ? "Edit product" : "New product"}</h1>
-        <Link to="/admin/products" className={buttonVariants({ variant: "outline", size: "sm" })}>
-          Back
-        </Link>
+        <div>
+          <Link to="/admin/products" className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary">
+            <ArrowLeft className="h-4 w-4" /> Products
+          </Link>
+          <h1 className="mt-1 text-2xl font-bold">{isEdit ? "Edit product" : "New product"}</h1>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 rounded-lg border p-6">
+      <form onSubmit={handleSubmit(onSubmit)} className={`${card} space-y-5`}>
         <div className="space-y-2">
-          <Label htmlFor="name">Name</Label>
-          <Input id="name" {...register("name")} />
+          <Label htmlFor="name">Product name</Label>
+          <Input id="name" className="rounded-xl" {...register("name")} />
           {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
         </div>
 
@@ -139,87 +139,92 @@ export default function AdminProductForm() {
             <select
               id="category_id"
               {...register("category_id")}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              className="h-10 w-full rounded-xl border border-input bg-background px-3 text-sm"
             >
               <option value="">—</option>
-              {categories && flatten(categories).map((o) => (
-                <option key={o.id} value={o.id}>
-                  {o.label}
-                </option>
-              ))}
+              {categories &&
+                flatten(categories).map((o) => (
+                  <option key={o.id} value={o.id}>
+                    {o.label}
+                  </option>
+                ))}
             </select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="brand">Brand</Label>
-            <Input id="brand" {...register("brand")} />
+            <Input id="brand" className="rounded-xl" {...register("brand")} />
           </div>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="short_desc">Short description</Label>
-          <Input id="short_desc" {...register("short_desc")} />
+          <Input id="short_desc" className="rounded-xl" {...register("short_desc")} />
         </div>
         <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
-          <Textarea id="description" rows={4} {...register("description")} />
+          <Textarea id="description" rows={4} className="rounded-xl" {...register("description")} />
         </div>
 
         <div className="grid grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label htmlFor="base_price">MRP (base)</Label>
-            <Input id="base_price" type="number" step="0.01" {...register("base_price")} />
+            <Input id="base_price" type="number" step="0.01" className="rounded-xl" {...register("base_price")} />
             {errors.base_price && <p className="text-sm text-destructive">{errors.base_price.message}</p>}
           </div>
           <div className="space-y-2">
             <Label htmlFor="selling_price">Selling price</Label>
-            <Input id="selling_price" type="number" step="0.01" {...register("selling_price")} />
+            <Input id="selling_price" type="number" step="0.01" className="rounded-xl" {...register("selling_price")} />
             {errors.selling_price && (
               <p className="text-sm text-destructive">{errors.selling_price.message}</p>
             )}
           </div>
           <div className="space-y-2">
             <Label>Discount</Label>
-            <div className="flex h-10 items-center text-sm font-medium text-green-600">{discount}%</div>
+            <div className="flex h-10 items-center text-sm font-semibold text-green-600">{discount}%</div>
           </div>
         </div>
 
         <div className="grid grid-cols-4 gap-4">
           <div className="space-y-2">
             <Label htmlFor="tax_percent">Tax %</Label>
-            <Input id="tax_percent" type="number" step="0.01" {...register("tax_percent")} />
+            <Input id="tax_percent" type="number" step="0.01" className="rounded-xl" {...register("tax_percent")} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="weight_grams">Weight (g)</Label>
-            <Input id="weight_grams" type="number" {...register("weight_grams")} />
+            <Input id="weight_grams" type="number" className="rounded-xl" {...register("weight_grams")} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="length_cm">L (cm)</Label>
-            <Input id="length_cm" type="number" step="0.1" {...register("length_cm")} />
+            <Input id="length_cm" type="number" step="0.1" className="rounded-xl" {...register("length_cm")} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="width_cm">W (cm)</Label>
-            <Input id="width_cm" type="number" step="0.1" {...register("width_cm")} />
+            <Input id="width_cm" type="number" step="0.1" className="rounded-xl" {...register("width_cm")} />
           </div>
         </div>
 
         <div className="flex gap-6">
           <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" {...register("is_active")} /> Active
+            <input type="checkbox" className="accent-primary" {...register("is_active")} /> Active
           </label>
           <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" {...register("is_featured")} /> Featured
+            <input type="checkbox" className="accent-primary" {...register("is_featured")} /> Featured
           </label>
         </div>
 
-        <Button type="submit" disabled={isSubmitting}>
+        <Button type="submit" disabled={isSubmitting} className="rounded-xl">
           {isSubmitting ? "Saving…" : isEdit ? "Save changes" : "Create product"}
         </Button>
       </form>
 
       {isEdit && product && (
-        <div className="mt-8 space-y-8 rounded-lg border p-6">
-          <ProductImageManager productId={product.id} images={product.images} />
-          <VariantManager productId={product.id} variants={product.variants} />
+        <div className="mt-6 space-y-8">
+          <div className={card}>
+            <ProductImageManager productId={product.id} images={product.images} />
+          </div>
+          <div className={card}>
+            <VariantManager productId={product.id} variants={product.variants} />
+          </div>
         </div>
       )}
     </div>
