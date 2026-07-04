@@ -2,6 +2,11 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/dist",
+  "build": {
+    "env": {
+      "UV_PYTHON": "3.12"
+    }
+  },
   "functions": {
     "api/index.py": {
       "includeFiles": "backend/app/**",

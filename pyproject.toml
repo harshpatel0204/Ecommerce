@@ -1,0 +1,6 @@
+# Minimal pyproject.toml — tells Vercel's uv to use Python 3.12
+# (without this, uv may resolve to 3.14 which lacks pydantic-core wheels).
+[project]
+name = "hariomcoins-backend"
+version = "1.0.0"
+requires-python = ">=3.11,<3.13"
