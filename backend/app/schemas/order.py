@@ -7,7 +7,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class CheckoutRequest(BaseModel):
     address_id: uuid.UUID
-    coupon_code: str | None = None  # accepted now; applied in Phase 8
+    coupon_code: str | None = None
+    payment_method: str = Field(default="online", pattern="^(online|cod)$")
 
 
 class CheckoutResponse(BaseModel):
@@ -103,6 +104,14 @@ class VerifyPaymentResponse(BaseModel):
 class OrderStatusUpdate(BaseModel):
     status: str
     note: str | None = None
+
+
+class ReturnRequest(BaseModel):
+    reason: str | None = Field(default=None, max_length=500)
+
+
+class ReturnAction(BaseModel):
+    approve: bool
 
 
 class LabelResponse(BaseModel):

@@ -66,6 +66,11 @@ export async function adminGetLabel(orderId: string): Promise<{ label_url: strin
   return data;
 }
 
+export async function adminProcessReturn(orderId: string, approve: boolean): Promise<Order> {
+  const { data } = await apiClient.post<Order>(`/admin/orders/${orderId}/process-return`, { approve });
+  return data;
+}
+
 // ---- Users ----
 export async function adminGetUsers(params: {
   search?: string;

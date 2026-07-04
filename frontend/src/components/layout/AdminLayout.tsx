@@ -3,7 +3,9 @@ import {
   LogOut,
   Package,
   ShoppingBag,
+  Star,
   Store,
+  Tag,
   Users,
 } from "lucide-react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
@@ -17,6 +19,8 @@ const NAV = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
   { to: "/admin/products", label: "Products", icon: Package, end: false },
   { to: "/admin/orders", label: "Orders", icon: ShoppingBag, end: false },
+  { to: "/admin/reviews", label: "Reviews", icon: Star, end: false },
+  { to: "/admin/coupons", label: "Coupons", icon: Tag, end: false },
   { to: "/admin/users", label: "Customers", icon: Users, end: false },
 ];
 

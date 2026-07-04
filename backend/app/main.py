@@ -14,16 +14,20 @@ from app.api.routes import (
     addresses,
     auth,
     cart,
+    coupons,
     images,
     orders,
     products,
+    reviews,
     shipping,
     webhooks,
     wishlist,
 )
+from app.api.routes.admin import coupons as admin_coupons
 from app.api.routes.admin import dashboard as admin_dashboard
 from app.api.routes.admin import orders as admin_orders
 from app.api.routes.admin import products as admin_products
+from app.api.routes.admin import reviews as admin_reviews
 from app.api.routes.admin import users as admin_users
 from app.core.config import settings
 
@@ -65,11 +69,15 @@ app.include_router(cart.router, prefix="/api")
 app.include_router(wishlist.router, prefix="/api")
 app.include_router(shipping.router, prefix="/api")
 app.include_router(orders.router, prefix="/api")
+app.include_router(reviews.router, prefix="/api")
+app.include_router(coupons.router, prefix="/api")
 app.include_router(webhooks.router, prefix="/api")
 app.include_router(admin_products.router, prefix="/api")
 app.include_router(admin_orders.router, prefix="/api")
 app.include_router(admin_dashboard.router, prefix="/api")
 app.include_router(admin_users.router, prefix="/api")
+app.include_router(admin_reviews.router, prefix="/api")
+app.include_router(admin_coupons.router, prefix="/api")
 
 if __name__ == "__main__":
     import uvicorn

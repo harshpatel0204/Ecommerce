@@ -3,7 +3,7 @@ import { CheckCircle2, ChevronRight, MapPin, Truck } from "lucide-react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
-import { cancelOrder, getOrder } from "@/api/orders";
+import { cancelOrder, getOrder, requestReturn } from "@/api/orders";
 import { TrackingTimeline } from "@/components/order/TrackingTimeline";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -18,6 +18,7 @@ export default function OrderDetail() {
   const { orderNumber = "" } = useParams();
   const [params] = useSearchParams();
   const justPaid = params.get("paid") === "1";
+  const justPlaced = params.get("placed") === "1";
   const qc = useQueryClient();
 
   const { data: order, isLoading } = useQuery({
@@ -32,6 +33,16 @@ export default function OrderDetail() {
       toast.success("Order cancelled");
     },
     onError: () => toast.error("Could not cancel order"),
+  });
+
+  const ret = useMutation({
+    mutationFn: () => requestReturn(order!.id),
+    onSuccess: (o) => {
+      qc.setQueryData(["order", orderNumber], o);
+      toast.success("Return requested");
+    },
+    onError: (e) =>
+      toast.error((e as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? "Could not request return"),
   });
 
   if (isLoading) {
@@ -50,13 +61,16 @@ export default function OrderDetail() {
   return (
     <div className="min-h-screen bg-muted/20">
       <div className="container max-w-5xl space-y-6 py-8">
-        {justPaid && (
+        {(justPaid || justPlaced) && (
           <div className="flex items-center gap-3 rounded-2xl border border-green-200 bg-green-50 p-5 shadow-card animate-scale-in dark:border-green-900 dark:bg-green-950/40">
             <CheckCircle2 className="h-8 w-8 shrink-0 text-green-600" />
             <div>
-              <div className="font-bold text-green-800 dark:text-green-300">Payment successful! 🎉</div>
+              <div className="font-bold text-green-800 dark:text-green-300">
+                {justPaid ? "Payment successful! 🎉" : "Order placed! 🎉"}
+              </div>
               <div className="text-sm text-green-700 dark:text-green-400">
-                Your order {order.order_number} is confirmed and being processed.
+                Your order {order.order_number} is confirmed
+                {justPlaced ? " — pay cash on delivery." : " and being processed."}
               </div>
             </div>
           </div>
@@ -163,6 +177,16 @@ export default function OrderDetail() {
                 onClick={() => cancel.mutate()}
               >
                 {cancel.isPending ? "Cancelling…" : "Cancel order"}
+              </Button>
+            )}
+            {order.status === "delivered" && (
+              <Button
+                variant="outline"
+                className="w-full"
+                disabled={ret.isPending}
+                onClick={() => ret.mutate()}
+              >
+                {ret.isPending ? "Requesting…" : "Request return"}
               </Button>
             )}
           </aside>

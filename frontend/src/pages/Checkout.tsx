@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { createAddress, getAddresses, type AddressPayload } from "@/api/addresses";
+import { validateCoupon, type CouponValidation } from "@/api/coupons";
 import { checkout, verifyPayment } from "@/api/orders";
 import { checkServiceability } from "@/api/shipping";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,9 @@ export default function Checkout() {
   const [showForm, setShowForm] = useState(false);
   const [serviceable, setServiceable] = useState<string | null>(null);
   const [placing, setPlacing] = useState(false);
+  const [coupon, setCoupon] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<CouponValidation | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<"online" | "cod">("online");
 
   useEffect(() => {
     if (addresses && !selectedId) {
@@ -66,9 +70,16 @@ export default function Checkout() {
     if (!selectedId) return toast.error("Select a delivery address");
     if (serviceable === "not-serviceable")
       return toast.error("Delivery not available to this pincode");
+    const couponCode = appliedCoupon?.valid ? appliedCoupon.code ?? undefined : undefined;
     setPlacing(true);
     try {
-      const co = await checkout(selectedId);
+      if (paymentMethod === "cod") {
+        const co = await checkout(selectedId, couponCode, "cod");
+        qc.invalidateQueries({ queryKey: ["cart"] });
+        navigate(`/orders/${co.order_number}?placed=1`, { replace: true });
+        return;
+      }
+      const co = await checkout(selectedId, couponCode, "online");
       const pay = await openRazorpayCheckout(co, {
         name: user?.full_name ?? undefined,
         email: user?.email,
@@ -82,9 +93,22 @@ export default function Checkout() {
       qc.invalidateQueries({ queryKey: ["cart"] });
       navigate(`/orders/${co.order_number}?paid=1`, { replace: true });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Payment failed");
+      const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
+      toast.error(detail ?? (err instanceof Error ? err.message : "Payment failed"));
     } finally {
       setPlacing(false);
+    }
+  };
+
+  const applyCoupon = async () => {
+    if (!coupon.trim() || !cart) return;
+    try {
+      const res = await validateCoupon(coupon.trim(), cart.subtotal);
+      setAppliedCoupon(res);
+      if (res.valid) toast.success(`Coupon applied — you save ${formatPrice(res.discount_amount)}`);
+      else toast.error(res.message ?? "Invalid coupon");
+    } catch {
+      toast.error("Could not validate coupon");
     }
   };
 
@@ -202,23 +226,77 @@ export default function Checkout() {
                 </div>
               ))}
             </div>
-            <div className="flex justify-between border-t border-border pt-4 text-sm">
-              <span className="text-muted-foreground">Subtotal</span>
-              <span className="font-semibold">{formatPrice(cart.subtotal)}</span>
+            {/* Coupon */}
+            <div className="border-t border-border pt-4">
+              <div className="flex gap-2">
+                <Input
+                  value={coupon}
+                  onChange={(e) => setCoupon(e.target.value)}
+                  placeholder="Coupon code"
+                  className="h-10 rounded-xl uppercase"
+                />
+                <Button variant="outline" className="rounded-xl" onClick={applyCoupon}>
+                  Apply
+                </Button>
+              </div>
+              {appliedCoupon?.valid && (
+                <p className="mt-2 text-xs font-medium text-green-600">
+                  ✓ {appliedCoupon.code} applied
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-1.5 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Subtotal</span>
+                <span className="font-semibold">{formatPrice(cart.subtotal)}</span>
+              </div>
+              {appliedCoupon?.valid && appliedCoupon.discount_amount > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span>Discount</span>
+                  <span>- {formatPrice(appliedCoupon.discount_amount)}</span>
+                </div>
+              )}
             </div>
             <p className="text-xs text-muted-foreground">
               Shipping &amp; tax are calculated securely on the server at payment.
             </p>
+
+            {/* Payment method */}
+            <div className="space-y-2">
+              <span className="text-sm font-semibold">Payment method</span>
+              {(["online", "cod"] as const).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setPaymentMethod(m)}
+                  className={cn(
+                    "flex w-full items-center gap-2 rounded-xl border p-3 text-left text-sm",
+                    paymentMethod === m ? "border-primary bg-primary/5" : "border-border",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "flex h-4 w-4 items-center justify-center rounded-full border-2",
+                      paymentMethod === m ? "border-primary" : "border-muted-foreground/40",
+                    )}
+                  >
+                    {paymentMethod === m && <span className="h-2 w-2 rounded-full bg-primary" />}
+                  </span>
+                  {m === "online" ? "Pay online (UPI / Card / Netbanking)" : "Cash on Delivery"}
+                </button>
+              ))}
+            </div>
+
             <Button
               className="h-12 w-full rounded-xl text-base font-semibold shadow-sm transition-all hover:shadow-glow"
               disabled={placing || !selectedId}
               onClick={placeOrder}
             >
-              {placing ? "Processing…" : "Place order & pay"}
+              {placing ? "Processing…" : paymentMethod === "cod" ? "Place order (COD)" : "Place order & pay"}
             </Button>
             <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
               <ShieldCheck className="h-4 w-4 text-green-600" />
-              Secured by Razorpay · 100% safe payments
+              {paymentMethod === "cod" ? "Pay in cash when your order arrives" : "Secured by Razorpay · 100% safe payments"}
             </div>
           </div>
         </aside>

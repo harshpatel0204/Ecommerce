@@ -4,7 +4,13 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
-import { adminGetLabel, adminGetOrder, adminShipOrder, adminUpdateOrderStatus } from "@/api/adminOps";
+import {
+  adminGetLabel,
+  adminGetOrder,
+  adminProcessReturn,
+  adminShipOrder,
+  adminUpdateOrderStatus,
+} from "@/api/adminOps";
 import { TrackingTimeline } from "@/components/order/TrackingTimeline";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -55,6 +61,15 @@ export default function AdminOrderDetail() {
       else toast.error("Label not available yet");
     },
     onError: () => toast.error("Could not fetch label"),
+  });
+
+  const processReturn = useMutation({
+    mutationFn: (approve: boolean) => adminProcessReturn(orderId, approve),
+    onSuccess: () => {
+      toast.success("Return processed");
+      invalidate();
+    },
+    onError: () => toast.error("Could not process return"),
   });
 
   if (isLoading) return <div className="px-6 py-8"><Skeleton className="shimmer h-96 rounded-2xl" /></div>;
@@ -150,6 +165,31 @@ export default function AdminOrderDetail() {
               </div>
             </div>
           </section>
+
+          {order.status === "return_requested" && (
+            <section className={`${card} border-orange-300`}>
+              <h2 className="mb-2 font-bold text-orange-600">Return requested</h2>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  className="flex-1"
+                  disabled={processReturn.isPending}
+                  onClick={() => processReturn.mutate(true)}
+                >
+                  Approve &amp; refund
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1"
+                  disabled={processReturn.isPending}
+                  onClick={() => processReturn.mutate(false)}
+                >
+                  Reject
+                </Button>
+              </div>
+            </section>
+          )}
 
           <section className={`${card} text-sm`}>
             <h2 className="mb-2 font-bold">Customer</h2>

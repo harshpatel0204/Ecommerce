@@ -10,6 +10,7 @@ from app.schemas.order import (
     OrderListItem,
     OrderListResponse,
     OrderResponse,
+    ReturnRequest,
     TrackingResponse,
     VerifyPaymentRequest,
     VerifyPaymentResponse,
@@ -34,7 +35,13 @@ def _to_list_item(order) -> OrderListItem:
 
 @router.post("/checkout", response_model=CheckoutResponse)
 async def checkout(data: CheckoutRequest, current_user: CurrentUser, db: DbSession) -> CheckoutResponse:
-    return await order_service.checkout(db, current_user, data.address_id)
+    return await order_service.checkout(
+        db,
+        current_user,
+        data.address_id,
+        coupon_code=data.coupon_code,
+        payment_method=data.payment_method,
+    )
 
 
 @router.post("/verify-payment", response_model=VerifyPaymentResponse)
@@ -80,4 +87,12 @@ async def order_tracking(order_number: str, current_user: CurrentUser, db: DbSes
 @router.post("/{order_id}/cancel", response_model=OrderResponse)
 async def cancel_order(order_id: uuid.UUID, current_user: CurrentUser, db: DbSession) -> OrderResponse:
     order = await order_service.cancel_order(db, current_user, order_id)
+    return OrderResponse.model_validate(order)
+
+
+@router.post("/{order_id}/return", response_model=OrderResponse)
+async def request_return(
+    order_id: uuid.UUID, data: ReturnRequest, current_user: CurrentUser, db: DbSession
+) -> OrderResponse:
+    order = await order_service.request_return(db, current_user, order_id, data.reason)
     return OrderResponse.model_validate(order)

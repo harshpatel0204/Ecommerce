@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { ShoppingCart, Heart, Share2, Shield, Truck, RefreshCcw, Star, ChevronRight, Minus, Plus, Check } from "lucide-react";
 
 import { ProductGallery } from "@/components/product/ProductGallery";
+import { ProductReviews } from "@/components/product/ProductReviews";
 import { VariantSelector } from "@/components/product/VariantSelector";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -273,6 +274,8 @@ export default function ProductDetail() {
             )}
           </div>
         </div>
+
+        <ProductReviews productId={product.id} />
       </div>
     </div>
   );

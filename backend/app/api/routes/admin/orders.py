@@ -10,6 +10,7 @@ from app.schemas.order import (
     OrderListResponse,
     OrderResponse,
     OrderStatusUpdate,
+    ReturnAction,
 )
 from app.services import order_service
 
@@ -69,3 +70,11 @@ async def ship_order(order_id: uuid.UUID, admin: CurrentAdmin, db: DbSession) ->
 async def get_label(order_id: uuid.UUID, db: DbSession) -> LabelResponse:
     url = await order_service.get_label_url(db, order_id)
     return LabelResponse(label_url=url)
+
+
+@router.post("/{order_id}/process-return", response_model=OrderResponse)
+async def process_return(
+    order_id: uuid.UUID, data: ReturnAction, admin: CurrentAdmin, db: DbSession
+) -> OrderResponse:
+    order = await order_service.admin_process_return(db, order_id, data.approve, admin.id)
+    return OrderResponse.model_validate(order)

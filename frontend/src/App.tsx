@@ -26,6 +26,8 @@ const AdminProductForm = lazy(() => import("@/pages/admin/ProductForm"));
 const AdminOrderList = lazy(() => import("@/pages/admin/OrderList"));
 const AdminOrderDetail = lazy(() => import("@/pages/admin/OrderDetail"));
 const AdminUserList = lazy(() => import("@/pages/admin/UserList"));
+const AdminReviewList = lazy(() => import("@/pages/admin/ReviewList"));
+const AdminCouponList = lazy(() => import("@/pages/admin/CouponList"));
 
 function PageFallback() {
   return (
@@ -82,6 +84,8 @@ export default function App() {
             <Route path="/admin/orders" element={<AdminOrderList />} />
             <Route path="/admin/orders/:orderId" element={<AdminOrderDetail />} />
             <Route path="/admin/users" element={<AdminUserList />} />
+            <Route path="/admin/reviews" element={<AdminReviewList />} />
+            <Route path="/admin/coupons" element={<AdminCouponList />} />
           </Route>
         </Route>
 

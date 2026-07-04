@@ -8,10 +8,15 @@ export interface VerifyPaymentPayload {
   razorpay_signature: string;
 }
 
-export async function checkout(addressId: string, couponCode?: string): Promise<CheckoutResponse> {
+export async function checkout(
+  addressId: string,
+  couponCode?: string,
+  paymentMethod: "online" | "cod" = "online",
+): Promise<CheckoutResponse> {
   const { data } = await apiClient.post<CheckoutResponse>("/orders/checkout", {
     address_id: addressId,
     coupon_code: couponCode ?? null,
+    payment_method: paymentMethod,
   });
   return data;
 }
@@ -36,5 +41,10 @@ export async function getOrder(orderNumber: string): Promise<Order> {
 
 export async function cancelOrder(orderId: string): Promise<Order> {
   const { data } = await apiClient.post<Order>(`/orders/${orderId}/cancel`);
+  return data;
+}
+
+export async function requestReturn(orderId: string, reason?: string): Promise<Order> {
+  const { data } = await apiClient.post<Order>(`/orders/${orderId}/return`, { reason });
   return data;
 }
