@@ -114,4 +114,5 @@ docker-compose.override.yml
 
 .vite
 
-!readme.md
+!README.md
+DEPLOYMENT.txt

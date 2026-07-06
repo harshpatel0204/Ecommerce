@@ -28,6 +28,7 @@ const AdminOrderDetail = lazy(() => import("@/pages/admin/OrderDetail"));
 const AdminUserList = lazy(() => import("@/pages/admin/UserList"));
 const AdminReviewList = lazy(() => import("@/pages/admin/ReviewList"));
 const AdminCouponList = lazy(() => import("@/pages/admin/CouponList"));
+const AdminLogin = lazy(() => import("@/pages/admin/AdminLogin"));
 
 function PageFallback() {
   return (
@@ -74,7 +75,10 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Admin (sidebar shell) */}
+        {/* Admin login (separate from customer login, no guard) */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+
+        {/* Admin (sidebar shell — requires admin auth) */}
         <Route element={<AdminRoute />}>
           <Route element={<AdminLayout />}>
             <Route path="/admin" element={<AdminDashboard />} />
