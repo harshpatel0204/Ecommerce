@@ -23,3 +23,13 @@ export interface TokenResponse {
   token_type: string;
   user: User;
 }
+
+export interface GoogleLoginRequest {
+  id_token: string;
+}
+
+export interface FirebasePhoneLoginRequest {
+  id_token: string;
+  full_name?: string;
+}
+

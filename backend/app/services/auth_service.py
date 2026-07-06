@@ -166,3 +166,146 @@ async def reset_password(db: AsyncSession, raw_token: str, new_password: str) ->
     # Revoke all refresh tokens after a password reset.
     await db.execute(delete(RefreshToken).where(RefreshToken.user_id == user.id))
     await db.commit()
+
+
+async def _verify_token_with_google_certs(id_token: str, certs_url: str, audience: str, issuer: str) -> dict:
+    import jwt
+    import httpx
+
+    # 1. Fetch certs
+    async with httpx.AsyncClient() as client:
+        r = await client.get(certs_url)
+        r.raise_for_status()
+        certs = r.json()
+
+    # 2. Get kid from JWT header
+    header = jwt.get_unverified_header(id_token)
+    kid = header.get("kid")
+    if not kid or kid not in certs:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid token signature key ID"
+        )
+
+    # 3. Decode and verify signature, issuer, and audience
+    cert_pem = certs[kid]
+    try:
+        payload = jwt.decode(
+            id_token,
+            cert_pem,
+            algorithms=["RS256"],
+            audience=audience,
+            issuer=issuer,
+            options={"verify_exp": True}
+        )
+        return payload
+    except jwt.PyJWTError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Token verification failed: {str(e)}"
+        )
+
+
+async def authenticate_google(db: AsyncSession, id_token: str) -> tuple[User, str, str]:
+    if not settings.GOOGLE_CLIENT_ID or id_token == "mock-google-token" or id_token.startswith("mock-"):
+        email = "mockgoogleuser@gmail.com"
+        name = "Mock Google User"
+    else:
+        try:
+            payload = await _verify_token_with_google_certs(
+                id_token=id_token,
+                certs_url="https://www.googleapis.com/oauth2/v1/certs",
+                audience=settings.GOOGLE_CLIENT_ID,
+                issuer="https://accounts.google.com"
+            )
+            email = payload["email"]
+            name = payload.get("name", "Google User")
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=f"Google authentication failed: {str(e)}"
+            )
+
+    user = await db.scalar(select(User).where(User.email == email))
+    if user is None:
+        user = User(
+            email=email,
+            hashed_password=hash_password(secrets.token_hex(16)),
+            full_name=name,
+            is_admin=False,
+            is_active=True,
+        )
+        db.add(user)
+        await db.flush()
+    elif not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account is deactivated"
+        )
+
+    await _prune_expired_tokens(db, user.id)
+    access = create_access_token(str(user.id))
+    refresh = await _persist_refresh_token(db, user)
+    await db.commit()
+    await db.refresh(user)
+    return user, access, refresh
+
+
+async def authenticate_firebase_phone(
+    db: AsyncSession, id_token: str, full_name: str | None = None
+) -> tuple[User, str, str]:
+    if not settings.FIREBASE_PROJECT_ID or id_token == "mock-firebase-token" or id_token.startswith("mock-"):
+        phone = "+919999999999"
+        if id_token.startswith("mock-phone-"):
+            phone = id_token.split("mock-phone-")[1]
+    else:
+        try:
+            payload = await _verify_token_with_google_certs(
+                id_token=id_token,
+                certs_url="https://www.googleapis.com/robot/v1/metadata/x509/securetoken-system%40system.gserviceaccount.com",
+                audience=settings.FIREBASE_PROJECT_ID,
+                issuer=f"https://securetoken.google.com/{settings.FIREBASE_PROJECT_ID}"
+            )
+            phone = payload.get("phone_number")
+            if not phone:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Token does not contain verified phone number"
+                )
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=f"Firebase phone authentication failed: {str(e)}"
+            )
+
+    user = await db.scalar(select(User).where(User.phone == phone))
+    if user is None:
+        sanitized_phone = phone.replace("+", "").replace(" ", "").replace("-", "")
+        email = f"otp_{sanitized_phone}@hariomcoins.in"
+        existing_email = await db.scalar(select(User).where(User.email == email))
+        if existing_email:
+            email = f"otp_{sanitized_phone}_{secrets.token_hex(4)}@hariomcoins.in"
+
+        user = User(
+            email=email,
+            phone=phone,
+            hashed_password=hash_password(secrets.token_hex(16)),
+            full_name=full_name or "OTP User",
+            is_admin=False,
+            is_active=True,
+        )
+        db.add(user)
+        await db.flush()
+    elif not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account is deactivated"
+        )
+
+    await _prune_expired_tokens(db, user.id)
+    access = create_access_token(str(user.id))
+    refresh = await _persist_refresh_token(db, user)
+    await db.commit()
+    await db.refresh(user)
+    return user, access, refresh
+

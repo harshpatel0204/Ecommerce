@@ -16,6 +16,8 @@ from app.schemas.auth import (
     ResetPasswordRequest,
     TokenResponse,
     UserBrief,
+    GoogleLoginRequest,
+    FirebasePhoneLoginRequest,
 )
 from app.services import auth_service
 
@@ -57,6 +59,24 @@ async def forgot_password(data: ForgotPasswordRequest, db: DbSession) -> Message
 async def reset_password(data: ResetPasswordRequest, db: DbSession) -> MessageResponse:
     await auth_service.reset_password(db, data.token, data.new_password)
     return MessageResponse(message="Password updated")
+
+
+@router.post("/google", response_model=TokenResponse)
+async def login_google(data: GoogleLoginRequest, db: DbSession) -> TokenResponse:
+    user, access, refresh = await auth_service.authenticate_google(db, data.id_token)
+    return TokenResponse(
+        access_token=access, refresh_token=refresh, user=UserBrief.model_validate(user)
+    )
+
+
+@router.post("/firebase-phone", response_model=TokenResponse)
+async def login_firebase_phone(data: FirebasePhoneLoginRequest, db: DbSession) -> TokenResponse:
+    user, access, refresh = await auth_service.authenticate_firebase_phone(
+        db, data.id_token, data.full_name
+    )
+    return TokenResponse(
+        access_token=access, refresh_token=refresh, user=UserBrief.model_validate(user)
+    )
 
 
 @router.get("/me", response_model=UserBrief)

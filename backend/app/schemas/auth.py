@@ -51,3 +51,13 @@ class TokenResponse(BaseModel):
 
 class MessageResponse(BaseModel):
     message: str
+
+
+class GoogleLoginRequest(BaseModel):
+    id_token: str
+
+
+class FirebasePhoneLoginRequest(BaseModel):
+    id_token: str
+    full_name: str | None = None
+

@@ -1,5 +1,5 @@
 import { apiClient } from "@/api/client";
-import type { LoginRequest, RegisterRequest, TokenResponse, User } from "@/types/auth";
+import type { LoginRequest, RegisterRequest, TokenResponse, User, GoogleLoginRequest, FirebasePhoneLoginRequest } from "@/types/auth";
 
 export async function register(payload: RegisterRequest): Promise<TokenResponse> {
   const { data } = await apiClient.post<TokenResponse>("/auth/register", payload);
@@ -8,6 +8,16 @@ export async function register(payload: RegisterRequest): Promise<TokenResponse>
 
 export async function login(payload: LoginRequest): Promise<TokenResponse> {
   const { data } = await apiClient.post<TokenResponse>("/auth/login", payload);
+  return data;
+}
+
+export async function loginWithGoogle(payload: GoogleLoginRequest): Promise<TokenResponse> {
+  const { data } = await apiClient.post<TokenResponse>("/auth/google", payload);
+  return data;
+}
+
+export async function loginWithFirebasePhone(payload: FirebasePhoneLoginRequest): Promise<TokenResponse> {
+  const { data } = await apiClient.post<TokenResponse>("/auth/firebase-phone", payload);
   return data;
 }
 
