@@ -10,10 +10,18 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-// Verify if config is present. If missing, the app operates in mock/development mode.
-const hasFirebaseConfig = 
-  !!firebaseConfig.apiKey && 
-  !!firebaseConfig.projectId;
+// Real Firebase auth needs ALL of these. If any are missing, fall back to mock
+// mode instead of half-initializing (which throws auth/configuration-not-found).
+const REQUIRED: (keyof typeof firebaseConfig)[] = ["apiKey", "authDomain", "projectId", "appId"];
+const missing = REQUIRED.filter((k) => !firebaseConfig[k]);
+const hasFirebaseConfig = missing.length === 0;
+
+if (!hasFirebaseConfig && (firebaseConfig.apiKey || firebaseConfig.projectId)) {
+  // Partially configured — warn so it's obvious why real login isn't used.
+  console.warn(
+    `[firebase] Incomplete config — using MOCK auth. Missing VITE_FIREBASE_* keys: ${missing.join(", ")}`,
+  );
+}
 
 const app = hasFirebaseConfig
   ? (getApps().length === 0 ? initializeApp(firebaseConfig) : getApp())
