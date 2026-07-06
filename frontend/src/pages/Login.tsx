@@ -13,7 +13,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuthStore } from "@/store/authStore";
 import { auth, hasFirebaseConfig } from "@/lib/firebase";
-import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import {
+  GoogleAuthProvider,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  signInWithPopup,
+} from "firebase/auth";
 
 // Validation Schemas
 const emailSchema = z.object({
@@ -129,19 +134,29 @@ export default function Login() {
     setSubmitting(true);
     try {
       let idToken = "mock-google-token";
-      
-      if (import.meta.env.VITE_GOOGLE_CLIENT_ID) {
-        toast.info("Connecting to Google...");
+
+      if (hasFirebaseConfig && auth) {
+        // Real Google sign-in via Firebase popup. We extract the Google ID token
+        // (issuer accounts.google.com) which the backend /auth/google verifies.
+        const result = await signInWithPopup(auth, new GoogleAuthProvider());
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        idToken = credential?.idToken ?? (await result.user.getIdToken());
       } else {
-        toast.info("Operating in development mock Google login mode");
+        toast.info("Google not configured — using development mock login.");
       }
 
       const tokens = await loginWithGoogle({ id_token: idToken });
       setSession(tokens);
       toast.success("Logged in with Google successfully!");
       handleRedirect();
-    } catch (err) {
-      toast.error("Google authentication failed. Please try again.");
+    } catch (err: any) {
+      if (err?.code === "auth/popup-closed-by-user") {
+        // user simply closed the popup — no error toast needed
+      } else {
+        toast.error(
+          err?.message ?? "Google authentication failed. Please try again.",
+        );
+      }
     } finally {
       setSubmitting(false);
     }

@@ -15,6 +15,7 @@ alembic==1.14.0
 
 # ---- Auth / security ----
 pyjwt==2.10.1
+cryptography==44.0.0  # RS256 verification for Google / Firebase ID tokens
 passlib[bcrypt]==1.7.4
 bcrypt==4.2.1
 
