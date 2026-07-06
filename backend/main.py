@@ -8,6 +8,10 @@ This simply imports the FastAPI app and starts uvicorn.
 All application logic remains in app/main.py.
 """
 
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="razorpay")
+warnings.filterwarnings("ignore", message=".*pkg_resources is deprecated.*")
+
 import uvicorn
 
 from app.main import app  # noqa: F401

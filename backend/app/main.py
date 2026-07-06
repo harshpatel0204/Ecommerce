@@ -7,6 +7,10 @@ domain, so CORS is only enabled when DEV_ALLOWED_ORIGINS is set (local dev).
 All routes are mounted under /api so the root vercel.json can rewrite
 `/api/*` -> this app and `/*` -> the SPA.
 """
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="razorpay")
+warnings.filterwarnings("ignore", message=".*pkg_resources is deprecated.*")
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
