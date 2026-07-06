@@ -34,7 +34,7 @@ def _connect_args() -> dict:
 
 engine = create_async_engine(
     settings.DATABASE_URL,
-    echo=settings.DEBUG,
+    echo=settings.DB_ECHO,
     poolclass=NullPool,
     connect_args=_connect_args(),
 )

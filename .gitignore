@@ -115,4 +115,4 @@ docker-compose.override.yml
 .vite
 
 !README.md
-DEPLOYMENT.txt
+*.txt

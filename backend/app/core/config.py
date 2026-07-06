@@ -42,6 +42,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = (
         "postgresql+asyncpg://postgres:postgres@localhost:5432/bharatshop"
     )
+    DB_ECHO: bool = False
 
     # ----------------------------------------------------------------- Razorpay
     RAZORPAY_KEY_ID: str = ""
