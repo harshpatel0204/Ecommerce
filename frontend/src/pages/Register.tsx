@@ -1,8 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
-import { Eye, EyeOff, Mail, Lock, User, Phone, CheckCircle2, Key } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Phone, CheckCircle2 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -11,9 +11,15 @@ import { register as registerApi, loginWithGoogle, loginWithFirebasePhone } from
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { OtpInput } from "@/components/ui/otp-input";
 import { useAuthStore } from "@/store/authStore";
-import { auth, hasFirebaseConfig } from "@/lib/firebase";
-import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import {
+  auth,
+  hasFirebaseConfig,
+  createRecaptchaVerifier,
+  firebaseAuthMessage,
+} from "@/lib/firebase";
+import { GoogleAuthProvider, signInWithPhoneNumber, signInWithPopup } from "firebase/auth";
 
 // Validation Schemas
 const emailSchema = z.object({
@@ -100,10 +106,10 @@ export default function Register() {
 
   // 3. OTP Verify Form
   const {
-    register: registerOtpVerify,
     handleSubmit: handleOtpVerifySubmit,
     formState: { errors: otpVerifyErrors },
     reset: resetOtpVerify,
+    control: controlOtpVerify,
   } = useForm<OtpVerifyValues>({ resolver: zodResolver(otpVerifySchema) });
 
   // Handle countdown for resending OTP
@@ -154,19 +160,24 @@ export default function Register() {
     setSubmitting(true);
     try {
       let idToken = "mock-google-token";
-      
-      if (import.meta.env.VITE_GOOGLE_CLIENT_ID) {
-        toast.info("Connecting to Google...");
+
+      if (hasFirebaseConfig && auth) {
+        // Real Google sign-in via Firebase popup — same flow as the Login page.
+        const result = await signInWithPopup(auth, new GoogleAuthProvider());
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        idToken = credential?.idToken ?? (await result.user.getIdToken());
       } else {
-        toast.info("Operating in development mock Google login mode");
+        toast.info("Google not configured — using development mock login.");
       }
 
       const tokens = await loginWithGoogle({ id_token: idToken });
       setSession(tokens);
       toast.success("Account linked with Google successfully!");
       navigate("/", { replace: true });
-    } catch (err) {
-      toast.error("Google authentication failed. Please try again.");
+    } catch (err: any) {
+      if (err?.code !== "auth/popup-closed-by-user") {
+        toast.error(firebaseAuthMessage(err, "Google authentication failed. Please try again."));
+      }
     } finally {
       setSubmitting(false);
     }
@@ -179,17 +190,7 @@ export default function Register() {
     
     try {
       if (hasFirebaseConfig && auth) {
-        let recaptchaContainer = document.getElementById("recaptcha-container");
-        if (!recaptchaContainer) {
-          recaptchaContainer = document.createElement("div");
-          recaptchaContainer.id = "recaptcha-container";
-          document.body.appendChild(recaptchaContainer);
-        }
-
-        const verifier = new RecaptchaVerifier(auth, "recaptcha-container", {
-          size: "invisible",
-        });
-
+        const verifier = createRecaptchaVerifier();
         const result = await signInWithPhoneNumber(auth, phone, verifier);
         setConfirmationResult(result);
         toast.success("Verification SMS sent successfully!");
@@ -203,7 +204,7 @@ export default function Register() {
       setResendTimer(60);
       resetOtpVerify(); // Reset code input
     } catch (err: any) {
-      toast.error(err.message || "Failed to send verification SMS. Try again.");
+      toast.error(firebaseAuthMessage(err, "Failed to send verification SMS. Try again."));
     } finally {
       setSubmitting(false);
     }
@@ -234,7 +235,7 @@ export default function Register() {
       toast.success("Account verified with Mobile OTP successfully!");
       navigate("/", { replace: true });
     } catch (err: any) {
-      toast.error(err.message || "Invalid OTP code. Please check and try again.");
+      toast.error(firebaseAuthMessage(err, "Invalid OTP code. Please check and try again."));
     } finally {
       setSubmitting(false);
     }
@@ -509,17 +510,17 @@ export default function Register() {
                         Change settings
                       </button>
                     </div>
-                    <div className="relative">
-                      <Key className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="otp_code"
-                        type="text"
-                        maxLength={6}
-                        placeholder="123456"
-                        className="pl-10 h-11 rounded-xl tracking-widest font-mono text-center"
-                        {...registerOtpVerify("code")}
-                      />
-                    </div>
+                    <Controller
+                      control={controlOtpVerify}
+                      name="code"
+                      render={({ field }) => (
+                        <OtpInput
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                          error={!!otpVerifyErrors.code}
+                        />
+                      )}
+                    />
                     {otpVerifyErrors.code && (
                       <p className="text-sm text-destructive">{otpVerifyErrors.code.message}</p>
                     )}
@@ -589,8 +590,6 @@ export default function Register() {
             Sign up with Google
           </Button>
 
-          {/* Recaptcha hidden anchor for Firebase Verify */}
-          <div id="recaptcha-container" className="hidden" />
 
           <p className="mt-6 text-center text-xs text-muted-foreground">
             By creating an account, you agree to our{" "}

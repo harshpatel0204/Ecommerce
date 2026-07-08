@@ -16,7 +16,9 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/api": {
-        target: "http://localhost:8000",
+        // 127.0.0.1, not localhost: Node can resolve localhost to ::1 (IPv6)
+        // while uvicorn binds 127.0.0.1 only, causing intermittent ERR_NETWORK.
+        target: "http://127.0.0.1:8000",
         changeOrigin: true,
       },
     },

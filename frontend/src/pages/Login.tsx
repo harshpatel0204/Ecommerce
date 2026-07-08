@@ -1,8 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
-import { Eye, EyeOff, Mail, Lock, Phone, Key } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, Phone } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { Link, Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -11,11 +11,16 @@ import { login, loginWithGoogle, loginWithFirebasePhone } from "@/api/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { OtpInput } from "@/components/ui/otp-input";
 import { useAuthStore } from "@/store/authStore";
-import { auth, hasFirebaseConfig } from "@/lib/firebase";
+import {
+  auth,
+  hasFirebaseConfig,
+  createRecaptchaVerifier,
+  firebaseAuthMessage,
+} from "@/lib/firebase";
 import {
   GoogleAuthProvider,
-  RecaptchaVerifier,
   signInWithPhoneNumber,
   signInWithPopup,
 } from "firebase/auth";
@@ -81,10 +86,10 @@ export default function Login() {
 
   // 3. OTP Verify Form Hook
   const {
-    register: registerOtpVerify,
     handleSubmit: handleOtpVerifySubmit,
     formState: { errors: otpVerifyErrors },
     reset: resetOtpVerify,
+    control: controlOtpVerify,
   } = useForm<OtpVerifyValues>({ resolver: zodResolver(otpVerifySchema) });
 
   // Handle countdown for resending OTP
@@ -154,7 +159,7 @@ export default function Login() {
         // user simply closed the popup — no error toast needed
       } else {
         toast.error(
-          err?.message ?? "Google authentication failed. Please try again.",
+          firebaseAuthMessage(err, "Google authentication failed. Please try again."),
         );
       }
     } finally {
@@ -169,18 +174,7 @@ export default function Login() {
     
     try {
       if (hasFirebaseConfig && auth) {
-        // Ensure recaptcha container exists in body
-        let recaptchaContainer = document.getElementById("recaptcha-container");
-        if (!recaptchaContainer) {
-          recaptchaContainer = document.createElement("div");
-          recaptchaContainer.id = "recaptcha-container";
-          document.body.appendChild(recaptchaContainer);
-        }
-
-        const verifier = new RecaptchaVerifier(auth, "recaptcha-container", {
-          size: "invisible",
-        });
-
+        const verifier = createRecaptchaVerifier();
         const result = await signInWithPhoneNumber(auth, phone, verifier);
         setConfirmationResult(result);
         toast.success("Verification SMS sent successfully!");
@@ -194,7 +188,7 @@ export default function Login() {
       setResendTimer(60);
       resetOtpVerify(); // Reset verification input field
     } catch (err: any) {
-      toast.error(err.message || "Failed to send verification SMS. Try again.");
+      toast.error(firebaseAuthMessage(err, "Failed to send verification SMS. Try again."));
     } finally {
       setSubmitting(false);
     }
@@ -225,7 +219,7 @@ export default function Login() {
       toast.success("Logged in with Mobile OTP successfully!");
       handleRedirect();
     } catch (err: any) {
-      toast.error(err.message || "Invalid OTP code. Please check and try again.");
+      toast.error(firebaseAuthMessage(err, "Invalid OTP code. Please check and try again."));
     } finally {
       setSubmitting(false);
     }
@@ -424,17 +418,17 @@ export default function Login() {
                         Change number
                       </button>
                     </div>
-                    <div className="relative">
-                      <Key className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="otp"
-                        type="text"
-                        maxLength={6}
-                        placeholder="123456"
-                        className="pl-10 h-11 rounded-xl tracking-widest font-mono text-center"
-                        {...registerOtpVerify("code")}
-                      />
-                    </div>
+                    <Controller
+                      control={controlOtpVerify}
+                      name="code"
+                      render={({ field }) => (
+                        <OtpInput
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                          error={!!otpVerifyErrors.code}
+                        />
+                      )}
+                    />
                     {otpVerifyErrors.code && (
                       <p className="text-sm text-destructive">{otpVerifyErrors.code.message}</p>
                     )}
@@ -503,9 +497,6 @@ export default function Login() {
             </svg>
             Sign in with Google
           </Button>
-
-          {/* Recaptcha hidden anchor for Firebase Verify */}
-          <div id="recaptcha-container" className="hidden" />
 
           <p className="mt-8 text-center text-xs text-muted-foreground">
             By signing in, you agree to our{" "}

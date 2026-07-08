@@ -168,12 +168,15 @@ async def reset_password(db: AsyncSession, raw_token: str, new_password: str) ->
     await db.commit()
 
 
-async def _verify_token_with_google_certs(id_token: str, certs_url: str, audience: str, issuer: str) -> dict:
+async def _verify_token_with_google_certs(
+    id_token: str, certs_url: str, audience: str, issuers: tuple[str, ...]
+) -> dict:
     import jwt
     import httpx
+    from cryptography.x509 import load_pem_x509_certificate
 
     # 1. Fetch certs
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=10) as client:
         r = await client.get(certs_url)
         r.raise_for_status()
         certs = r.json()
@@ -187,23 +190,31 @@ async def _verify_token_with_google_certs(id_token: str, certs_url: str, audienc
             detail="Invalid token signature key ID"
         )
 
-    # 3. Decode and verify signature, issuer, and audience
-    cert_pem = certs[kid]
+    # 3. Decode and verify signature, issuer, and audience.
+    # Google serves X.509 certificates, not bare public keys — PyJWT can't
+    # consume the cert PEM directly, so extract the public key first.
+    public_key = load_pem_x509_certificate(certs[kid].encode()).public_key()
     try:
         payload = jwt.decode(
             id_token,
-            cert_pem,
+            public_key,
             algorithms=["RS256"],
             audience=audience,
-            issuer=issuer,
             options={"verify_exp": True}
         )
-        return payload
     except jwt.PyJWTError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Token verification failed: {str(e)}"
         )
+    # Checked manually (not via jwt.decode's issuer param) because Google ID
+    # tokens legitimately use either "accounts.google.com" or the https:// form.
+    if payload.get("iss") not in issuers:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Token verification failed: Invalid issuer {payload.get('iss')!r}"
+        )
+    return payload
 
 
 async def authenticate_google(db: AsyncSession, id_token: str) -> tuple[User, str, str]:
@@ -216,10 +227,12 @@ async def authenticate_google(db: AsyncSession, id_token: str) -> tuple[User, st
                 id_token=id_token,
                 certs_url="https://www.googleapis.com/oauth2/v1/certs",
                 audience=settings.GOOGLE_CLIENT_ID,
-                issuer="https://accounts.google.com"
+                issuers=("https://accounts.google.com", "accounts.google.com"),
             )
             email = payload["email"]
             name = payload.get("name", "Google User")
+        except HTTPException:
+            raise
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -262,9 +275,9 @@ async def authenticate_firebase_phone(
         try:
             payload = await _verify_token_with_google_certs(
                 id_token=id_token,
-                certs_url="https://www.googleapis.com/robot/v1/metadata/x509/securetoken-system%40system.gserviceaccount.com",
+                certs_url="https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com",
                 audience=settings.FIREBASE_PROJECT_ID,
-                issuer=f"https://securetoken.google.com/{settings.FIREBASE_PROJECT_ID}"
+                issuers=(f"https://securetoken.google.com/{settings.FIREBASE_PROJECT_ID}",),
             )
             phone = payload.get("phone_number")
             if not phone:
@@ -272,6 +285,8 @@ async def authenticate_firebase_phone(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="Token does not contain verified phone number"
                 )
+        except HTTPException:
+            raise
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

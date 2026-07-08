@@ -52,6 +52,8 @@ const NO_REFRESH_PATHS = [
   "/auth/register",
   "/auth/forgot-password",
   "/auth/reset-password",
+  "/auth/google",
+  "/auth/firebase-phone",
 ];
 
 apiClient.interceptors.response.use(
