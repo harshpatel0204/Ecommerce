@@ -21,10 +21,13 @@ from app.core.database import get_db
 from app.core.security import ACCESS_TOKEN_TYPE, decode_token
 from app.models.user import User
 
-bearer_scheme = HTTPBearer(auto_error=True)
+# auto_error=False: HTTPBearer's built-in error is a 403, but a MISSING token
+# must be a 401 — the frontend interceptor only refresh-and-retries on 401, so
+# a 403 here silently killed session restore after a page reload.
+bearer_scheme = HTTPBearer(auto_error=False)
 
 DbSession = Annotated[AsyncSession, Depends(get_db)]
-BearerToken = Annotated[HTTPAuthorizationCredentials, Depends(bearer_scheme)]
+BearerToken = Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)]
 
 _CREDENTIALS_ERROR = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
@@ -35,6 +38,8 @@ _CREDENTIALS_ERROR = HTTPException(
 
 async def get_current_user(credentials: BearerToken, db: DbSession) -> User:
     """Decode the bearer access token and return the matching active User."""
+    if credentials is None:
+        raise _CREDENTIALS_ERROR
     try:
         payload = decode_token(credentials.credentials, expected_type=ACCESS_TOKEN_TYPE)
         subject = payload.get("sub")

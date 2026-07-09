@@ -103,7 +103,9 @@ export default function Login() {
   }, [resendTimer]);
 
   if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    // Honor ?next= here too: after setSession() this render wins the race
+    // against handleRedirect's navigate, so it must not hardcode "/".
+    return <Navigate to={searchParams.get("next") ?? "/"} replace />;
   }
 
   // Redirect helper after successful login
