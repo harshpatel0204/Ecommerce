@@ -7,6 +7,7 @@ import { StoreLayout } from "@/components/layout/StoreLayout";
 import { AdminRoute } from "@/routes/AdminRoute";
 import { ProtectedRoute } from "@/routes/ProtectedRoute";
 import { useAuthStore } from "@/store/authStore";
+import { BrandLoader } from "@/components/ui/BrandLoader";
 
 // Route-level code splitting keeps the initial bundle small.
 const Home = lazy(() => import("@/pages/Home"));
@@ -35,7 +36,7 @@ const AdminLogin = lazy(() => import("@/pages/admin/AdminLogin"));
 function PageFallback() {
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      <BrandLoader />
     </div>
   );
 }

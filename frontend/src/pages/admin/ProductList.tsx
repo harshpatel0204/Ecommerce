@@ -8,9 +8,9 @@ import { adminDeleteProduct, adminGetProducts, adminImportProductsCsv } from "@/
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/lib/format";
 import { imageUrlById } from "@/lib/image";
+import { BrandLoader } from "@/components/ui/BrandLoader";
 
 export default function AdminProductList() {
   const qc = useQueryClient();
@@ -99,10 +99,8 @@ export default function AdminProductList() {
       </div>
 
       {isLoading ? (
-        <div className="space-y-2">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="shimmer h-16 w-full rounded-xl" />
-          ))}
+        <div className="flex min-h-[30vh] items-center justify-center rounded-2xl border border-border bg-white p-8 dark:bg-gray-900 shadow-card">
+          <BrandLoader />
         </div>
       ) : !data || data.items.length === 0 ? (
         <div className="rounded-2xl border border-border bg-white py-16 text-center text-muted-foreground dark:bg-gray-900">

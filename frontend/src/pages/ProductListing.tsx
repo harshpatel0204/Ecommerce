@@ -5,8 +5,8 @@ import { useSearchParams } from "react-router-dom";
 import { ProductCard } from "@/components/product/ProductCard";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useCategories, useProducts } from "@/hooks/useProducts";
+import { BrandLoader } from "@/components/ui/BrandLoader";
 import type { ProductFilters } from "@/types/product";
 
 const SORTS: { value: NonNullable<ProductFilters["sort"]>; label: string }[] = [
@@ -224,18 +224,8 @@ export default function ProductListing() {
           {/* Product grid */}
           <section className="flex-1 min-w-0">
             {isLoading ? (
-              <div className={`grid gap-4 ${viewMode === "grid" ? "grid-cols-2 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"}`}>
-                {Array.from({ length: 9 }).map((_, i) => (
-                  <div key={i} className="rounded-2xl overflow-hidden border border-border">
-                    <Skeleton className="aspect-square w-full shimmer" />
-                    <div className="p-3 space-y-2">
-                      <Skeleton className="h-3 w-14 shimmer" />
-                      <Skeleton className="h-4 w-full shimmer" />
-                      <Skeleton className="h-4 w-2/3 shimmer" />
-                      <Skeleton className="h-5 w-20 shimmer" />
-                    </div>
-                  </div>
-                ))}
+              <div className="flex min-h-[45vh] items-center justify-center py-12 w-full">
+                <BrandLoader />
               </div>
             ) : isError ? (
               <div className="py-20 text-center">

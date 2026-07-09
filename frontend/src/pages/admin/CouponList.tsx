@@ -7,8 +7,8 @@ import { adminCreateCoupon, adminDeleteCoupon, adminListCoupons, type CouponPayl
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/lib/format";
+import { BrandLoader } from "@/components/ui/BrandLoader";
 
 const empty: CouponPayload = {
   code: "",
@@ -91,10 +91,8 @@ export default function AdminCouponList() {
       </div>
 
       {isLoading ? (
-        <div className="space-y-2">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="shimmer h-16 rounded-xl" />
-          ))}
+        <div className="flex min-h-[30vh] items-center justify-center rounded-2xl border border-border bg-white p-8 dark:bg-gray-900 shadow-card">
+          <BrandLoader />
         </div>
       ) : !data || data.length === 0 ? (
         <div className={`${card} py-12 text-center text-muted-foreground`}>No coupons yet.</div>

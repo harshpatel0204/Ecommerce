@@ -2,10 +2,10 @@ import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Tag } from "lucide-react"
 import { Link, useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useCart, useRemoveCartItem, useUpdateCartItem } from "@/hooks/useCart";
 import { formatPrice } from "@/lib/format";
 import { imageUrlById } from "@/lib/image";
+import { BrandLoader } from "@/components/ui/BrandLoader";
 
 export default function Cart() {
   const navigate = useNavigate();
@@ -17,21 +17,8 @@ export default function Cart() {
     return (
       <div className="container py-8 lg:py-12">
         <h1 className="text-2xl font-bold mb-8">Shopping Cart</h1>
-        <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
-          <div className="space-y-4">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="rounded-2xl border border-border p-4 flex gap-4">
-                <Skeleton className="h-24 w-24 rounded-xl shrink-0 shimmer" />
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-4 w-3/4 shimmer" />
-                  <Skeleton className="h-3 w-1/2 shimmer" />
-                  <Skeleton className="h-8 w-28 shimmer rounded-lg" />
-                </div>
-                <Skeleton className="h-6 w-16 shimmer" />
-              </div>
-            ))}
-          </div>
-          <Skeleton className="h-64 w-full rounded-2xl shimmer" />
+        <div className="flex min-h-[40vh] items-center justify-center rounded-2xl border border-border bg-white p-8 dark:bg-gray-900 shadow-card">
+          <BrandLoader />
         </div>
       </div>
     );

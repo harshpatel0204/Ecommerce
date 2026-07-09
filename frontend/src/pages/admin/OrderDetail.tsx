@@ -13,8 +13,8 @@ import {
 } from "@/api/adminOps";
 import { TrackingTimeline } from "@/components/order/TrackingTimeline";
 import { Badge } from "@/components/ui/badge";
+import { BrandLoader } from "@/components/ui/BrandLoader";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { statusBadgeVariant } from "@/lib/status";
 import { formatPrice } from "@/lib/format";
 import { imageUrlById } from "@/lib/image";
@@ -72,7 +72,13 @@ export default function AdminOrderDetail() {
     onError: () => toast.error("Could not process return"),
   });
 
-  if (isLoading) return <div className="px-6 py-8"><Skeleton className="shimmer h-96 rounded-2xl" /></div>;
+  if (isLoading) {
+    return (
+      <div className="px-6 py-8 flex min-h-[50vh] items-center justify-center rounded-2xl border border-border bg-white p-8 dark:bg-gray-900 shadow-card">
+        <BrandLoader />
+      </div>
+    );
+  }
   if (!order) return <div className="px-6 py-16 text-center text-muted-foreground">Order not found.</div>;
 
   const addr = order.shipping_address;

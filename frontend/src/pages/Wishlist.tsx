@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 import { getWishlist, removeFromWishlist } from "@/api/wishlist";
 import { ProductCard } from "@/components/product/ProductCard";
-import { Skeleton } from "@/components/ui/skeleton";
+import { BrandLoader } from "@/components/ui/BrandLoader";
 
 export default function Wishlist() {
   const qc = useQueryClient();
@@ -28,10 +28,8 @@ export default function Wishlist() {
 
       <div className="container py-8">
         {isLoading ? (
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="shimmer aspect-square rounded-2xl" />
-            ))}
+          <div className="flex min-h-[40vh] items-center justify-center rounded-2xl border border-border bg-white p-8 dark:bg-gray-900 shadow-card">
+            <BrandLoader />
           </div>
         ) : !data || data.length === 0 ? (
           <div className="py-20 text-center">

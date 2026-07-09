@@ -7,10 +7,10 @@ import { cancelOrder, getOrder, requestReturn } from "@/api/orders";
 import { TrackingTimeline } from "@/components/order/TrackingTimeline";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { statusBadgeVariant } from "@/lib/status";
 import { formatPrice } from "@/lib/format";
 import { imageUrlById } from "@/lib/image";
+import { BrandLoader } from "@/components/ui/BrandLoader";
 
 const CANCELLABLE = new Set(["pending", "paid", "processing"]);
 
@@ -47,8 +47,8 @@ export default function OrderDetail() {
 
   if (isLoading) {
     return (
-      <div className="container py-8">
-        <Skeleton className="shimmer h-96 w-full rounded-2xl" />
+      <div className="container py-8 flex min-h-[50vh] items-center justify-center rounded-2xl border border-border bg-white p-8 dark:bg-gray-900 shadow-card">
+        <BrandLoader />
       </div>
     );
   }

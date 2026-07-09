@@ -7,12 +7,12 @@ import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductReviews } from "@/components/product/ProductReviews";
 import { VariantSelector } from "@/components/product/VariantSelector";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useAddToCart } from "@/hooks/useCart";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useProduct } from "@/hooks/useProducts";
 import { formatPrice } from "@/lib/format";
 import { useAuthStore } from "@/store/authStore";
+import { BrandLoader } from "@/components/ui/BrandLoader";
 import type { ProductVariant } from "@/types/product";
 
 const PRODUCT_ASSURANCES = [
@@ -40,23 +40,8 @@ export default function ProductDetail() {
 
   if (isLoading) {
     return (
-      <div className="container py-8 lg:py-12">
-        {/* Breadcrumb skeleton */}
-        <div className="flex items-center gap-2 mb-8">
-          <Skeleton className="h-4 w-12 shimmer" />
-          <Skeleton className="h-4 w-4 shimmer rounded-full" />
-          <Skeleton className="h-4 w-20 shimmer" />
-        </div>
-        <div className="grid gap-10 lg:grid-cols-2">
-          <Skeleton className="aspect-square w-full rounded-2xl shimmer" />
-          <div className="space-y-5">
-            <Skeleton className="h-5 w-24 shimmer" />
-            <Skeleton className="h-9 w-3/4 shimmer" />
-            <Skeleton className="h-8 w-1/3 shimmer" />
-            <Skeleton className="h-24 w-full shimmer" />
-            <Skeleton className="h-12 w-full shimmer rounded-xl" />
-          </div>
-        </div>
+      <div className="container py-8 lg:py-12 flex min-h-[50vh] items-center justify-center">
+        <BrandLoader />
       </div>
     );
   }

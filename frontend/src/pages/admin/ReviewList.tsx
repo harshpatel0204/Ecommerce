@@ -6,8 +6,8 @@ import { toast } from "sonner";
 import { adminApproveReview, adminDeleteReview, adminListReviews } from "@/api/reviews";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { StarRating } from "@/components/ui/StarRating";
+import { BrandLoader } from "@/components/ui/BrandLoader";
 
 type Filter = "pending" | "approved" | "all";
 
@@ -58,10 +58,8 @@ export default function AdminReviewList() {
       </div>
 
       {isLoading ? (
-        <div className="space-y-2">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="shimmer h-24 rounded-xl" />
-          ))}
+        <div className="flex min-h-[30vh] items-center justify-center rounded-2xl border border-border bg-white p-8 dark:bg-gray-900 shadow-card">
+          <BrandLoader />
         </div>
       ) : !data || data.length === 0 ? (
         <div className="rounded-2xl border border-border bg-white py-16 text-center text-muted-foreground dark:bg-gray-900">
