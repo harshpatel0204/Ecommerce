@@ -2,20 +2,24 @@
 client's notion of price is never trusted.
 """
 import uuid
+from datetime import datetime, timedelta, timezone
 
 from fastapi import HTTPException, status
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.core.config import settings
 from app.models.cart import CartItem
 from app.models.product import Product, ProductVariant
+from app.models.user import User
 from app.schemas.cart import (
     CartItemResponse,
     CartProductBrief,
     CartResponse,
     CartVariantBrief,
 )
+from app.services import email_service
 
 _MAX_CART_ITEMS = 20
 
@@ -173,3 +177,36 @@ async def clear_cart(db: AsyncSession, user_id: uuid.UUID) -> CartResponse:
     await db.execute(delete(CartItem).where(CartItem.user_id == user_id))
     await db.commit()
     return CartResponse(items=[], subtotal=0, item_count=0)
+
+
+async def send_abandoned_cart_reminders(db: AsyncSession) -> int:
+    """Email users whose cart items sat untouched for 24h–7d. Called by the
+    daily cron. Each item is reminded about at most once (reminder_sent_at)."""
+    now = datetime.now(timezone.utc)
+    newest_allowed = now - timedelta(hours=24)
+    oldest_allowed = now - timedelta(days=7)
+
+    rows = await db.execute(
+        select(User.id, User.email, User.full_name, func.count(CartItem.id))
+        .join(CartItem, CartItem.user_id == User.id)
+        .where(
+            CartItem.reminder_sent_at.is_(None),
+            CartItem.added_at < newest_allowed,
+            CartItem.added_at > oldest_allowed,
+            User.is_active.is_(True),
+        )
+        .group_by(User.id, User.email, User.full_name)
+    )
+
+    cart_link = f"{settings.FRONTEND_URL.rstrip('/')}/cart"
+    sent = 0
+    for user_id, email, full_name, item_count in rows:
+        email_service.send_abandoned_cart(email, full_name, item_count, cart_link)
+        await db.execute(
+            update(CartItem)
+            .where(CartItem.user_id == user_id, CartItem.reminder_sent_at.is_(None))
+            .values(reminder_sent_at=now)
+        )
+        sent += 1
+    await db.commit()
+    return sent

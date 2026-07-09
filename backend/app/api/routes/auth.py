@@ -1,11 +1,12 @@
 """Authentication endpoints. Routes are thin; logic lives in auth_service.
 
-Rate limiting on /register and /login is added in the Phase 6 security pass
-(slowapi); in serverless it is enforced at the edge / via a shared store.
+Credential and OTP endpoints are rate-limited per client IP via DB-backed
+fixed-window counters (serverless-safe — see app.core.rate_limit).
 """
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Depends, status
 
 from app.core.deps import CurrentUser, DbSession
+from app.core.rate_limit import rate_limit
 from app.schemas.auth import (
     ForgotPasswordRequest,
     LoginRequest,
@@ -24,13 +25,22 @@ from app.services import auth_service
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register",
+    response_model=TokenResponse,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(rate_limit("auth-register", limit=10, window_seconds=3600))],
+)
 async def register(data: RegisterRequest, db: DbSession) -> TokenResponse:
     user, access, refresh = await auth_service.register_user(db, data)
     return TokenResponse(access_token=access, refresh_token=refresh, user=UserBrief.model_validate(user))
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post(
+    "/login",
+    response_model=TokenResponse,
+    dependencies=[Depends(rate_limit("auth-login", limit=15, window_seconds=300))],
+)
 async def login(data: LoginRequest, db: DbSession) -> TokenResponse:
     user, access, refresh = await auth_service.authenticate(db, data.email, data.password)
     return TokenResponse(access_token=access, refresh_token=refresh, user=UserBrief.model_validate(user))
@@ -48,20 +58,32 @@ async def logout(data: LogoutRequest, db: DbSession) -> MessageResponse:
     return MessageResponse(message="Logged out")
 
 
-@router.post("/forgot-password", response_model=MessageResponse)
+@router.post(
+    "/forgot-password",
+    response_model=MessageResponse,
+    dependencies=[Depends(rate_limit("auth-forgot", limit=5, window_seconds=3600))],
+)
 async def forgot_password(data: ForgotPasswordRequest, db: DbSession) -> MessageResponse:
     await auth_service.initiate_password_reset(db, data.email)
     # Always the same response — never reveal whether the email exists.
     return MessageResponse(message="If that email exists, a reset link has been sent")
 
 
-@router.post("/reset-password", response_model=MessageResponse)
+@router.post(
+    "/reset-password",
+    response_model=MessageResponse,
+    dependencies=[Depends(rate_limit("auth-reset", limit=10, window_seconds=3600))],
+)
 async def reset_password(data: ResetPasswordRequest, db: DbSession) -> MessageResponse:
     await auth_service.reset_password(db, data.token, data.new_password)
     return MessageResponse(message="Password updated")
 
 
-@router.post("/google", response_model=TokenResponse)
+@router.post(
+    "/google",
+    response_model=TokenResponse,
+    dependencies=[Depends(rate_limit("auth-google", limit=15, window_seconds=300))],
+)
 async def login_google(data: GoogleLoginRequest, db: DbSession) -> TokenResponse:
     user, access, refresh = await auth_service.authenticate_google(db, data.id_token)
     return TokenResponse(
@@ -69,7 +91,11 @@ async def login_google(data: GoogleLoginRequest, db: DbSession) -> TokenResponse
     )
 
 
-@router.post("/firebase-phone", response_model=TokenResponse)
+@router.post(
+    "/firebase-phone",
+    response_model=TokenResponse,
+    dependencies=[Depends(rate_limit("auth-phone", limit=15, window_seconds=300))],
+)
 async def login_firebase_phone(data: FirebasePhoneLoginRequest, db: DbSession) -> TokenResponse:
     user, access, refresh = await auth_service.authenticate_firebase_phone(
         db, data.id_token, data.full_name

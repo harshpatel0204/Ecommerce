@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { ProductCard } from "@/components/product/ProductCard";
+import { usePageMeta } from "@/hooks/usePageMeta";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCategories, useProducts } from "@/hooks/useProducts";
@@ -19,6 +20,14 @@ export default function ProductListing() {
   const { data: categories } = useCategories();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+
+  usePageMeta({
+    title: params.get("search")
+      ? `Search: ${params.get("search")}`
+      : "Shop All Coins & Banknotes",
+    description:
+      "Browse rare and collectible coins & banknotes — filter by category, price, and rating.",
+  });
 
   const page = Number(params.get("page") ?? "1");
   const filters: ProductFilters = {

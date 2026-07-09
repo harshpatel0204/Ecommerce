@@ -8,6 +8,7 @@ reused across event loops. Schema create/drop runs in isolated ``asyncio.run``
 calls (a sync session fixture); all async fixtures are function-scoped.
 """
 import asyncio
+import os
 import uuid
 
 import pytest
@@ -15,6 +16,19 @@ import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
 from app.core.config import settings
+
+# HARD GUARD: this suite DROPS ALL TABLES at session end. Running it against
+# the shared Neon dev/prod DB destroys the schema while leaving alembic_version
+# behind (the "stamped at head but no tables" incident of 2026-07-08). Point
+# DATABASE_URL at a throwaway local Postgres, or set ALLOW_REMOTE_TEST_DB=1 if
+# you really mean it.
+if "neon.tech" in settings.DATABASE_URL and not os.environ.get("ALLOW_REMOTE_TEST_DB"):
+    pytest.exit(
+        "Refusing to run tests: DATABASE_URL points at Neon and this suite "
+        "drops all tables afterwards. Use a local throwaway DB "
+        "(e.g. docker-compose postgres) or set ALLOW_REMOTE_TEST_DB=1.",
+        returncode=2,
+    )
 from app.core.database import AsyncSessionLocal, Base, engine
 from app.core.security import hash_password
 from app.main import app

@@ -9,6 +9,7 @@ import { VariantSelector } from "@/components/product/VariantSelector";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAddToCart } from "@/hooks/useCart";
+import { usePageMeta } from "@/hooks/usePageMeta";
 import { useProduct } from "@/hooks/useProducts";
 import { formatPrice } from "@/lib/format";
 import { useAuthStore } from "@/store/authStore";
@@ -30,6 +31,12 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
+
+  usePageMeta({
+    title: product?.name,
+    description: product?.meta_desc ?? product?.description?.slice(0, 160),
+    image: product?.images[0] ? `${product.images[0].url}?w=800` : undefined,
+  });
 
   if (isLoading) {
     return (

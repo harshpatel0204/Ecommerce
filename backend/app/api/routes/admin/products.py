@@ -1,7 +1,7 @@
 """Admin catalog management. Every route requires get_current_admin."""
 import uuid
 
-from fastapi import APIRouter, Depends, File, Form, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 
 from app.api.routes._catalog_mappers import to_category_response, to_detail, to_image, to_list_item
 from app.core.deps import DbSession, get_current_admin
@@ -14,6 +14,7 @@ from app.schemas.product import (
     ProductCreate,
     ProductDetail,
     ProductImageResponse,
+    ProductImportResult,
     ProductUpdate,
     StockUpdate,
     VariantCreate,
@@ -77,6 +78,21 @@ async def get_product(product_id: uuid.UUID, db: DbSession) -> ProductDetail:
 async def create_product(data: ProductCreate, db: DbSession) -> ProductDetail:
     product = await catalog_service.create_product(db, data)
     return to_detail(product, 0, 0)
+
+
+@router.post("/products/import-csv", response_model=ProductImportResult)
+async def import_products_csv(db: DbSession, file: UploadFile = File(...)) -> ProductImportResult:
+    raw = await file.read()
+    try:
+        # utf-8-sig strips the BOM Excel prepends to exported CSVs.
+        content = raw.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="File must be UTF-8 encoded CSV",
+        )
+    created, errors = await catalog_service.import_products_from_csv(db, content)
+    return ProductImportResult(created=created, errors=errors)
 
 
 @router.patch("/products/{product_id}", response_model=ProductDetail)

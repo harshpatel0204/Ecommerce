@@ -66,6 +66,21 @@ export async function adminDeleteProduct(id: string): Promise<void> {
   await apiClient.delete(`/admin/products/${id}`);
 }
 
+export interface ProductImportResult {
+  created: number;
+  errors: { row: number; error: string }[];
+}
+
+export async function adminImportProductsCsv(file: File): Promise<ProductImportResult> {
+  const form = new FormData();
+  form.append("file", file);
+  const { data } = await apiClient.post<ProductImportResult>(
+    "/admin/products/import-csv",
+    form,
+  );
+  return data;
+}
+
 // ---- Variants ----
 export async function adminAddVariant(
   productId: string,

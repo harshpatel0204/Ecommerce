@@ -19,10 +19,12 @@ from app.api.routes import (
     auth,
     cart,
     coupons,
+    cron,
     images,
     orders,
     products,
     reviews,
+    seo,
     shipping,
     webhooks,
     wishlist,
@@ -76,12 +78,15 @@ app.include_router(orders.router, prefix="/api")
 app.include_router(reviews.router, prefix="/api")
 app.include_router(coupons.router, prefix="/api")
 app.include_router(webhooks.router, prefix="/api")
+app.include_router(cron.router, prefix="/api")
 app.include_router(admin_products.router, prefix="/api")
 app.include_router(admin_orders.router, prefix="/api")
 app.include_router(admin_dashboard.router, prefix="/api")
 app.include_router(admin_users.router, prefix="/api")
 app.include_router(admin_reviews.router, prefix="/api")
 app.include_router(admin_coupons.router, prefix="/api")
+# SEO routes declare their own paths (both bare + /api-prefixed) — no prefix here.
+app.include_router(seo.router)
 
 if __name__ == "__main__":
     import uvicorn

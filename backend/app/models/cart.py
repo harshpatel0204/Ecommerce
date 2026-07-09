@@ -23,6 +23,11 @@ class CartItem(UUIDMixin, Base):
     added_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
+    # Set when an abandoned-cart reminder email covered this item, so the
+    # daily cron never emails a user twice about the same items.
+    reminder_sent_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
     __table_args__ = (UniqueConstraint("user_id", "variant_id", name="uq_cart_user_variant"),)
 

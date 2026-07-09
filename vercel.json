@@ -13,8 +13,13 @@
       "maxDuration": 60
     }
   },
+  "crons": [
+    { "path": "/api/cron/abandoned-carts", "schedule": "30 3 * * *" }
+  ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/index" },
+    { "source": "/sitemap.xml", "destination": "/api/index" },
+    { "source": "/robots.txt", "destination": "/api/index" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [

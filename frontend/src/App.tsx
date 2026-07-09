@@ -14,6 +14,8 @@ const ProductListing = lazy(() => import("@/pages/ProductListing"));
 const ProductDetail = lazy(() => import("@/pages/ProductDetail"));
 const Login = lazy(() => import("@/pages/Login"));
 const Register = lazy(() => import("@/pages/Register"));
+const ForgotPassword = lazy(() => import("@/pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
 const Cart = lazy(() => import("@/pages/Cart"));
 const Checkout = lazy(() => import("@/pages/Checkout"));
 const Wishlist = lazy(() => import("@/pages/Wishlist"));
@@ -74,6 +76,8 @@ export default function App() {
         {/* Auth (no navbar) */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* Admin login (separate from customer login, no guard) */}
         <Route path="/admin/login" element={<AdminLogin />} />

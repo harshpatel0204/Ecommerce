@@ -3,11 +3,14 @@
 Routes stay thin and delegate here. Images are stored as BYTEA on product_images
 (see image_service for the Pillow pipeline).
 """
+import csv
+import io
 import re
 import uuid
 from typing import Sequence
 
 from fastapi import HTTPException, status
+from pydantic import ValidationError
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -150,6 +153,58 @@ async def update_product(db: AsyncSession, product_id: uuid.UUID, data: ProductU
         setattr(product, field, value)
     await db.commit()
     return await get_product_by_id(db, product_id)
+
+
+# CSV columns = ProductCreate fields, plus category_slug (resolved to
+# category_id) and stock_quantity (creates one default variant). Empty cells
+# fall back to schema defaults; extra columns are ignored.
+async def import_products_from_csv(
+    db: AsyncSession, text_content: str
+) -> tuple[int, list[dict]]:
+    reader = csv.DictReader(io.StringIO(text_content))
+    if not reader.fieldnames or "name" not in [f.strip() for f in reader.fieldnames]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="CSV must have a header row including at least 'name'",
+        )
+
+    created = 0
+    errors: list[dict] = []
+    # Row numbers are 1-based and include the header, matching what the admin
+    # sees in a spreadsheet.
+    for row_no, raw in enumerate(reader, start=2):
+        try:
+            row = {
+                k.strip(): v.strip()
+                for k, v in raw.items()
+                if k and v is not None and v.strip() != ""
+            }
+            stock_quantity = int(row.pop("stock_quantity", "0") or 0)
+            category_slug = row.pop("category_slug", None)
+            if category_slug:
+                category_id = await db.scalar(
+                    select(Category.id).where(Category.slug == category_slug)
+                )
+                if category_id is None:
+                    raise ValueError(f"Unknown category_slug '{category_slug}'")
+                row["category_id"] = category_id
+
+            data = ProductCreate(**row)
+            product = await create_product(db, data)
+            await add_variant(db, product.id, VariantCreate(stock_quantity=stock_quantity))
+            created += 1
+        except HTTPException as exc:
+            await db.rollback()
+            errors.append({"row": row_no, "error": str(exc.detail)})
+        except ValidationError as exc:
+            await db.rollback()
+            first = exc.errors()[0]
+            field = ".".join(str(p) for p in first["loc"]) or "row"
+            errors.append({"row": row_no, "error": f"{field}: {first['msg']}"})
+        except (ValueError, TypeError) as exc:
+            await db.rollback()
+            errors.append({"row": row_no, "error": str(exc)})
+    return created, errors
 
 
 async def soft_delete_product(db: AsyncSession, product_id: uuid.UUID) -> None:

@@ -66,6 +66,22 @@ def send_order_delivered(to_email: str, order_number: str) -> None:
     _send(to_email, f"Order {order_number} delivered", html)
 
 
+def send_abandoned_cart(to_email: str, name: str | None, item_count: int, cart_link: str) -> None:
+    greeting = f"Hi {name}," if name else "Hi,"
+    items = "item" if item_count == 1 else "items"
+    html = f"""
+    <div style="font-family: sans-serif; max-width: 480px; margin: auto;">
+      <h2>You left something behind 🛒</h2>
+      <p>{greeting}</p>
+      <p>You still have <strong>{item_count} {items}</strong> waiting in your {settings.APP_NAME} cart.
+      Popular collectibles sell out fast — complete your order before they're gone.</p>
+      <p><a href="{cart_link}" style="background:#2563eb;color:#fff;padding:10px 18px;
+        border-radius:6px;text-decoration:none;display:inline-block;">Return to my cart</a></p>
+    </div>
+    """
+    _send(to_email, f"Your {settings.APP_NAME} cart is waiting", html)
+
+
 def send_password_reset(to_email: str, reset_link: str) -> None:
     html = f"""
     <div style="font-family: sans-serif; max-width: 480px; margin: auto;">

@@ -37,6 +37,9 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     GOOGLE_CLIENT_ID: str = ""
     FIREBASE_PROJECT_ID: str = ""
+    # Shared secret for /api/cron/* — Vercel Cron sends it as a Bearer token
+    # when a CRON_SECRET project env var is set. Empty disables cron routes.
+    CRON_SECRET: str = ""
 
     # ----------------------------------------------------------------- Database
     # Use the Neon POOLED connection string for serverless (host contains "-pooler").

@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Package, Plus, Search, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { Package, Plus, Search, Trash2, Upload } from "lucide-react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
-import { adminDeleteProduct, adminGetProducts } from "@/api/admin";
+import { adminDeleteProduct, adminGetProducts, adminImportProductsCsv } from "@/api/admin";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,29 @@ export default function AdminProductList() {
     onError: () => toast.error("Failed to delete"),
   });
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const importCsv = useMutation({
+    mutationFn: adminImportProductsCsv,
+    onSuccess: (result) => {
+      if (result.created > 0) {
+        toast.success(`Imported ${result.created} product${result.created === 1 ? "" : "s"}`);
+        qc.invalidateQueries({ queryKey: ["admin", "products"] });
+      }
+      result.errors.slice(0, 5).forEach((e) => toast.error(`Row ${e.row}: ${e.error}`));
+      if (result.errors.length > 5) {
+        toast.error(`…and ${result.errors.length - 5} more rows failed`);
+      }
+      if (result.created === 0 && result.errors.length === 0) {
+        toast.info("The CSV contained no data rows");
+      }
+    },
+    onError: (e) =>
+      toast.error(
+        (e as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??
+          "CSV import failed",
+      ),
+  });
+
   return (
     <div className="px-6 py-8">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
@@ -38,9 +61,31 @@ export default function AdminProductList() {
           </h1>
           <p className="mt-0.5 text-sm text-muted-foreground">Manage your catalog</p>
         </div>
-        <Link to="/admin/products/new" className={buttonVariants({ className: "gap-2 rounded-xl" })}>
-          <Plus className="h-4 w-4" /> New product
-        </Link>
+        <div className="flex items-center gap-2">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".csv,text/csv"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) importCsv.mutate(file);
+              e.target.value = ""; // allow re-selecting the same file
+            }}
+          />
+          <Button
+            variant="outline"
+            className="gap-2 rounded-xl"
+            disabled={importCsv.isPending}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <Upload className="h-4 w-4" />
+            {importCsv.isPending ? "Importing…" : "Import CSV"}
+          </Button>
+          <Link to="/admin/products/new" className={buttonVariants({ className: "gap-2 rounded-xl" })}>
+            <Plus className="h-4 w-4" /> New product
+          </Link>
+        </div>
       </div>
 
       <div className="relative mb-4 max-w-sm">

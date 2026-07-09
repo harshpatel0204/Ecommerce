@@ -33,9 +33,15 @@ target_metadata = Base.metadata
 # index still lives in the model and is created by the initial migration.
 _AUTOGEN_EXCLUDED_INDEXES = {"idx_products_fts"}
 
+# Tables that live in the DB but are not managed by this app (e.g. Neon's
+# onboarding sample) — never emit drop_table for them.
+_AUTOGEN_EXCLUDED_TABLES = {"playing_with_neon"}
+
 
 def include_object(obj, name, type_, reflected, compare_to) -> bool:
     if type_ == "index" and name in _AUTOGEN_EXCLUDED_INDEXES:
+        return False
+    if type_ == "table" and name in _AUTOGEN_EXCLUDED_TABLES:
         return False
     return True
 

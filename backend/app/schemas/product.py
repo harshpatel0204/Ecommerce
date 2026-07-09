@@ -146,6 +146,16 @@ class ProductUpdate(BaseModel):
     meta_desc: str | None = Field(default=None, max_length=500)
 
 
+class ImportRowError(BaseModel):
+    row: int
+    error: str
+
+
+class ProductImportResult(BaseModel):
+    created: int
+    errors: list[ImportRowError]
+
+
 def _discount_percent(base: float, selling: float) -> int:
     if base and base > selling:
         return round((base - selling) / base * 100)

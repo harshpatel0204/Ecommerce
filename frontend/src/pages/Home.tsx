@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { ProductRow } from "@/components/product/ProductRow";
+import { usePageMeta } from "@/hooks/usePageMeta";
 import { useCategories, useFeatured, useProducts } from "@/hooks/useProducts";
 
 // ---- Bright promotional hero banners (Flipkart/Amazon style) ----
@@ -66,6 +67,12 @@ const CAT_COLORS = [
 ];
 
 export default function Home() {
+  usePageMeta({
+    title: "Rare Coins & Banknotes Collection",
+    description:
+      "India's trusted store for rare and collectible coins & banknotes. Old Indian coins, foreign coins, currency notes — 100% authenticated.",
+  });
+
   const { data: categories } = useCategories();
   const { data: featured, isLoading: featuredLoading } = useFeatured();
   const { data: newest, isLoading: newestLoading } = useProducts({ sort: "newest", limit: 12 });
