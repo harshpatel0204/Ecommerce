@@ -54,15 +54,16 @@ export function Navbar() {
     setMobileOpen(false);
   };
 
-  const onLogout = async () => {
-    try {
-      if (refreshToken) await logoutApi(refreshToken);
-    } finally {
-      clear();
-      toast.success("Signed out successfully");
-      navigate("/");
-      setUserMenuOpen(false);
+  const onLogout = () => {
+    if (refreshToken) {
+      logoutApi(refreshToken).catch((err) => {
+        console.error("Logout API error:", err);
+      });
     }
+    clear();
+    toast.success("Signed out successfully");
+    navigate("/");
+    setUserMenuOpen(false);
   };
 
   return (

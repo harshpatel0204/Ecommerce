@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { Category } from "@/types/product";
+import { BrandLoader } from "@/components/ui/BrandLoader";
 
 const schema = z.object({
   name: z.string().min(1, "Required"),
@@ -55,8 +56,8 @@ export default function AdminProductForm() {
   const navigate = useNavigate();
   const qc = useQueryClient();
 
-  const { data: categories } = useQuery({ queryKey: ["admin", "categories"], queryFn: adminGetCategories });
-  const { data: product } = useQuery({
+  const { data: categories, isLoading: catsLoading } = useQuery({ queryKey: ["admin", "categories"], queryFn: adminGetCategories });
+  const { data: product, isLoading: productLoading } = useQuery({
     queryKey: ["admin", "product", id],
     queryFn: () => adminGetProduct(id!),
     enabled: isEdit,
@@ -114,6 +115,10 @@ export default function AdminProductForm() {
       toast.error("Save failed");
     }
   };
+
+  if (catsLoading || (isEdit && productLoading) || isSubmitting) {
+    return <BrandLoader fullScreen />;
+  }
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-8">

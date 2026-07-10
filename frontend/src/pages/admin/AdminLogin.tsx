@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuthStore } from "@/store/authStore";
+import { BrandLoader } from "@/components/ui/BrandLoader";
 
 const schema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -29,6 +30,10 @@ export default function AdminLogin() {
     handleSubmit,
     formState: { errors },
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
+
+  if (submitting) {
+    return <BrandLoader fullScreen />;
+  }
 
   // Already authenticated as admin — go straight to dashboard
   if (isAuthenticated && user?.is_admin) {

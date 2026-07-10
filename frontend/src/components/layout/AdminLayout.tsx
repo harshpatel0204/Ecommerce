@@ -28,14 +28,15 @@ export function AdminLayout() {
   const navigate = useNavigate();
   const { user, refreshToken, clear } = useAuthStore();
 
-  const onLogout = async () => {
-    try {
-      if (refreshToken) await logoutApi(refreshToken);
-    } finally {
-      clear();
-      toast.success("Signed out");
-      navigate("/");
+  const onLogout = () => {
+    if (refreshToken) {
+      logoutApi(refreshToken).catch((err) => {
+        console.error("Logout API error:", err);
+      });
     }
+    clear();
+    toast.success("Signed out");
+    navigate("/");
   };
 
   return (

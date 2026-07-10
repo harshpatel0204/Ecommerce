@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { OtpInput } from "@/components/ui/otp-input";
 import { useAuthStore } from "@/store/authStore";
+import { BrandLoader } from "@/components/ui/BrandLoader";
 import {
   auth,
   hasFirebaseConfig,
@@ -101,6 +102,10 @@ export default function Login() {
       return () => clearInterval(interval);
     }
   }, [resendTimer]);
+
+  if (submitting) {
+    return <BrandLoader fullScreen />;
+  }
 
   if (isAuthenticated) {
     // Honor ?next= here too: after setSession() this render wins the race

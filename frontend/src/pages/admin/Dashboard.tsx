@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { statusBadgeVariant } from "@/lib/status";
 import { formatPrice } from "@/lib/format";
+import { BrandLoader } from "@/components/ui/BrandLoader";
 
 const card = "rounded-2xl border border-border bg-white p-5 shadow-card dark:bg-gray-900";
 
@@ -17,6 +18,14 @@ export default function AdminDashboard() {
   const { data: chart } = useQuery({ queryKey: ["admin", "chart", period], queryFn: () => getSalesChart(period) });
   const { data: recent } = useQuery({ queryKey: ["admin", "recent"], queryFn: getRecentOrders });
   const { data: lowStock } = useQuery({ queryKey: ["admin", "lowstock"], queryFn: getLowStock });
+
+  if (isLoading || !stats) {
+    return (
+      <div className="flex min-h-[70vh] items-center justify-center">
+        <BrandLoader />
+      </div>
+    );
+  }
 
   const maxRev = chart ? Math.max(...chart.revenue, 1) : 1;
 
@@ -33,9 +42,7 @@ export default function AdminDashboard() {
 
       {/* Stat cards */}
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {isLoading
-          ? Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="shimmer h-28 rounded-2xl" />)
-          : cards.map((c) => (
+        {cards.map((c) => (
               <div key={c.label} className={card}>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">{c.label}</span>
