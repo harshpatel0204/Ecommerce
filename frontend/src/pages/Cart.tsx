@@ -1,9 +1,11 @@
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Tag } from "lucide-react";
+import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { useCart, useRemoveCartItem, useUpdateCartItem } from "@/hooks/useCart";
 import { formatPrice } from "@/lib/format";
+import { trackViewCart } from "@/lib/analytics";
 import { imageUrlById } from "@/lib/image";
 import { BrandLoader } from "@/components/ui/BrandLoader";
 
@@ -12,6 +14,22 @@ export default function Cart() {
   const { data: cart, isLoading } = useCart();
   const update = useUpdateCartItem();
   const remove = useRemoveCartItem();
+
+  // Analytics: track cart view when items are loaded.
+  useEffect(() => {
+    if (cart && cart.items.length > 0) {
+      trackViewCart(
+        cart.subtotal,
+        cart.items.map((i) => ({
+          item_id: i.product.id,
+          item_name: i.product.name,
+          price: i.unit_price,
+          quantity: i.quantity,
+          item_variant: [i.variant.size, i.variant.color].filter(Boolean).join(" / ") || undefined,
+        })),
+      );
+    }
+  }, [cart]);
 
   if (isLoading) {
     return (

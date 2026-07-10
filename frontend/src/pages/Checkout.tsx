@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { trackBeginCheckout, trackPurchase } from "@/lib/analytics";
 import { useCart } from "@/hooks/useCart";
 import { formatPrice } from "@/lib/format";
 import { imageUrlById } from "@/lib/image";
@@ -45,6 +46,23 @@ export default function Checkout() {
     if (addresses && addresses.length === 0) setShowForm(true);
   }, [addresses, selectedId]);
 
+  // Analytics: fire begin_checkout once the cart data is ready.
+  const cartItems = cart?.items;
+  useEffect(() => {
+    if (cartItems && cartItems.length > 0) {
+      trackBeginCheckout(
+        cartItems.reduce((s, i) => s + i.line_total, 0),
+        cartItems.map((i) => ({
+          item_id: i.product.id,
+          item_name: i.product.name,
+          price: i.unit_price,
+          quantity: i.quantity,
+          item_variant: [i.variant.size, i.variant.color].filter(Boolean).join(" / ") || undefined,
+        })),
+      );
+    }
+  }, [cartItems]);
+
   const selected = addresses?.find((a) => a.id === selectedId) ?? null;
 
   useEffect(() => {
@@ -75,6 +93,16 @@ export default function Checkout() {
     try {
       if (paymentMethod === "cod") {
         const co = await checkout(selectedId, couponCode, "cod");
+        trackPurchase(
+          co.order_number,
+          co.total_amount ?? cart!.subtotal,
+          cart!.items.map((i) => ({
+            item_id: i.product.id,
+            item_name: i.product.name,
+            price: i.unit_price,
+            quantity: i.quantity,
+          })),
+        );
         qc.invalidateQueries({ queryKey: ["cart"] });
         navigate(`/orders/${co.order_number}?placed=1`, { replace: true });
         return;
@@ -90,6 +118,16 @@ export default function Checkout() {
         razorpay_payment_id: pay.razorpay_payment_id,
         razorpay_signature: pay.razorpay_signature,
       });
+      trackPurchase(
+        co.order_number,
+        co.total_amount ?? cart!.subtotal,
+        cart!.items.map((i) => ({
+          item_id: i.product.id,
+          item_name: i.product.name,
+          price: i.unit_price,
+          quantity: i.quantity,
+        })),
+      );
       qc.invalidateQueries({ queryKey: ["cart"] });
       navigate(`/orders/${co.order_number}?paid=1`, { replace: true });
     } catch (err) {

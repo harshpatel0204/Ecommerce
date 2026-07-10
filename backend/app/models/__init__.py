@@ -5,6 +5,7 @@ Base.metadata.
 """
 from app.models.cart import CartItem, WishlistItem
 from app.models.coupon import Coupon
+from app.models.newsletter import NewsletterSubscriber
 from app.models.order import Order, OrderItem, OrderStatusHistory, PaymentEvent
 from app.models.product import Category, Product, ProductImage, ProductVariant
 from app.models.rate_limit import RateLimitCounter
@@ -30,4 +31,5 @@ __all__ = [
     "Review",
     "ServiceToken",
     "RateLimitCounter",
+    "NewsletterSubscriber",
 ]

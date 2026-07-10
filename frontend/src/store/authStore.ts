@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 import type { TokenResponse, User } from "@/types/auth";
+import { identifyUser, resetAnalytics } from "@/lib/analytics";
 
 interface AuthState {
   user: User | null;
@@ -23,23 +24,27 @@ export const useAuthStore = create<AuthState>()(
       accessToken: null,
       refreshToken: null,
       isAuthenticated: false,
-      setSession: (tokens) =>
+      setSession: (tokens) => {
+        identifyUser(tokens.user);
         set({
           user: tokens.user,
           accessToken: tokens.access_token,
           refreshToken: tokens.refresh_token,
           isAuthenticated: true,
-        }),
+        });
+      },
       setAccessToken: (accessToken, refreshToken) =>
         set({ accessToken, refreshToken, isAuthenticated: true }),
       setUser: (user) => set({ user }),
-      clear: () =>
+      clear: () => {
+        resetAnalytics();
         set({
           user: null,
           accessToken: null,
           refreshToken: null,
           isAuthenticated: false,
-        }),
+        });
+      },
     }),
     {
       name: "hariomcoins-auth",
@@ -47,3 +52,4 @@ export const useAuthStore = create<AuthState>()(
     },
   ),
 );
+

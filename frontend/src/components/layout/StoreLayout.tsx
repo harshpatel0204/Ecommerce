@@ -1,5 +1,9 @@
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
+
+import { subscribeNewsletter } from "@/api/newsletter";
 import { Navbar } from "@/components/layout/Navbar";
 import { Facebook, Instagram, Twitter, Youtube, Mail, Phone, MapPin, ArrowRight, Shield, Truck, RefreshCcw, CreditCard } from "lucide-react";
 
@@ -33,6 +37,46 @@ const TRUST_BADGES = [
   { icon: RefreshCcw, label: "Easy Returns", sub: "15-day return policy" },
   { icon: CreditCard, label: "Secure Payments", sub: "SSL encrypted checkout" },
 ];
+
+function NewsletterForm() {
+  const [email, setEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setSubmitting(true);
+    try {
+      const message = await subscribeNewsletter(email.trim());
+      toast.success(message);
+      setEmail("");
+    } catch {
+      toast.error("Could not subscribe right now. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <form className="flex gap-2 w-full sm:w-auto" onSubmit={onSubmit}>
+      <input
+        type="email"
+        required
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Enter your email"
+        className="flex-1 sm:w-64 h-10 px-4 rounded-xl bg-white/10 border border-white/20 text-sm text-white placeholder:text-gray-400 focus:outline-none focus:border-primary focus:bg-white/15 transition-all"
+      />
+      <button
+        type="submit"
+        disabled={submitting}
+        className="h-10 px-5 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors flex items-center gap-2 shrink-0 disabled:opacity-60"
+      >
+        {submitting ? "Subscribing…" : "Subscribe"} <ArrowRight className="h-4 w-4" />
+      </button>
+    </form>
+  );
+}
 
 /** Shared storefront chrome (navbar + footer) wrapping public + customer pages. */
 export function StoreLayout() {
@@ -72,19 +116,7 @@ export function StoreLayout() {
                 <h3 className="text-lg font-bold text-white">Join Our Collector's Circle</h3>
                 <p className="text-sm text-gray-400 mt-1">Get notified about rare finds, new arrivals, and exclusive collector offers.</p>
               </div>
-              <form className="flex gap-2 w-full sm:w-auto" onSubmit={(e) => e.preventDefault()}>
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="flex-1 sm:w-64 h-10 px-4 rounded-xl bg-white/10 border border-white/20 text-sm text-white placeholder:text-gray-400 focus:outline-none focus:border-primary focus:bg-white/15 transition-all"
-                />
-                <button
-                  type="submit"
-                  className="h-10 px-5 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors flex items-center gap-2 shrink-0"
-                >
-                  Subscribe <ArrowRight className="h-4 w-4" />
-                </button>
-              </form>
+              <NewsletterForm />
             </div>
           </div>
         </div>

@@ -21,6 +21,7 @@ from app.api.routes import (
     coupons,
     cron,
     images,
+    newsletter,
     orders,
     products,
     reviews,
@@ -79,6 +80,7 @@ app.include_router(reviews.router, prefix="/api")
 app.include_router(coupons.router, prefix="/api")
 app.include_router(webhooks.router, prefix="/api")
 app.include_router(cron.router, prefix="/api")
+app.include_router(newsletter.router, prefix="/api")
 app.include_router(admin_products.router, prefix="/api")
 app.include_router(admin_orders.router, prefix="/api")
 app.include_router(admin_dashboard.router, prefix="/api")

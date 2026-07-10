@@ -3,12 +3,14 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 
+import { useToggleWishlist } from "@/hooks/useWishlist";
 import { imageUrl } from "@/lib/image";
 import { formatPrice } from "@/lib/format";
 import type { ProductListItem } from "@/types/product";
 
 export function ProductCard({ product }: { product: ProductListItem }) {
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const { toggle, wishlistedIds } = useToggleWishlist();
+  const isWishlisted = wishlistedIds.has(product.id);
   const [imageLoaded, setImageLoaded] = useState(false);
 
   return (
@@ -49,7 +51,7 @@ export function ProductCard({ product }: { product: ProductListItem }) {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            setIsWishlisted(!isWishlisted);
+            toggle(product.id);
           }}
           className={`absolute right-2.5 top-2.5 h-8 w-8 rounded-full flex items-center justify-center shadow-sm transition-all duration-200 ${
             isWishlisted

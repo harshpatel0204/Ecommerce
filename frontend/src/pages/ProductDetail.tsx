@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { toast } from "sonner";
 import { ShoppingCart, Heart, Share2, Shield, Truck, RefreshCcw, Star, ChevronRight, Minus, Plus, Check } from "lucide-react";
@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { useAddToCart } from "@/hooks/useCart";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useProduct } from "@/hooks/useProducts";
+import { useToggleWishlist } from "@/hooks/useWishlist";
+import { trackViewProduct, trackAddToCart } from "@/lib/analytics";
 import { formatPrice } from "@/lib/format";
 import { useAuthStore } from "@/store/authStore";
 import { BrandLoader } from "@/components/ui/BrandLoader";
@@ -29,7 +31,7 @@ export default function ProductDetail() {
   const { data: product, isLoading, isError } = useProduct(slug);
   const [selected, setSelected] = useState<ProductVariant | null>(null);
   const [quantity, setQuantity] = useState(1);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const { toggle: toggleWishlist, wishlistedIds } = useToggleWishlist();
   const [justAdded, setJustAdded] = useState(false);
 
   usePageMeta({
@@ -37,6 +39,17 @@ export default function ProductDetail() {
     description: product?.meta_desc ?? product?.description?.slice(0, 160),
     image: product?.images[0] ? `${product.images[0].url}?w=800` : undefined,
   });
+
+  // Analytics: track product view once data is loaded.
+  useEffect(() => {
+    if (product) {
+      trackViewProduct({
+        item_id: product.id,
+        item_name: product.name,
+        price: product.selling_price,
+      });
+    }
+  }, [product]);
 
   if (isLoading) {
     return (
@@ -74,6 +87,13 @@ export default function ProductDetail() {
     }
     addToCart.mutate([selected.id, quantity], {
       onSuccess: () => {
+        trackAddToCart({
+          item_id: product.id,
+          item_name: product.name,
+          price: unitPrice,
+          quantity,
+          item_variant: [selected.size, selected.color].filter(Boolean).join(" / ") || undefined,
+        });
         toast.success("Added to cart! 🛍️");
         setJustAdded(true);
         setTimeout(() => setJustAdded(false), 2000);
@@ -222,15 +242,15 @@ export default function ProductDetail() {
               </Button>
 
               <button
-                onClick={() => setIsWishlisted(!isWishlisted)}
+                onClick={() => toggleWishlist(product.id)}
                 className={`h-12 w-12 rounded-xl border flex items-center justify-center transition-all ${
-                  isWishlisted
+                  wishlistedIds.has(product.id)
                     ? "bg-red-50 border-red-200 text-red-500"
                     : "border-border hover:border-red-200 hover:text-red-500"
                 }`}
                 aria-label="Add to wishlist"
               >
-                <Heart className={`h-5 w-5 ${isWishlisted ? "fill-current" : ""}`} />
+                <Heart className={`h-5 w-5 ${wishlistedIds.has(product.id) ? "fill-current" : ""}`} />
               </button>
 
               <button

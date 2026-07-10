@@ -1,4 +1,5 @@
 import {
+  FolderTree,
   LayoutDashboard,
   LogOut,
   Package,
@@ -18,6 +19,7 @@ import { useAuthStore } from "@/store/authStore";
 const NAV = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
   { to: "/admin/products", label: "Products", icon: Package, end: false },
+  { to: "/admin/categories", label: "Categories", icon: FolderTree, end: false },
   { to: "/admin/orders", label: "Orders", icon: ShoppingBag, end: false },
   { to: "/admin/reviews", label: "Reviews", icon: Star, end: false },
   { to: "/admin/coupons", label: "Coupons", icon: Tag, end: false },

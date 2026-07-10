@@ -154,3 +154,15 @@ export async function adminCreateCategory(payload: {
   const { data } = await apiClient.post<Category>("/admin/categories", payload);
   return data;
 }
+
+export async function adminUpdateCategory(
+  id: string,
+  payload: { name?: string; sort_order?: number; is_active?: boolean },
+): Promise<Category> {
+  const { data } = await apiClient.patch<Category>(`/admin/categories/${id}`, payload);
+  return data;
+}
+
+export async function adminDeleteCategory(id: string): Promise<void> {
+  await apiClient.delete(`/admin/categories/${id}`);
+}

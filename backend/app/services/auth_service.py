@@ -98,6 +98,40 @@ async def authenticate(db: AsyncSession, email: str, password: str) -> tuple[Use
     return user, access, refresh
 
 
+async def update_profile(
+    db: AsyncSession, user: User, full_name: str | None, phone: str | None
+) -> User:
+    if full_name is not None:
+        user.full_name = full_name
+    if phone is not None:
+        user.phone = phone
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+
+async def change_password(
+    db: AsyncSession, user: User, current_password: str, new_password: str
+) -> tuple[User, str, str]:
+    """Verify the current password, set the new one, and rotate all sessions.
+
+    Every refresh token is revoked (any hijacked session dies) and a fresh
+    pair is returned so the current device stays logged in.
+    """
+    if not verify_password(current_password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Current password is incorrect",
+        )
+    user.hashed_password = hash_password(new_password)
+    await db.execute(delete(RefreshToken).where(RefreshToken.user_id == user.id))
+    access = create_access_token(str(user.id))
+    refresh = await _persist_refresh_token(db, user)
+    await db.commit()
+    await db.refresh(user)
+    return user, access, refresh
+
+
 async def rotate_refresh_token(db: AsyncSession, raw_refresh: str) -> tuple[User, str, str]:
     """Validate a refresh token, revoke it, and issue a fresh access+refresh pair."""
     import jwt

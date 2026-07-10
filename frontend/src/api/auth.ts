@@ -37,3 +37,22 @@ export async function getMe(): Promise<User> {
   const { data } = await apiClient.get<User>("/auth/me");
   return data;
 }
+
+export async function updateProfile(payload: {
+  full_name?: string;
+  phone?: string;
+}): Promise<User> {
+  const { data } = await apiClient.patch<User>("/auth/me", payload);
+  return data;
+}
+
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string,
+): Promise<TokenResponse> {
+  const { data } = await apiClient.post<TokenResponse>("/auth/change-password", {
+    current_password: currentPassword,
+    new_password: newPassword,
+  });
+  return data;
+}

@@ -1,9 +1,10 @@
 import { lazy, Suspense, useEffect } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 import { getMe } from "@/api/auth";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { StoreLayout } from "@/components/layout/StoreLayout";
+import { trackPageView } from "@/lib/analytics";
 import { AdminRoute } from "@/routes/AdminRoute";
 import { ProtectedRoute } from "@/routes/ProtectedRoute";
 import { useAuthStore } from "@/store/authStore";
@@ -26,6 +27,7 @@ const Account = lazy(() => import("@/pages/Account"));
 const AdminDashboard = lazy(() => import("@/pages/admin/Dashboard"));
 const AdminProductList = lazy(() => import("@/pages/admin/ProductList"));
 const AdminProductForm = lazy(() => import("@/pages/admin/ProductForm"));
+const AdminCategoryList = lazy(() => import("@/pages/admin/CategoryList"));
 const AdminOrderList = lazy(() => import("@/pages/admin/OrderList"));
 const AdminOrderDetail = lazy(() => import("@/pages/admin/OrderDetail"));
 const AdminUserList = lazy(() => import("@/pages/admin/UserList"));
@@ -43,6 +45,7 @@ function PageFallback() {
 
 export default function App() {
   const { refreshToken, accessToken, setUser, clear } = useAuthStore();
+  const location = useLocation();
 
   // Restore the session on load: getMe() 401s, the client interceptor refreshes
   // the access token, then the retry returns the current user.
@@ -54,6 +57,11 @@ export default function App() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Track page views on every route change.
+  useEffect(() => {
+    trackPageView(location.pathname);
+  }, [location.pathname]);
 
   return (
     <Suspense fallback={<PageFallback />}>
@@ -90,6 +98,7 @@ export default function App() {
             <Route path="/admin/products" element={<AdminProductList />} />
             <Route path="/admin/products/new" element={<AdminProductForm />} />
             <Route path="/admin/products/:id/edit" element={<AdminProductForm />} />
+            <Route path="/admin/categories" element={<AdminCategoryList />} />
             <Route path="/admin/orders" element={<AdminOrderList />} />
             <Route path="/admin/orders/:orderId" element={<AdminOrderDetail />} />
             <Route path="/admin/users" element={<AdminUserList />} />

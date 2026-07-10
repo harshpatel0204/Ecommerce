@@ -8,10 +8,12 @@ from fastapi import APIRouter, Depends, status
 from app.core.deps import CurrentUser, DbSession
 from app.core.rate_limit import rate_limit
 from app.schemas.auth import (
+    ChangePasswordRequest,
     ForgotPasswordRequest,
     LoginRequest,
     LogoutRequest,
     MessageResponse,
+    ProfileUpdateRequest,
     RefreshRequest,
     RegisterRequest,
     ResetPasswordRequest,
@@ -108,3 +110,23 @@ async def login_firebase_phone(data: FirebasePhoneLoginRequest, db: DbSession) -
 @router.get("/me", response_model=UserBrief)
 async def me(current_user: CurrentUser) -> UserBrief:
     return UserBrief.model_validate(current_user)
+
+
+@router.patch("/me", response_model=UserBrief)
+async def update_me(
+    data: ProfileUpdateRequest, current_user: CurrentUser, db: DbSession
+) -> UserBrief:
+    user = await auth_service.update_profile(db, current_user, data.full_name, data.phone)
+    return UserBrief.model_validate(user)
+
+
+@router.post("/change-password", response_model=TokenResponse)
+async def change_password(
+    data: ChangePasswordRequest, current_user: CurrentUser, db: DbSession
+) -> TokenResponse:
+    user, access, refresh = await auth_service.change_password(
+        db, current_user, data.current_password, data.new_password
+    )
+    return TokenResponse(
+        access_token=access, refresh_token=refresh, user=UserBrief.model_validate(user)
+    )
