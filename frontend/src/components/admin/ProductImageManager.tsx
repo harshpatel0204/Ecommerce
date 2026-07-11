@@ -59,11 +59,12 @@ export function ProductImageManager({ productId, images }: Props) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold">Images</h3>
+        <h3 className="font-semibold text-white">Images</h3>
         <Button
           type="button"
           variant="outline"
           size="sm"
+          className="border-white/15 bg-white/5 text-slate-200 hover:bg-white/10 hover:text-white"
           disabled={busy}
           onClick={() => inputRef.current?.click()}
         >
@@ -80,11 +81,11 @@ export function ProductImageManager({ productId, images }: Props) {
       </div>
 
       {images.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No images yet.</p>
+        <p className="text-sm text-slate-400">No images yet.</p>
       ) : (
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
           {images.map((img, i) => (
-            <div key={img.id} className="group relative overflow-hidden rounded-md border">
+            <div key={img.id} className="group relative overflow-hidden rounded-xl border border-white/10">
               <img src={imageUrl(img, 200)} alt="" className="aspect-square w-full object-cover" />
               {img.is_primary && (
                 <span className="absolute left-1 top-1 rounded bg-primary px-1.5 py-0.5 text-[10px] text-primary-foreground">

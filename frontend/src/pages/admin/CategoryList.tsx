@@ -35,7 +35,7 @@ export default function AdminCategoryList() {
 
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["admin", "categories"] });
-    qc.invalidateQueries({ queryKey: ["categories"] }); // storefront nav
+    qc.invalidateQueries({ queryKey: ["categories"] });
   };
 
   const create = useMutation({
@@ -62,7 +62,6 @@ export default function AdminCategoryList() {
     onError: (e) => toast.error(apiError(e, "Could not delete category")),
   });
 
-  // The admin endpoint returns a tree; render it flattened with depth.
   const flat: { cat: Category; depth: number }[] = [];
   const walk = (nodes: Category[], depth: number) => {
     for (const node of nodes) {
@@ -73,17 +72,16 @@ export default function AdminCategoryList() {
   if (categories) walk(categories, 0);
 
   return (
-    <div className="px-6 py-8">
+    <div className="animate-fade-in-up px-6 py-8">
       <div className="mb-6">
-        <h1 className="flex items-center gap-2 text-2xl font-bold">
-          <FolderTree className="h-6 w-6 text-primary" /> Categories
+        <h1 className="flex items-center gap-2 text-2xl font-bold text-white">
+          <FolderTree className="h-6 w-6 text-amber-400" /> Categories
         </h1>
-        <p className="mt-0.5 text-sm text-muted-foreground">
+        <p className="mt-0.5 text-sm text-slate-400">
           Organize your catalog. Deactivate instead of deleting once products are assigned.
         </p>
       </div>
 
-      {/* Create */}
       <form
         className="mb-6 flex max-w-md gap-2"
         onSubmit={(e) => {
@@ -95,7 +93,7 @@ export default function AdminCategoryList() {
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           placeholder="New category name…"
-          className="rounded-xl"
+          className="rounded-xl border-white/10 bg-white/5 text-slate-100 placeholder:text-slate-500"
         />
         <Button type="submit" className="gap-2 rounded-xl" disabled={create.isPending || !newName.trim()}>
           <Plus className="h-4 w-4" /> Add
@@ -109,13 +107,13 @@ export default function AdminCategoryList() {
           ))}
         </div>
       ) : flat.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-white py-16 text-center text-muted-foreground dark:bg-gray-900">
+        <div className="admin-glass rounded-2xl py-16 text-center text-slate-400">
           No categories yet — add your first one above.
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-card dark:bg-gray-900">
+        <div className="admin-glass overflow-hidden rounded-2xl">
           <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left text-xs uppercase tracking-wider text-muted-foreground">
+            <thead className="border-b border-white/10 text-left text-xs uppercase tracking-wider text-slate-500">
               <tr>
                 <th className="p-4 font-semibold">Name</th>
                 <th className="p-4 font-semibold">Slug</th>
@@ -125,8 +123,8 @@ export default function AdminCategoryList() {
             </thead>
             <tbody>
               {flat.map(({ cat, depth }) => (
-                <tr key={cat.id} className="border-t border-border transition-colors hover:bg-muted/30">
-                  <td className="p-4 font-medium" style={{ paddingLeft: `${16 + depth * 24}px` }}>
+                <tr key={cat.id} className="border-t border-white/5 transition-colors hover:bg-white/5">
+                  <td className="p-4 font-medium text-slate-100" style={{ paddingLeft: `${16 + depth * 24}px` }}>
                     {editingId === cat.id ? (
                       <form
                         className="flex items-center gap-2"
@@ -138,13 +136,13 @@ export default function AdminCategoryList() {
                         <Input
                           value={editName}
                           onChange={(e) => setEditName(e.target.value)}
-                          className="h-9 max-w-56 rounded-lg"
+                          className="h-9 max-w-56 rounded-lg border-white/10 bg-white/5 text-slate-100"
                           autoFocus
                         />
-                        <button type="submit" className="text-green-600 hover:text-green-700" aria-label="Save name">
+                        <button type="submit" className="text-emerald-400 hover:text-emerald-300" aria-label="Save name">
                           <Check className="h-4 w-4" />
                         </button>
-                        <button type="button" onClick={() => setEditingId(null)} className="text-muted-foreground" aria-label="Cancel">
+                        <button type="button" onClick={() => setEditingId(null)} className="text-slate-500" aria-label="Cancel">
                           <X className="h-4 w-4" />
                         </button>
                       </form>
@@ -152,7 +150,7 @@ export default function AdminCategoryList() {
                       <span>{depth > 0 && "↳ "}{cat.name}</span>
                     )}
                   </td>
-                  <td className="p-4 text-muted-foreground">{cat.slug}</td>
+                  <td className="p-4 text-slate-400">{cat.slug}</td>
                   <td className="p-4">
                     <button onClick={() => toggleActive.mutate(cat)} title="Click to toggle">
                       <Badge variant={cat.is_active ? "default" : "secondary"}>
@@ -163,7 +161,7 @@ export default function AdminCategoryList() {
                   <td className="p-4">
                     <div className="flex items-center justify-end gap-1">
                       <button
-                        className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                        className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-white/10 hover:text-white"
                         onClick={() => {
                           setEditingId(cat.id);
                           setEditName(cat.name);
@@ -173,7 +171,7 @@ export default function AdminCategoryList() {
                         <Pencil className="h-3.5 w-3.5" />
                       </button>
                       <button
-                        className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-red-50 hover:text-destructive"
+                        className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-rose-500/10 hover:text-rose-300"
                         onClick={() => remove.mutate(cat.id)}
                         aria-label="Delete category"
                       >

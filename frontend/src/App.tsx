@@ -33,6 +33,9 @@ const AdminOrderDetail = lazy(() => import("@/pages/admin/OrderDetail"));
 const AdminUserList = lazy(() => import("@/pages/admin/UserList"));
 const AdminReviewList = lazy(() => import("@/pages/admin/ReviewList"));
 const AdminCouponList = lazy(() => import("@/pages/admin/CouponList"));
+const AdminInventory = lazy(() => import("@/pages/admin/Inventory"));
+const AdminReturnList = lazy(() => import("@/pages/admin/ReturnList"));
+const AdminSettings = lazy(() => import("@/pages/admin/Settings"));
 const AdminLogin = lazy(() => import("@/pages/admin/AdminLogin"));
 
 function PageFallback() {
@@ -99,11 +102,14 @@ export default function App() {
             <Route path="/admin/products/new" element={<AdminProductForm />} />
             <Route path="/admin/products/:id/edit" element={<AdminProductForm />} />
             <Route path="/admin/categories" element={<AdminCategoryList />} />
+            <Route path="/admin/inventory" element={<AdminInventory />} />
             <Route path="/admin/orders" element={<AdminOrderList />} />
             <Route path="/admin/orders/:orderId" element={<AdminOrderDetail />} />
+            <Route path="/admin/returns" element={<AdminReturnList />} />
             <Route path="/admin/users" element={<AdminUserList />} />
             <Route path="/admin/reviews" element={<AdminReviewList />} />
             <Route path="/admin/coupons" element={<AdminCouponList />} />
+            <Route path="/admin/settings" element={<AdminSettings />} />
           </Route>
         </Route>
 

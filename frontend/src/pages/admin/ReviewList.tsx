@@ -38,18 +38,18 @@ export default function AdminReviewList() {
   });
 
   return (
-    <div className="px-6 py-8">
-      <h1 className="mb-6 flex items-center gap-2 text-2xl font-bold">
-        <Star className="h-6 w-6 text-primary" /> Reviews
+    <div className="animate-fade-in-up px-6 py-8">
+      <h1 className="mb-6 flex items-center gap-2 text-2xl font-bold text-white">
+        <Star className="h-6 w-6 text-amber-400" /> Reviews
       </h1>
 
-      <div className="mb-4 flex gap-1 rounded-xl border border-border p-1 w-fit">
+      <div className="mb-4 flex w-fit gap-1 rounded-xl border border-white/10 bg-white/5 p-1">
         {(["pending", "approved", "all"] as const).map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
             className={`rounded-lg px-4 py-1.5 text-sm font-medium capitalize transition-colors ${
-              filter === f ? "bg-primary text-white" : "text-muted-foreground hover:text-foreground"
+              filter === f ? "bg-amber-500 text-white shadow-glow" : "text-slate-400 hover:text-white"
             }`}
           >
             {f}
@@ -58,17 +58,15 @@ export default function AdminReviewList() {
       </div>
 
       {isLoading ? (
-        <div className="flex min-h-[30vh] items-center justify-center rounded-2xl border border-border bg-white p-8 dark:bg-gray-900 shadow-card">
+        <div className="admin-glass flex min-h-[30vh] items-center justify-center rounded-2xl p-8">
           <BrandLoader />
         </div>
       ) : !data || data.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-white py-16 text-center text-muted-foreground dark:bg-gray-900">
-          No reviews here.
-        </div>
+        <div className="admin-glass rounded-2xl py-16 text-center text-slate-400">No reviews here.</div>
       ) : (
         <div className="space-y-3">
           {data.map((r) => (
-            <div key={r.id} className="rounded-2xl border border-border bg-white p-5 shadow-card dark:bg-gray-900">
+            <div key={r.id} className="admin-glass rounded-2xl p-5">
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
@@ -77,9 +75,9 @@ export default function AdminReviewList() {
                       {r.is_approved ? "Approved" : "Pending"}
                     </Badge>
                   </div>
-                  {r.title && <div className="mt-2 font-semibold">{r.title}</div>}
-                  {r.comment && <p className="mt-1 text-sm text-muted-foreground">{r.comment}</p>}
-                  <div className="mt-2 text-xs text-muted-foreground">
+                  {r.title && <div className="mt-2 font-semibold text-slate-100">{r.title}</div>}
+                  {r.comment && <p className="mt-1 text-sm text-slate-400">{r.comment}</p>}
+                  <div className="mt-2 text-xs text-slate-500">
                     {r.reviewer_name} · {new Date(r.created_at).toLocaleDateString("en-IN")}
                   </div>
                 </div>
@@ -92,7 +90,7 @@ export default function AdminReviewList() {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="text-destructive"
+                    className="border-white/15 bg-white/5 text-rose-300 hover:bg-rose-500/10 hover:text-rose-200"
                     disabled={remove.isPending}
                     onClick={() => remove.mutate(r.id)}
                   >

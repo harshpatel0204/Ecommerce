@@ -53,14 +53,16 @@ export function VariantManager({ productId, variants }: Props) {
     refresh();
   };
 
+  const cellInput = "h-8 rounded-lg border-white/10 bg-white/5 text-slate-100";
+
   return (
     <div className="space-y-3">
-      <h3 className="font-semibold">Variants</h3>
+      <h3 className="font-semibold text-white">Variants</h3>
 
       {variants.length > 0 && (
-        <div className="overflow-x-auto rounded-md border">
+        <div className="overflow-x-auto rounded-xl border border-white/10">
           <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left">
+            <thead className="bg-white/5 text-left text-xs uppercase tracking-wider text-slate-500">
               <tr>
                 <th className="p-2">SKU</th>
                 <th className="p-2">Size</th>
@@ -72,8 +74,8 @@ export function VariantManager({ productId, variants }: Props) {
             </thead>
             <tbody>
               {variants.map((v) => (
-                <tr key={v.id} className="border-t">
-                  <td className="p-2 font-mono text-xs">{v.sku}</td>
+                <tr key={v.id} className="border-t border-white/5 text-slate-200">
+                  <td className="p-2 font-mono text-xs text-amber-300">{v.sku}</td>
                   <td className="p-2">{v.size ?? "—"}</td>
                   <td className="p-2">{v.color ?? "—"}</td>
                   <td className="p-2">{v.price_delta}</td>
@@ -81,7 +83,7 @@ export function VariantManager({ productId, variants }: Props) {
                     <Input
                       type="number"
                       defaultValue={v.stock_quantity}
-                      className="h-8 w-20"
+                      className={`${cellInput} w-20`}
                       onBlur={(e) => saveStock(v.id, e.target.value)}
                     />
                   </td>
@@ -99,21 +101,21 @@ export function VariantManager({ productId, variants }: Props) {
         </div>
       )}
 
-      <div className="flex flex-wrap items-end gap-2 rounded-md border p-3">
+      <div className="flex flex-wrap items-end gap-2 rounded-xl border border-white/10 bg-white/5 p-3">
         <Field label="Size">
-          <Input value={form.size} onChange={(e) => setForm({ ...form, size: e.target.value })} className="h-8 w-24" />
+          <Input value={form.size} onChange={(e) => setForm({ ...form, size: e.target.value })} className={`${cellInput} w-24`} />
         </Field>
         <Field label="Color">
-          <Input value={form.color} onChange={(e) => setForm({ ...form, color: e.target.value })} className="h-8 w-24" />
+          <Input value={form.color} onChange={(e) => setForm({ ...form, color: e.target.value })} className={`${cellInput} w-24`} />
         </Field>
         <Field label="Hex">
-          <Input value={form.color_hex} onChange={(e) => setForm({ ...form, color_hex: e.target.value })} placeholder="#000" className="h-8 w-24" />
+          <Input value={form.color_hex} onChange={(e) => setForm({ ...form, color_hex: e.target.value })} placeholder="#000" className={`${cellInput} w-24`} />
         </Field>
         <Field label="Δ Price">
-          <Input type="number" value={form.price_delta} onChange={(e) => setForm({ ...form, price_delta: Number(e.target.value) })} className="h-8 w-24" />
+          <Input type="number" value={form.price_delta} onChange={(e) => setForm({ ...form, price_delta: Number(e.target.value) })} className={`${cellInput} w-24`} />
         </Field>
         <Field label="Stock">
-          <Input type="number" value={form.stock_quantity} onChange={(e) => setForm({ ...form, stock_quantity: Number(e.target.value) })} className="h-8 w-24" />
+          <Input type="number" value={form.stock_quantity} onChange={(e) => setForm({ ...form, stock_quantity: Number(e.target.value) })} className={`${cellInput} w-24`} />
         </Field>
         <Button type="button" size="sm" disabled={saving} onClick={add}>
           Add variant
@@ -126,7 +128,7 @@ export function VariantManager({ productId, variants }: Props) {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs text-muted-foreground">{label}</span>
+      <span className="text-xs text-slate-400">{label}</span>
       {children}
     </div>
   );

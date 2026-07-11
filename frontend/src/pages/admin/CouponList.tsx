@@ -41,44 +41,44 @@ export default function AdminCouponList() {
     },
   });
 
-  const card = "rounded-2xl border border-border bg-white p-5 shadow-card dark:bg-gray-900";
+  const inputClass = "rounded-xl border-white/10 bg-white/5 text-slate-100 placeholder:text-slate-500";
 
   return (
-    <div className="px-6 py-8">
-      <h1 className="mb-6 flex items-center gap-2 text-2xl font-bold">
-        <Tag className="h-6 w-6 text-primary" /> Coupons
+    <div className="animate-fade-in-up px-6 py-8">
+      <h1 className="mb-6 flex items-center gap-2 text-2xl font-bold text-white">
+        <Tag className="h-6 w-6 text-amber-400" /> Coupons
       </h1>
 
-      <div className={`${card} mb-6`}>
-        <h2 className="mb-4 font-bold">Create coupon</h2>
+      <div className="admin-glass mb-6 rounded-2xl p-6">
+        <h2 className="mb-4 font-bold text-white">Create coupon</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Input
             placeholder="CODE"
             value={form.code}
             onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
-            className="rounded-xl uppercase"
+            className={`${inputClass} uppercase`}
           />
           <select
             value={form.discount_type}
             onChange={(e) => setForm({ ...form, discount_type: e.target.value as "percent" | "flat" })}
-            className="h-10 rounded-xl border border-input bg-background px-3 text-sm"
+            className="h-10 rounded-xl border border-white/10 bg-white/5 px-3 text-sm text-slate-200"
           >
-            <option value="percent">Percent %</option>
-            <option value="flat">Flat ₹</option>
+            <option value="percent" className="bg-slate-900">Percent %</option>
+            <option value="flat" className="bg-slate-900">Flat ₹</option>
           </select>
           <Input
             type="number"
             placeholder="Value"
             value={form.discount_value}
             onChange={(e) => setForm({ ...form, discount_value: Number(e.target.value) })}
-            className="rounded-xl"
+            className={inputClass}
           />
           <Input
             type="number"
             placeholder="Min order ₹"
             value={form.min_order_value}
             onChange={(e) => setForm({ ...form, min_order_value: Number(e.target.value) })}
-            className="rounded-xl"
+            className={inputClass}
           />
         </div>
         <Button
@@ -91,15 +91,15 @@ export default function AdminCouponList() {
       </div>
 
       {isLoading ? (
-        <div className="flex min-h-[30vh] items-center justify-center rounded-2xl border border-border bg-white p-8 dark:bg-gray-900 shadow-card">
+        <div className="admin-glass flex min-h-[30vh] items-center justify-center rounded-2xl p-8">
           <BrandLoader />
         </div>
       ) : !data || data.length === 0 ? (
-        <div className={`${card} py-12 text-center text-muted-foreground`}>No coupons yet.</div>
+        <div className="admin-glass rounded-2xl py-12 text-center text-slate-400">No coupons yet.</div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-card dark:bg-gray-900">
+        <div className="admin-glass overflow-hidden rounded-2xl">
           <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left text-xs uppercase tracking-wider text-muted-foreground">
+            <thead className="border-b border-white/10 text-left text-xs uppercase tracking-wider text-slate-500">
               <tr>
                 <th className="p-4 font-semibold">Code</th>
                 <th className="p-4 font-semibold">Discount</th>
@@ -111,13 +111,13 @@ export default function AdminCouponList() {
             </thead>
             <tbody>
               {data.map((c) => (
-                <tr key={c.id} className="border-t border-border hover:bg-muted/30">
-                  <td className="p-4 font-mono font-medium">{c.code}</td>
-                  <td className="p-4">
+                <tr key={c.id} className="border-t border-white/5 transition-colors hover:bg-white/5">
+                  <td className="p-4 font-mono font-medium text-amber-300">{c.code}</td>
+                  <td className="p-4 text-slate-200">
                     {c.discount_type === "percent" ? `${c.discount_value}%` : formatPrice(c.discount_value)}
                   </td>
-                  <td className="p-4">{formatPrice(c.min_order_value)}</td>
-                  <td className="p-4">
+                  <td className="p-4 text-slate-300">{formatPrice(c.min_order_value)}</td>
+                  <td className="p-4 text-slate-300">
                     {c.times_used}
                     {c.usage_limit ? ` / ${c.usage_limit}` : ""}
                   </td>
@@ -130,7 +130,7 @@ export default function AdminCouponList() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-muted-foreground hover:text-destructive"
+                      className="text-slate-400 hover:bg-rose-500/10 hover:text-rose-300"
                       disabled={remove.isPending}
                       onClick={() => remove.mutate(c.id)}
                     >

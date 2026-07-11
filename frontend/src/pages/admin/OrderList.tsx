@@ -23,9 +23,9 @@ export default function AdminOrderList() {
   });
 
   return (
-    <div className="px-6 py-8">
-      <h1 className="mb-6 flex items-center gap-2 text-2xl font-bold">
-        <ShoppingBag className="h-6 w-6 text-primary" /> Orders
+    <div className="animate-fade-in-up px-6 py-8">
+      <h1 className="mb-6 flex items-center gap-2 text-2xl font-bold text-white">
+        <ShoppingBag className="h-6 w-6 text-amber-400" /> Orders
       </h1>
 
       <div className="mb-4 flex flex-wrap gap-3">
@@ -36,7 +36,7 @@ export default function AdminOrderList() {
             setPage(1);
           }}
           placeholder="Search order number…"
-          className="max-w-xs rounded-xl"
+          className="max-w-xs rounded-xl border-white/10 bg-white/5 text-slate-100 placeholder:text-slate-500"
         />
         <select
           value={status}
@@ -44,10 +44,10 @@ export default function AdminOrderList() {
             setStatus(e.target.value);
             setPage(1);
           }}
-          className="h-10 rounded-xl border border-input bg-background px-3 text-sm capitalize"
+          className="h-10 rounded-xl border border-white/10 bg-white/5 px-3 text-sm capitalize text-slate-200"
         >
           {STATUSES.map((s) => (
-            <option key={s} value={s}>
+            <option key={s} value={s} className="bg-slate-900">
               {s ? s.replace(/_/g, " ") : "All statuses"}
             </option>
           ))}
@@ -55,18 +55,16 @@ export default function AdminOrderList() {
       </div>
 
       {isLoading ? (
-        <div className="flex min-h-[30vh] items-center justify-center rounded-2xl border border-border bg-white p-8 dark:bg-gray-900 shadow-card">
+        <div className="admin-glass flex min-h-[30vh] items-center justify-center rounded-2xl p-8">
           <BrandLoader />
         </div>
       ) : !data || data.items.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-white py-16 text-center text-muted-foreground dark:bg-gray-900">
-          No orders found.
-        </div>
+        <div className="admin-glass rounded-2xl py-16 text-center text-slate-400">No orders found.</div>
       ) : (
         <>
-          <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-card dark:bg-gray-900">
+          <div className="admin-glass overflow-hidden rounded-2xl">
             <table className="w-full text-sm">
-              <thead className="bg-muted/50 text-left text-xs uppercase tracking-wider text-muted-foreground">
+              <thead className="border-b border-white/10 text-left text-xs uppercase tracking-wider text-slate-500">
                 <tr>
                   <th className="p-4 font-semibold">Order</th>
                   <th className="p-4 font-semibold">Date</th>
@@ -78,18 +76,16 @@ export default function AdminOrderList() {
               </thead>
               <tbody>
                 {data.items.map((o) => (
-                  <tr key={o.id} className="border-t border-border hover:bg-muted/30">
+                  <tr key={o.id} className="border-t border-white/5 transition-colors hover:bg-white/5">
                     <td className="p-4">
-                      <Link to={`/admin/orders/${o.id}`} className="font-medium text-primary hover:underline">
+                      <Link to={`/admin/orders/${o.id}`} className="font-medium text-amber-300 hover:underline">
                         {o.order_number}
                       </Link>
                     </td>
-                    <td className="p-4 text-muted-foreground">
-                      {new Date(o.placed_at).toLocaleDateString("en-IN")}
-                    </td>
-                    <td className="p-4">{o.item_count}</td>
-                    <td className="p-4 font-medium">{formatPrice(o.total_amount)}</td>
-                    <td className="p-4 capitalize text-muted-foreground">{o.payment_status}</td>
+                    <td className="p-4 text-slate-400">{new Date(o.placed_at).toLocaleDateString("en-IN")}</td>
+                    <td className="p-4 text-slate-300">{o.item_count}</td>
+                    <td className="p-4 font-medium text-slate-100">{formatPrice(o.total_amount)}</td>
+                    <td className="p-4 capitalize text-slate-400">{o.payment_status}</td>
                     <td className="p-4">
                       <Badge variant={statusBadgeVariant(o.status)} className="capitalize">
                         {o.status.replace(/_/g, " ")}
@@ -106,7 +102,7 @@ export default function AdminOrderList() {
               <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>
                 Previous
               </Button>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm text-slate-400">
                 Page {data.page} of {data.pages}
               </span>
               <Button variant="outline" size="sm" disabled={page >= data.pages} onClick={() => setPage(page + 1)}>

@@ -47,19 +47,18 @@ export default function AdminProductList() {
     },
     onError: (e) =>
       toast.error(
-        (e as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??
-          "CSV import failed",
+        (e as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? "CSV import failed",
       ),
   });
 
   return (
-    <div className="px-6 py-8">
+    <div className="animate-fade-in-up px-6 py-8">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold">
-            <Package className="h-6 w-6 text-primary" /> Products
+          <h1 className="flex items-center gap-2 text-2xl font-bold text-white">
+            <Package className="h-6 w-6 text-amber-400" /> Products
           </h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">Manage your catalog</p>
+          <p className="mt-0.5 text-sm text-slate-400">Manage your catalog</p>
         </div>
         <div className="flex items-center gap-2">
           <input
@@ -70,12 +69,12 @@ export default function AdminProductList() {
             onChange={(e) => {
               const file = e.target.files?.[0];
               if (file) importCsv.mutate(file);
-              e.target.value = ""; // allow re-selecting the same file
+              e.target.value = "";
             }}
           />
           <Button
             variant="outline"
-            className="gap-2 rounded-xl"
+            className="gap-2 rounded-xl border-white/15 bg-white/5 text-slate-200 hover:bg-white/10 hover:text-white"
             disabled={importCsv.isPending}
             onClick={() => fileInputRef.current?.click()}
           >
@@ -89,27 +88,25 @@ export default function AdminProductList() {
       </div>
 
       <div className="relative mb-4 max-w-sm">
-        <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by name…"
-          className="rounded-xl pl-10"
+          className="rounded-xl border-white/10 bg-white/5 pl-10 text-slate-100 placeholder:text-slate-500"
         />
       </div>
 
       {isLoading ? (
-        <div className="flex min-h-[30vh] items-center justify-center rounded-2xl border border-border bg-white p-8 dark:bg-gray-900 shadow-card">
+        <div className="admin-glass flex min-h-[30vh] items-center justify-center rounded-2xl p-8">
           <BrandLoader />
         </div>
       ) : !data || data.items.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-white py-16 text-center text-muted-foreground dark:bg-gray-900">
-          No products found.
-        </div>
+        <div className="admin-glass rounded-2xl py-16 text-center text-slate-400">No products found.</div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-card dark:bg-gray-900">
+        <div className="admin-glass overflow-hidden rounded-2xl">
           <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left text-xs uppercase tracking-wider text-muted-foreground">
+            <thead className="border-b border-white/10 text-left text-xs uppercase tracking-wider text-slate-500">
               <tr>
                 <th className="p-4 font-semibold">Product</th>
                 <th className="p-4 font-semibold">Price</th>
@@ -120,7 +117,7 @@ export default function AdminProductList() {
             </thead>
             <tbody>
               {data.items.map((p) => (
-                <tr key={p.id} className="border-t border-border transition-colors hover:bg-muted/30">
+                <tr key={p.id} className="border-t border-white/5 transition-colors hover:bg-white/5">
                   <td className="p-4">
                     <div className="flex items-center gap-3">
                       <img
@@ -129,13 +126,13 @@ export default function AdminProductList() {
                         className="h-12 w-12 rounded-lg object-cover"
                       />
                       <div>
-                        <div className="font-medium">{p.name}</div>
-                        <div className="text-xs text-muted-foreground">{p.brand}</div>
+                        <div className="font-medium text-slate-100">{p.name}</div>
+                        <div className="text-xs text-slate-500">{p.brand}</div>
                       </div>
                     </div>
                   </td>
-                  <td className="p-4 font-medium">{formatPrice(p.selling_price)}</td>
-                  <td className="p-4">
+                  <td className="p-4 font-medium text-slate-100">{formatPrice(p.selling_price)}</td>
+                  <td className="p-4 text-slate-300">
                     {p.total_stock}
                     {p.total_stock === 0 && (
                       <Badge variant="destructive" className="ml-2">
@@ -152,14 +149,18 @@ export default function AdminProductList() {
                     <div className="flex justify-end gap-2">
                       <Link
                         to={`/admin/products/${p.id}/edit`}
-                        className={buttonVariants({ variant: "outline", size: "sm", className: "rounded-lg" })}
+                        className={buttonVariants({
+                          variant: "outline",
+                          size: "sm",
+                          className: "rounded-lg border-white/15 bg-white/5 text-slate-200 hover:bg-white/10 hover:text-white",
+                        })}
                       >
                         Edit
                       </Link>
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="rounded-lg text-muted-foreground hover:text-destructive"
+                        className="rounded-lg text-slate-400 hover:bg-rose-500/10 hover:text-rose-300"
                         disabled={del.isPending}
                         onClick={() => del.mutate(p.id)}
                       >

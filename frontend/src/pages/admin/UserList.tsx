@@ -29,9 +29,9 @@ export default function AdminUserList() {
   });
 
   return (
-    <div className="px-6 py-8">
-      <h1 className="mb-6 flex items-center gap-2 text-2xl font-bold">
-        <Users className="h-6 w-6 text-primary" /> Customers
+    <div className="animate-fade-in-up px-6 py-8">
+      <h1 className="mb-6 flex items-center gap-2 text-2xl font-bold text-white">
+        <Users className="h-6 w-6 text-amber-400" /> Customers
       </h1>
 
       <Input
@@ -41,22 +41,20 @@ export default function AdminUserList() {
           setPage(1);
         }}
         placeholder="Search by name or email…"
-        className="mb-4 max-w-sm rounded-xl"
+        className="mb-4 max-w-sm rounded-xl border-white/10 bg-white/5 text-slate-100 placeholder:text-slate-500"
       />
 
       {isLoading ? (
-        <div className="flex min-h-[30vh] items-center justify-center rounded-2xl border border-border bg-white p-8 dark:bg-gray-900 shadow-card">
+        <div className="admin-glass flex min-h-[30vh] items-center justify-center rounded-2xl p-8">
           <BrandLoader />
         </div>
       ) : !data || data.items.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-white py-16 text-center text-muted-foreground dark:bg-gray-900">
-          No customers found.
-        </div>
+        <div className="admin-glass rounded-2xl py-16 text-center text-slate-400">No customers found.</div>
       ) : (
         <>
-          <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-card dark:bg-gray-900">
+          <div className="admin-glass overflow-hidden rounded-2xl">
             <table className="w-full text-sm">
-              <thead className="bg-muted/50 text-left text-xs uppercase tracking-wider text-muted-foreground">
+              <thead className="border-b border-white/10 text-left text-xs uppercase tracking-wider text-slate-500">
                 <tr>
                   <th className="p-4 font-semibold">Name</th>
                   <th className="p-4 font-semibold">Email</th>
@@ -67,15 +65,13 @@ export default function AdminUserList() {
               </thead>
               <tbody>
                 {data.items.map((u) => (
-                  <tr key={u.id} className="border-t border-border hover:bg-muted/30">
-                    <td className="p-4 font-medium">
+                  <tr key={u.id} className="border-t border-white/5 transition-colors hover:bg-white/5">
+                    <td className="p-4 font-medium text-slate-100">
                       {u.full_name ?? "—"}
                       {u.is_admin && <Badge className="ml-2">Admin</Badge>}
                     </td>
-                    <td className="p-4 text-muted-foreground">{u.email}</td>
-                    <td className="p-4 text-muted-foreground">
-                      {new Date(u.created_at).toLocaleDateString("en-IN")}
-                    </td>
+                    <td className="p-4 text-slate-400">{u.email}</td>
+                    <td className="p-4 text-slate-400">{new Date(u.created_at).toLocaleDateString("en-IN")}</td>
                     <td className="p-4">
                       <Badge variant={u.is_active ? "success" : "secondary"}>
                         {u.is_active ? "Active" : "Deactivated"}
@@ -86,7 +82,7 @@ export default function AdminUserList() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="rounded-lg"
+                          className="rounded-lg border-white/15 bg-white/5 text-slate-200 hover:bg-white/10 hover:text-white"
                           disabled={toggle.isPending}
                           onClick={() => toggle.mutate(u.id)}
                         >
@@ -105,7 +101,7 @@ export default function AdminUserList() {
               <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>
                 Previous
               </Button>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm text-slate-400">
                 Page {data.page} of {data.pages}
               </span>
               <Button variant="outline" size="sm" disabled={page >= data.pages} onClick={() => setPage(page + 1)}>

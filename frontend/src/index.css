@@ -114,6 +114,42 @@
     box-shadow: 0 4px 24px rgba(0,0,0,0.3);
   }
 
+  /* ---------------------------------------------------------------------
+     Admin panel — dark glassmorphism theme (always dark, independent of the
+     storefront's light/dark mode).
+     --------------------------------------------------------------------- */
+  .admin-bg {
+    background-color: #090c15;
+    background-image:
+      radial-gradient(at 0% 0%, hsl(24 70% 14% / 0.55) 0px, transparent 45%),
+      radial-gradient(at 100% 0%, hsl(280 55% 16% / 0.45) 0px, transparent 42%),
+      radial-gradient(at 90% 100%, hsl(210 65% 14% / 0.5) 0px, transparent 45%),
+      radial-gradient(at 10% 90%, hsl(24 60% 12% / 0.4) 0px, transparent 40%);
+  }
+  /* Frosted glass surface for cards/panels on the dark admin. */
+  .admin-glass {
+    background: rgba(255, 255, 255, 0.045);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+  /* Slightly stronger sidebar/topbar surface. */
+  .admin-glass-strong {
+    background: rgba(13, 17, 28, 0.72);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-color: rgba(255, 255, 255, 0.07);
+  }
+  .admin-glass-hover {
+    transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.28s ease, border-color 0.28s ease;
+  }
+  .admin-glass-hover:hover {
+    transform: translateY(-3px);
+    border-color: rgba(245, 158, 11, 0.35);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(245, 158, 11, 0.18), 0 0 30px rgba(245, 158, 11, 0.08);
+  }
+
   /* Product card hover effect */
   .product-card-hover {
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;

@@ -22,6 +22,8 @@ import { imageUrlById } from "@/lib/image";
 const MANUAL_STATUSES = ["processing", "packed", "shipped", "out_for_delivery", "delivered"];
 const SHIPPABLE = new Set(["paid", "processing", "packed"]);
 
+const card = "admin-glass rounded-2xl p-5";
+
 export default function AdminOrderDetail() {
   const { orderId = "" } = useParams();
   const qc = useQueryClient();
@@ -74,23 +76,22 @@ export default function AdminOrderDetail() {
 
   if (isLoading) {
     return (
-      <div className="px-6 py-8 flex min-h-[50vh] items-center justify-center rounded-2xl border border-border bg-white p-8 dark:bg-gray-900 shadow-card">
+      <div className="flex min-h-[70vh] items-center justify-center px-6 py-8">
         <BrandLoader />
       </div>
     );
   }
-  if (!order) return <div className="px-6 py-16 text-center text-muted-foreground">Order not found.</div>;
+  if (!order) return <div className="px-6 py-16 text-center text-slate-400">Order not found.</div>;
 
   const addr = order.shipping_address;
-  const card = "rounded-2xl border border-border bg-white p-5 shadow-card dark:bg-gray-900";
 
   return (
-    <div className="px-6 py-8">
-      <Link to="/admin/orders" className="mb-2 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary">
+    <div className="animate-fade-in-up px-6 py-8">
+      <Link to="/admin/orders" className="mb-2 inline-flex items-center gap-1 text-sm text-slate-400 hover:text-amber-300">
         <ArrowLeft className="h-4 w-4" /> Orders
       </Link>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold">{order.order_number}</h1>
+        <h1 className="text-2xl font-bold text-white">{order.order_number}</h1>
         <Badge variant={statusBadgeVariant(order.status)} className="px-3 py-1 text-sm capitalize">
           {order.status.replace(/_/g, " ")}
         </Badge>
@@ -99,25 +100,25 @@ export default function AdminOrderDetail() {
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="space-y-6">
           <section className={card}>
-            <h2 className="mb-4 font-bold">Items</h2>
+            <h2 className="mb-4 font-bold text-white">Items</h2>
             <div className="space-y-3">
               {order.items.map((it, i) => (
                 <div key={i} className="flex items-center gap-3">
                   <img src={imageUrlById(it.image_id, 80)} alt="" className="h-12 w-12 rounded-lg object-cover" />
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium">{it.product_name}</div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="truncate text-sm font-medium text-slate-100">{it.product_name}</div>
+                    <div className="text-xs text-slate-500">
                       {[it.size, it.color].filter(Boolean).join(" · ")} · Qty {it.quantity}
                     </div>
                   </div>
-                  <div className="text-sm font-medium">{formatPrice(it.line_total)}</div>
+                  <div className="text-sm font-medium text-slate-100">{formatPrice(it.line_total)}</div>
                 </div>
               ))}
             </div>
           </section>
 
           <section className={card}>
-            <h2 className="mb-4 font-bold">Tracking</h2>
+            <h2 className="mb-4 font-bold text-white">Tracking</h2>
             <TrackingTimeline status={order.status} history={order.status_history} />
           </section>
         </div>
@@ -125,17 +126,17 @@ export default function AdminOrderDetail() {
         <aside className="space-y-6">
           {/* Fulfilment actions */}
           <section className={card}>
-            <h2 className="mb-3 flex items-center gap-2 font-bold">
-              <Truck className="h-5 w-5 text-primary" /> Fulfilment
+            <h2 className="mb-3 flex items-center gap-2 font-bold text-white">
+              <Truck className="h-5 w-5 text-amber-400" /> Fulfilment
             </h2>
             {order.awb_number ? (
-              <div className="space-y-1 text-sm">
-                <p>AWB: <span className="font-medium">{order.awb_number}</span></p>
-                <p>Courier: <span className="font-medium">{order.courier_name}</span></p>
+              <div className="space-y-1 text-sm text-slate-300">
+                <p>AWB: <span className="font-medium text-slate-100">{order.awb_number}</span></p>
+                <p>Courier: <span className="font-medium text-slate-100">{order.courier_name}</span></p>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="mt-2 w-full"
+                  className="mt-2 w-full border-white/15 bg-white/5 text-slate-200 hover:bg-white/10 hover:text-white"
                   disabled={label.isPending}
                   onClick={() => label.mutate()}
                 >
@@ -147,20 +148,20 @@ export default function AdminOrderDetail() {
                 {ship.isPending ? "Shipping…" : "Ship order"}
               </Button>
             ) : (
-              <p className="text-sm text-muted-foreground">Not ready to ship.</p>
+              <p className="text-sm text-slate-400">Not ready to ship.</p>
             )}
 
-            <div className="mt-4 border-t border-border pt-4">
-              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Set status</label>
+            <div className="mt-4 border-t border-white/10 pt-4">
+              <label className="mb-1.5 block text-xs font-medium text-slate-400">Set status</label>
               <div className="flex gap-2">
                 <select
                   value={newStatus}
                   onChange={(e) => setNewStatus(e.target.value)}
-                  className="h-9 flex-1 rounded-lg border border-input bg-background px-2 text-sm capitalize"
+                  className="h-9 flex-1 rounded-lg border border-white/10 bg-white/5 px-2 text-sm capitalize text-slate-200"
                 >
-                  <option value="">Choose…</option>
+                  <option value="" className="bg-slate-900">Choose…</option>
                   {MANUAL_STATUSES.map((s) => (
-                    <option key={s} value={s}>
+                    <option key={s} value={s} className="bg-slate-900">
                       {s.replace(/_/g, " ")}
                     </option>
                   ))}
@@ -173,8 +174,8 @@ export default function AdminOrderDetail() {
           </section>
 
           {order.status === "return_requested" && (
-            <section className={`${card} border-orange-300`}>
-              <h2 className="mb-2 font-bold text-orange-600">Return requested</h2>
+            <section className="admin-glass rounded-2xl border-amber-500/40 p-5">
+              <h2 className="mb-2 font-bold text-amber-300">Return requested</h2>
               <div className="flex gap-2">
                 <Button
                   size="sm"
@@ -187,7 +188,7 @@ export default function AdminOrderDetail() {
                 <Button
                   size="sm"
                   variant="outline"
-                  className="flex-1"
+                  className="flex-1 border-white/15 bg-white/5 text-slate-200 hover:bg-white/10 hover:text-white"
                   disabled={processReturn.isPending}
                   onClick={() => processReturn.mutate(false)}
                 >
@@ -198,24 +199,24 @@ export default function AdminOrderDetail() {
           )}
 
           <section className={`${card} text-sm`}>
-            <h2 className="mb-2 font-bold">Customer</h2>
-            <p className="font-medium">{addr.full_name}</p>
-            <p className="mt-1 text-muted-foreground">
+            <h2 className="mb-2 font-bold text-white">Customer</h2>
+            <p className="font-medium text-slate-100">{addr.full_name}</p>
+            <p className="mt-1 text-slate-400">
               {addr.line1}
               {addr.line2 ? `, ${addr.line2}` : ""}, {addr.city}, {addr.state} - {addr.pincode}
             </p>
-            <p className="text-muted-foreground">{addr.phone}</p>
+            <p className="text-slate-400">{addr.phone}</p>
           </section>
 
           <section className={`${card} text-sm`}>
-            <h2 className="mb-2 font-bold">Payment</h2>
-            <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatPrice(order.subtotal)}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span>{formatPrice(order.shipping_fee)}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Tax</span><span>{formatPrice(order.tax_amount)}</span></div>
-            <div className="mt-2 flex justify-between border-t border-border pt-2 font-bold">
+            <h2 className="mb-2 font-bold text-white">Payment</h2>
+            <div className="flex justify-between"><span className="text-slate-400">Subtotal</span><span className="text-slate-200">{formatPrice(order.subtotal)}</span></div>
+            <div className="flex justify-between"><span className="text-slate-400">Shipping</span><span className="text-slate-200">{formatPrice(order.shipping_fee)}</span></div>
+            <div className="flex justify-between"><span className="text-slate-400">Tax</span><span className="text-slate-200">{formatPrice(order.tax_amount)}</span></div>
+            <div className="mt-2 flex justify-between border-t border-white/10 pt-2 font-bold text-white">
               <span>Total</span><span>{formatPrice(order.total_amount)}</span>
             </div>
-            <p className="mt-2 text-xs capitalize text-muted-foreground">Payment: {order.payment_status}</p>
+            <p className="mt-2 text-xs capitalize text-slate-500">Payment: {order.payment_status}</p>
           </section>
         </aside>
       </div>
