@@ -60,3 +60,19 @@ class AdminUserListResponse(BaseModel):
     page: int
     pages: int
     limit: int
+
+
+class NewsletterSubscriberItem(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    email: EmailStr
+    created_at: datetime
+
+
+class NewsletterListResponse(BaseModel):
+    items: list[NewsletterSubscriberItem]
+    total: int
+    page: int
+    pages: int
+    limit: int

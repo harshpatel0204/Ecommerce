@@ -2,6 +2,7 @@ import {
   FolderTree,
   LayoutDashboard,
   LogOut,
+  Mail,
   Package,
   RotateCcw,
   Settings,
@@ -17,6 +18,7 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { logout as logoutApi } from "@/api/auth";
+import { NotificationsBell } from "@/components/admin/NotificationsBell";
 import { BrandLoader } from "@/components/ui/BrandLoader";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/authStore";
@@ -51,6 +53,7 @@ const NAV_GROUPS: {
     items: [
       { to: "/admin/reviews", label: "Reviews", icon: Star },
       { to: "/admin/users", label: "Customers", icon: Users },
+      { to: "/admin/newsletter", label: "Newsletter", icon: Mail },
     ],
   },
 ];
@@ -156,7 +159,8 @@ export function AdminLayout() {
             <p className="text-sm font-semibold text-slate-100">{user?.full_name ?? user?.email}</p>
           </div>
           <div className="flex items-center gap-3">
-            <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-300">
+            <NotificationsBell />
+            <span className="hidden rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-300 sm:inline">
               Owner
             </span>
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-hero text-sm font-bold text-white">

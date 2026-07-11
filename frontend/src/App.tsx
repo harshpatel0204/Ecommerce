@@ -35,6 +35,7 @@ const AdminReviewList = lazy(() => import("@/pages/admin/ReviewList"));
 const AdminCouponList = lazy(() => import("@/pages/admin/CouponList"));
 const AdminInventory = lazy(() => import("@/pages/admin/Inventory"));
 const AdminReturnList = lazy(() => import("@/pages/admin/ReturnList"));
+const AdminNewsletterList = lazy(() => import("@/pages/admin/NewsletterList"));
 const AdminSettings = lazy(() => import("@/pages/admin/Settings"));
 const AdminLogin = lazy(() => import("@/pages/admin/AdminLogin"));
 
@@ -109,6 +110,7 @@ export default function App() {
             <Route path="/admin/users" element={<AdminUserList />} />
             <Route path="/admin/reviews" element={<AdminReviewList />} />
             <Route path="/admin/coupons" element={<AdminCouponList />} />
+            <Route path="/admin/newsletter" element={<AdminNewsletterList />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
           </Route>
         </Route>

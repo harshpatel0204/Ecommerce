@@ -32,6 +32,7 @@ from app.api.routes import (
 )
 from app.api.routes.admin import coupons as admin_coupons
 from app.api.routes.admin import dashboard as admin_dashboard
+from app.api.routes.admin import newsletter as admin_newsletter
 from app.api.routes.admin import orders as admin_orders
 from app.api.routes.admin import products as admin_products
 from app.api.routes.admin import reviews as admin_reviews
@@ -87,6 +88,7 @@ app.include_router(admin_dashboard.router, prefix="/api")
 app.include_router(admin_users.router, prefix="/api")
 app.include_router(admin_reviews.router, prefix="/api")
 app.include_router(admin_coupons.router, prefix="/api")
+app.include_router(admin_newsletter.router, prefix="/api")
 # SEO routes declare their own paths (both bare + /api-prefixed) — no prefix here.
 app.include_router(seo.router)
 
