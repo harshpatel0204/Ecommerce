@@ -21,7 +21,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
+        {/* v7_startTransition: navigations that suspend (lazy page chunks)
+            keep the CURRENT page on screen instead of collapsing the whole
+            viewport into the Suspense fallback. */}
+        <BrowserRouter future={{ v7_startTransition: true }}>
           <App />
           <Toaster richColors position="top-center" />
         </BrowserRouter>

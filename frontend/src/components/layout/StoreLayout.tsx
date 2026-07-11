@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+
+import { BrandLoader } from "@/components/ui/BrandLoader";
 
 import { subscribeNewsletter } from "@/api/newsletter";
 import { Navbar } from "@/components/layout/Navbar";
@@ -84,7 +86,18 @@ export function StoreLayout() {
     <div className="flex min-h-screen flex-col bg-mesh">
       <Navbar />
       <main className="flex-1">
-        <Outlet />
+        {/* Page-level Suspense: on a direct load/refresh of a store page the
+            navbar + footer render immediately and only the content area shows
+            the loader — never a fully blank screen. */}
+        <Suspense
+          fallback={
+            <div className="flex min-h-[60vh] items-center justify-center">
+              <BrandLoader />
+            </div>
+          }
+        >
+          <Outlet />
+        </Suspense>
       </main>
 
       {/* Trust Badges Bar */}

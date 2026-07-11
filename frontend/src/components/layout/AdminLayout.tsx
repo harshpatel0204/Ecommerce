@@ -9,10 +9,12 @@ import {
   Tag,
   Users,
 } from "lucide-react";
+import { Suspense } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { logout as logoutApi } from "@/api/auth";
+import { BrandLoader } from "@/components/ui/BrandLoader";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/authStore";
 
@@ -103,7 +105,16 @@ export function AdminLayout() {
             Signed in as <span className="font-medium text-foreground">{user?.full_name ?? user?.email}</span>
           </p>
         </div>
-        <Outlet />
+        {/* Keep the sidebar/header visible while an admin page chunk loads. */}
+        <Suspense
+          fallback={
+            <div className="flex min-h-[60vh] items-center justify-center">
+              <BrandLoader />
+            </div>
+          }
+        >
+          <Outlet />
+        </Suspense>
       </main>
     </div>
   );

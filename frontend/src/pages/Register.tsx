@@ -13,7 +13,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { OtpInput } from "@/components/ui/otp-input";
 import { useAuthStore } from "@/store/authStore";
-import { BrandLoader } from "@/components/ui/BrandLoader";
 import {
   auth,
   hasFirebaseConfig,
@@ -122,10 +121,6 @@ export default function Register() {
       return () => clearInterval(interval);
     }
   }, [resendTimer]);
-
-  if (submitting) {
-    return <BrandLoader fullScreen />;
-  }
 
   if (isAuthenticated) {
     return <Navigate to="/" replace />;

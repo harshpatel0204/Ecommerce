@@ -35,6 +35,12 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+
+    # Vercel injects VERCEL=1 into its serverless runtime. We key connection
+    # pooling on this: serverless invocations must use NullPool (no long-lived
+    # pool), but a persistent server (local dev / VPS) should pool + reuse
+    # connections — otherwise every request pays the full DB connect cost.
+    VERCEL: str = ""
     GOOGLE_CLIENT_ID: str = ""
     FIREBASE_PROJECT_ID: str = ""
     # Shared secret for /api/cron/* — Vercel Cron sends it as a Bearer token
@@ -84,6 +90,11 @@ class Settings(BaseSettings):
     @property
     def is_local_db(self) -> bool:
         return "localhost" in self.DATABASE_URL or "127.0.0.1" in self.DATABASE_URL
+
+    @property
+    def is_serverless(self) -> bool:
+        """True when running on Vercel's serverless runtime (VERCEL=1)."""
+        return bool(self.VERCEL)
 
 
 @lru_cache
