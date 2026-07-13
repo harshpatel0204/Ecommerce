@@ -1,7 +1,7 @@
 """Admin order management + fulfilment. Every route requires get_current_admin."""
 import uuid
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Response
 
 from app.core.deps import CurrentAdmin, DbSession, get_current_admin
 from app.schemas.order import (
@@ -12,7 +12,7 @@ from app.schemas.order import (
     OrderStatusUpdate,
     ReturnAction,
 )
-from app.services import order_service
+from app.services import analytics_service, order_service
 
 router = APIRouter(prefix="/admin/orders", tags=["admin:orders"], dependencies=[Depends(get_current_admin)])
 
@@ -43,6 +43,25 @@ async def list_orders(
     )
     return OrderListResponse(
         items=[_to_list_item(o) for o in orders], total=total, page=page, pages=pages, limit=limit
+    )
+
+
+# Declared before "/{order_id}" so the literal path isn't parsed as a UUID.
+@router.get("/export.csv")
+async def export_orders_csv(
+    db: DbSession, status: str | None = None, search: str | None = None
+) -> Response:
+    rows = await analytics_service.orders_for_export(db, status, search)
+    lines = ["order_number,placed_at,status,payment_status,total_amount,item_count"]
+    for r in rows:
+        lines.append(
+            f"{r['order_number']},{r['placed_at'].isoformat()},{r['status']},"
+            f"{r['payment_status']},{r['total_amount']},{r['item_count']}"
+        )
+    return Response(
+        content="\n".join(lines),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=orders.csv"},
     )
 
 

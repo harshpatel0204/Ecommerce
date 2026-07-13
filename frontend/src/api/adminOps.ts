@@ -2,10 +2,14 @@ import { apiClient } from "@/api/client";
 import type {
   AdminUser,
   AdminUserListResponse,
+  AnalyticsSummary,
+  CategorySales,
+  CustomerDetail,
   DashboardStats,
   LowStockItem,
   RecentOrder,
   SalesChart,
+  TopProduct,
 } from "@/types/admin";
 import type { Order, OrderListResponse } from "@/types/order";
 
@@ -83,4 +87,42 @@ export async function adminGetUsers(params: {
 export async function adminToggleUserActive(userId: string): Promise<AdminUser> {
   const { data } = await apiClient.patch<AdminUser>(`/admin/users/${userId}/deactivate`);
   return data;
+}
+
+export async function adminGetCustomer(userId: string): Promise<CustomerDetail> {
+  const { data } = await apiClient.get<CustomerDetail>(`/admin/users/${userId}`);
+  return data;
+}
+
+// ---- Analytics ----
+export async function adminGetAnalyticsSummary(days: number): Promise<AnalyticsSummary> {
+  const { data } = await apiClient.get<AnalyticsSummary>("/admin/analytics/summary", {
+    params: { days },
+  });
+  return data;
+}
+
+export async function adminGetTopProducts(days: number, limit = 10): Promise<TopProduct[]> {
+  const { data } = await apiClient.get<TopProduct[]>("/admin/analytics/top-products", {
+    params: { days, limit },
+  });
+  return data;
+}
+
+export async function adminGetSalesByCategory(days: number): Promise<CategorySales[]> {
+  const { data } = await apiClient.get<CategorySales[]>("/admin/analytics/sales-by-category", {
+    params: { days },
+  });
+  return data;
+}
+
+/** Fetch the orders CSV as a blob and trigger a browser download. */
+export async function adminDownloadOrdersCsv(params: { status?: string; search?: string }): Promise<void> {
+  const { data } = await apiClient.get("/admin/orders/export.csv", { params, responseType: "blob" });
+  const url = URL.createObjectURL(data as Blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "orders.csv";
+  a.click();
+  URL.revokeObjectURL(url);
 }

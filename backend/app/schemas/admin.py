@@ -76,3 +76,45 @@ class NewsletterListResponse(BaseModel):
     page: int
     pages: int
     limit: int
+
+
+# ------------------------------------------------------------- Customer detail
+class CustomerOrderSummary(BaseModel):
+    order_number: str
+    status: str
+    total_amount: float
+    placed_at: datetime
+
+
+class CustomerDetail(BaseModel):
+    id: uuid.UUID
+    email: EmailStr
+    full_name: str | None
+    phone: str | None
+    is_admin: bool
+    is_active: bool
+    created_at: datetime
+    orders_count: int
+    total_spent: float
+    last_order_at: datetime | None
+    orders: list[CustomerOrderSummary]
+
+
+# ------------------------------------------------------------------- Analytics
+class TopProduct(BaseModel):
+    product_name: str
+    units_sold: int
+    revenue: float
+
+
+class CategorySales(BaseModel):
+    category: str
+    revenue: float
+    units: int
+
+
+class AnalyticsSummary(BaseModel):
+    revenue: float
+    orders: int
+    avg_order_value: float
+    unique_customers: int

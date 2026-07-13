@@ -1,4 +1,5 @@
 import {
+  BarChart3,
   FolderTree,
   LayoutDashboard,
   LogOut,
@@ -30,7 +31,10 @@ const NAV_GROUPS: {
 }[] = [
   {
     heading: "Overview",
-    items: [{ to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true }],
+    items: [
+      { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
+      { to: "/admin/analytics", label: "Analytics", icon: BarChart3 },
+    ],
   },
   {
     heading: "Catalog",

@@ -52,3 +52,43 @@ export interface AdminUserListResponse {
   pages: number;
   limit: number;
 }
+
+export interface CustomerOrderSummary {
+  order_number: string;
+  status: string;
+  total_amount: number;
+  placed_at: string;
+}
+
+export interface CustomerDetail {
+  id: string;
+  email: string;
+  full_name: string | null;
+  phone: string | null;
+  is_admin: boolean;
+  is_active: boolean;
+  created_at: string;
+  orders_count: number;
+  total_spent: number;
+  last_order_at: string | null;
+  orders: CustomerOrderSummary[];
+}
+
+export interface TopProduct {
+  product_name: string;
+  units_sold: number;
+  revenue: number;
+}
+
+export interface CategorySales {
+  category: string;
+  revenue: number;
+  units: number;
+}
+
+export interface AnalyticsSummary {
+  revenue: number;
+  orders: number;
+  avg_order_value: number;
+  unique_customers: number;
+}

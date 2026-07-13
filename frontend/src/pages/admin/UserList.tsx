@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Users } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 import { adminGetUsers, adminToggleUserActive } from "@/api/adminOps";
@@ -66,8 +67,10 @@ export default function AdminUserList() {
               <tbody>
                 {data.items.map((u) => (
                   <tr key={u.id} className="border-t border-white/5 transition-colors hover:bg-white/5">
-                    <td className="p-4 font-medium text-slate-100">
-                      {u.full_name ?? "—"}
+                    <td className="p-4 font-medium">
+                      <Link to={`/admin/users/${u.id}`} className="text-amber-300 hover:underline">
+                        {u.full_name ?? "—"}
+                      </Link>
                       {u.is_admin && <Badge className="ml-2">Admin</Badge>}
                     </td>
                     <td className="p-4 text-slate-400">{u.email}</td>

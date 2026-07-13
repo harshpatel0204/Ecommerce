@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { ShoppingBag } from "lucide-react";
+import { Download, ShoppingBag } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
-import { adminGetOrders } from "@/api/adminOps";
+import { adminDownloadOrdersCsv, adminGetOrders } from "@/api/adminOps";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,16 +18,39 @@ export default function AdminOrderList() {
   const [status, setStatus] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [exporting, setExporting] = useState(false);
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "orders", status, search, page],
     queryFn: () => adminGetOrders({ status: status || undefined, search: search || undefined, page }),
   });
 
+  const onExport = async () => {
+    setExporting(true);
+    try {
+      await adminDownloadOrdersCsv({ status: status || undefined, search: search || undefined });
+    } catch {
+      toast.error("Could not export orders.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <div className="animate-fade-in-up px-6 py-8">
-      <h1 className="mb-6 flex items-center gap-2 text-2xl font-bold text-white">
-        <ShoppingBag className="h-6 w-6 text-amber-400" /> Orders
-      </h1>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="flex items-center gap-2 text-2xl font-bold text-white">
+          <ShoppingBag className="h-6 w-6 text-amber-400" /> Orders
+        </h1>
+        <Button
+          variant="outline"
+          className="gap-2 rounded-xl border-white/15 bg-white/5 text-slate-200 hover:bg-white/10 hover:text-white"
+          disabled={exporting || !data?.total}
+          onClick={onExport}
+        >
+          <Download className="h-4 w-4" />
+          {exporting ? "Exporting…" : "Export CSV"}
+        </Button>
+      </div>
 
       <div className="mb-4 flex flex-wrap gap-3">
         <Input
