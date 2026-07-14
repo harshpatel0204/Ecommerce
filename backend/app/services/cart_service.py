@@ -179,6 +179,43 @@ async def clear_cart(db: AsyncSession, user_id: uuid.UUID) -> CartResponse:
     return CartResponse(items=[], subtotal=0, item_count=0)
 
 
+async def admin_list_abandoned_carts(db: AsyncSession, hours: int = 3) -> list[dict]:
+    """Non-empty carts whose oldest item has sat untouched longer than `hours`.
+    Value is computed live (product selling price + variant delta) x quantity."""
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
+    price = Product.selling_price + ProductVariant.price_delta
+    rows = await db.execute(
+        select(
+            User.id,
+            User.full_name,
+            User.email,
+            func.count(CartItem.id),
+            func.coalesce(func.sum(price * CartItem.quantity), 0),
+            func.min(CartItem.added_at),
+            func.bool_or(CartItem.reminder_sent_at.isnot(None)),
+        )
+        .join(CartItem, CartItem.user_id == User.id)
+        .join(ProductVariant, ProductVariant.id == CartItem.variant_id)
+        .join(Product, Product.id == ProductVariant.product_id)
+        .where(User.is_active.is_(True))
+        .group_by(User.id, User.full_name, User.email)
+        .having(func.min(CartItem.added_at) < cutoff)
+        .order_by(func.min(CartItem.added_at))
+    )
+    return [
+        {
+            "user_id": uid,
+            "full_name": name,
+            "email": email,
+            "item_count": int(count),
+            "total_value": float(value or 0),
+            "oldest_added_at": oldest,
+            "reminder_sent": bool(reminded),
+        }
+        for uid, name, email, count, value, oldest, reminded in rows
+    ]
+
+
 async def send_abandoned_cart_reminders(db: AsyncSession) -> int:
     """Email users whose cart items sat untouched for 24h–7d. Called by the
     daily cron. Each item is reminded about at most once (reminder_sent_at)."""

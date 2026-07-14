@@ -1,5 +1,6 @@
 import { apiClient } from "@/api/client";
 import type {
+  AbandonedCart,
   AdminUser,
   AdminUserListResponse,
   AnalyticsSummary,
@@ -112,6 +113,13 @@ export async function adminGetTopProducts(days: number, limit = 10): Promise<Top
 export async function adminGetSalesByCategory(days: number): Promise<CategorySales[]> {
   const { data } = await apiClient.get<CategorySales[]>("/admin/analytics/sales-by-category", {
     params: { days },
+  });
+  return data;
+}
+
+export async function adminGetAbandonedCarts(hours = 3): Promise<AbandonedCart[]> {
+  const { data } = await apiClient.get<AbandonedCart[]>("/admin/abandoned-carts", {
+    params: { hours },
   });
   return data;
 }

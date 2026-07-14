@@ -118,3 +118,14 @@ class AnalyticsSummary(BaseModel):
     orders: int
     avg_order_value: float
     unique_customers: int
+
+
+# ------------------------------------------------------------ Abandoned carts
+class AbandonedCart(BaseModel):
+    user_id: uuid.UUID
+    full_name: str | None
+    email: EmailStr
+    item_count: int
+    total_value: float
+    oldest_added_at: datetime
+    reminder_sent: bool

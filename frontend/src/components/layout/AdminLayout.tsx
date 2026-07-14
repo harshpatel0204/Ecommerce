@@ -8,6 +8,7 @@ import {
   RotateCcw,
   Settings,
   ShoppingBag,
+  ShoppingCart,
   Star,
   Store,
   Tag,
@@ -49,6 +50,7 @@ const NAV_GROUPS: {
     items: [
       { to: "/admin/orders", label: "Orders", icon: ShoppingBag },
       { to: "/admin/returns", label: "Returns", icon: RotateCcw },
+      { to: "/admin/abandoned-carts", label: "Abandoned Carts", icon: ShoppingCart },
       { to: "/admin/coupons", label: "Coupons", icon: Tag },
     ],
   },

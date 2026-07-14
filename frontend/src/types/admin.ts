@@ -92,3 +92,13 @@ export interface AnalyticsSummary {
   avg_order_value: number;
   unique_customers: number;
 }
+
+export interface AbandonedCart {
+  user_id: string;
+  full_name: string | null;
+  email: string;
+  item_count: number;
+  total_value: number;
+  oldest_added_at: string;
+  reminder_sent: boolean;
+}
