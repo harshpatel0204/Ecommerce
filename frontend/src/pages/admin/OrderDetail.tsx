@@ -1,10 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Truck } from "lucide-react";
+import { ArrowLeft, FileText, Truck } from "lucide-react";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
 import {
+  adminDownloadInvoice,
   adminGetLabel,
   adminGetOrder,
   adminProcessReturn,
@@ -74,6 +75,11 @@ export default function AdminOrderDetail() {
     onError: () => toast.error("Could not process return"),
   });
 
+  const invoice = useMutation({
+    mutationFn: () => adminDownloadInvoice(orderId, order?.order_number ?? "order"),
+    onError: () => toast.error("Could not generate invoice"),
+  });
+
   if (isLoading) {
     return (
       <div className="flex min-h-[70vh] items-center justify-center px-6 py-8">
@@ -92,9 +98,21 @@ export default function AdminOrderDetail() {
       </Link>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-white">{order.order_number}</h1>
-        <Badge variant={statusBadgeVariant(order.status)} className="px-3 py-1 text-sm capitalize">
-          {order.status.replace(/_/g, " ")}
-        </Badge>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 rounded-xl border-white/15 bg-white/5 text-slate-200 hover:bg-white/10 hover:text-white"
+            disabled={invoice.isPending}
+            onClick={() => invoice.mutate()}
+          >
+            <FileText className="h-4 w-4" />
+            {invoice.isPending ? "Generating…" : "Invoice"}
+          </Button>
+          <Badge variant={statusBadgeVariant(order.status)} className="px-3 py-1 text-sm capitalize">
+            {order.status.replace(/_/g, " ")}
+          </Badge>
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">

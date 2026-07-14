@@ -124,6 +124,17 @@ export async function adminGetAbandonedCarts(hours = 3): Promise<AbandonedCart[]
   return data;
 }
 
+/** Fetch a single order's GST invoice PDF and trigger a browser download. */
+export async function adminDownloadInvoice(orderId: string, orderNumber: string): Promise<void> {
+  const { data } = await apiClient.get(`/admin/orders/${orderId}/invoice.pdf`, { responseType: "blob" });
+  const url = URL.createObjectURL(data as Blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `invoice_${orderNumber}.pdf`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 /** Fetch the orders CSV as a blob and trigger a browser download. */
 export async function adminDownloadOrdersCsv(params: { status?: string; search?: string }): Promise<void> {
   const { data } = await apiClient.get("/admin/orders/export.csv", { params, responseType: "blob" });

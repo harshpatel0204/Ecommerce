@@ -12,7 +12,7 @@ from app.schemas.order import (
     OrderStatusUpdate,
     ReturnAction,
 )
-from app.services import analytics_service, order_service
+from app.services import analytics_service, invoice_service, order_service
 
 router = APIRouter(prefix="/admin/orders", tags=["admin:orders"], dependencies=[Depends(get_current_admin)])
 
@@ -69,6 +69,17 @@ async def export_orders_csv(
 async def get_order(order_id: uuid.UUID, db: DbSession) -> OrderResponse:
     order = await order_service.admin_get_order(db, order_id)
     return OrderResponse.model_validate(order)
+
+
+@router.get("/{order_id}/invoice.pdf")
+async def get_invoice(order_id: uuid.UUID, db: DbSession) -> Response:
+    order = await order_service.admin_get_order(db, order_id)
+    pdf = invoice_service.build_invoice_pdf(order)
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename=invoice_{order.order_number}.pdf"},
+    )
 
 
 @router.patch("/{order_id}/status", response_model=OrderResponse)

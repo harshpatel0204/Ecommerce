@@ -30,6 +30,12 @@ class Settings(BaseSettings):
     ADMIN_EMAIL: str = "admin@bharatshop.local"
     ADMIN_PASSWORD: str = "change-me-strong"
 
+    # ------------------------------------------------------- Seller (invoices)
+    # Shown on GST tax invoices. Set the real values as env vars in production.
+    SELLER_NAME: str = "HariomCoins"
+    SELLER_GSTIN: str = ""
+    SELLER_ADDRESS: str = ""
+
     # ----------------------------------------------------------------- Security
     SECRET_KEY: str = "dev-secret-change-me"
     ALGORITHM: str = "HS256"
