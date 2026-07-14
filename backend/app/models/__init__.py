@@ -3,6 +3,7 @@
 Every model is imported here so Alembic autogenerate can detect all tables via
 Base.metadata.
 """
+from app.models.banner import Banner
 from app.models.cart import CartItem, WishlistItem
 from app.models.coupon import Coupon
 from app.models.newsletter import NewsletterSubscriber
@@ -14,6 +15,7 @@ from app.models.service_token import ServiceToken
 from app.models.user import Address, RefreshToken, User
 
 __all__ = [
+    "Banner",
     "User",
     "RefreshToken",
     "Address",

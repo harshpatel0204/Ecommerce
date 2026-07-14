@@ -1,6 +1,7 @@
 import {
   BarChart3,
   FolderTree,
+  Images,
   LayoutDashboard,
   LogOut,
   Mail,
@@ -60,6 +61,7 @@ const NAV_GROUPS: {
       { to: "/admin/reviews", label: "Reviews", icon: Star },
       { to: "/admin/users", label: "Customers", icon: Users },
       { to: "/admin/newsletter", label: "Newsletter", icon: Mail },
+      { to: "/admin/banners", label: "Banners", icon: Images },
     ],
   },
 ];

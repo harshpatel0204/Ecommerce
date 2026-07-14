@@ -17,6 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import (
     addresses,
     auth,
+    banners,
     cart,
     coupons,
     cron,
@@ -31,6 +32,7 @@ from app.api.routes import (
     wishlist,
 )
 from app.api.routes.admin import analytics as admin_analytics
+from app.api.routes.admin import banners as admin_banners
 from app.api.routes.admin import carts as admin_carts
 from app.api.routes.admin import coupons as admin_coupons
 from app.api.routes.admin import dashboard as admin_dashboard
@@ -84,6 +86,7 @@ app.include_router(coupons.router, prefix="/api")
 app.include_router(webhooks.router, prefix="/api")
 app.include_router(cron.router, prefix="/api")
 app.include_router(newsletter.router, prefix="/api")
+app.include_router(banners.router, prefix="/api")
 app.include_router(admin_products.router, prefix="/api")
 app.include_router(admin_orders.router, prefix="/api")
 app.include_router(admin_dashboard.router, prefix="/api")
@@ -92,6 +95,7 @@ app.include_router(admin_reviews.router, prefix="/api")
 app.include_router(admin_coupons.router, prefix="/api")
 app.include_router(admin_newsletter.router, prefix="/api")
 app.include_router(admin_analytics.router, prefix="/api")
+app.include_router(admin_banners.router, prefix="/api")
 app.include_router(admin_carts.router, prefix="/api")
 # SEO routes declare their own paths (both bare + /api-prefixed) — no prefix here.
 app.include_router(seo.router)

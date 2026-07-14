@@ -8,12 +8,15 @@ import {
   Truck,
   Wallet,
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
+import { getBanners } from "@/api/banners";
 import { ProductRow } from "@/components/product/ProductRow";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useCategories, useFeatured, useProducts } from "@/hooks/useProducts";
+import { imageUrlById } from "@/lib/image";
 
 // ---- Bright promotional hero banners (Flipkart/Amazon style) ----
 const BANNERS = [
@@ -78,11 +81,28 @@ export default function Home() {
   const { data: newest, isLoading: newestLoading } = useProducts({ sort: "newest", limit: 12 });
   const { data: budget, isLoading: budgetLoading } = useProducts({ sort: "price_asc", limit: 12 });
 
+  // Admin-managed banners drive the hero; fall back to the static promo set when
+  // none are configured (or the banners table isn't migrated yet → []).
+  const { data: dynamicBanners } = useQuery({ queryKey: ["banners"], queryFn: getBanners });
+  const heroSlides =
+    dynamicBanners && dynamicBanners.length > 0
+      ? dynamicBanners.map((b, i) => ({
+          title: b.title,
+          subtitle: b.subtitle ?? "",
+          cta: b.cta_text ?? "Shop now",
+          to: b.product_slug ? `/products/${b.product_slug}` : "/products",
+          imageUrl: b.image_id ? imageUrlById(b.image_id, 1200) : null,
+          gradient: BANNERS[i % BANNERS.length].gradient,
+          emoji: BANNERS[i % BANNERS.length].emoji,
+        }))
+      : BANNERS.map((b) => ({ ...b, imageUrl: null as string | null }));
+
   const [slide, setSlide] = useState(0);
   useEffect(() => {
-    const t = setInterval(() => setSlide((s) => (s + 1) % BANNERS.length), 5000);
+    const t = setInterval(() => setSlide((s) => (s + 1) % heroSlides.length), 5000);
     return () => clearInterval(t);
-  }, []);
+  }, [heroSlides.length]);
+  const activeSlide = slide % heroSlides.length;
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -120,15 +140,22 @@ export default function Home() {
         {/* Hero banner carousel */}
         <section className="relative overflow-hidden rounded-2xl shadow-card">
           <div className="relative h-44 sm:h-56 md:h-72">
-            {BANNERS.map((b, i) => (
+            {heroSlides.map((b, i) => (
               <Link
                 to={b.to}
                 key={i}
                 className={`absolute inset-0 flex items-center bg-gradient-to-r ${b.gradient} transition-opacity duration-700 ${
-                  i === slide ? "opacity-100" : "pointer-events-none opacity-0"
+                  i === activeSlide ? "opacity-100" : "pointer-events-none opacity-0"
                 }`}
               >
-                <div className="flex w-full items-center justify-between px-6 sm:px-12">
+                {/* Product image background (admin banners), dimmed for text contrast. */}
+                {b.imageUrl && (
+                  <>
+                    <img src={b.imageUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
+                  </>
+                )}
+                <div className="relative flex w-full items-center justify-between px-6 sm:px-12">
                   <div className="max-w-lg text-white">
                     <h2 className="text-2xl font-extrabold drop-shadow-sm sm:text-4xl">{b.title}</h2>
                     <p className="mt-1.5 text-sm text-white/90 sm:text-base">{b.subtitle}</p>
@@ -136,31 +163,33 @@ export default function Home() {
                       {b.cta} <ArrowRight className="h-4 w-4" />
                     </span>
                   </div>
-                  <div className="hidden text-[7rem] leading-none drop-shadow-lg sm:block">{b.emoji}</div>
+                  {!b.imageUrl && (
+                    <div className="hidden text-[7rem] leading-none drop-shadow-lg sm:block">{b.emoji}</div>
+                  )}
                 </div>
               </Link>
             ))}
           </div>
           <button
-            onClick={() => setSlide((s) => (s - 1 + BANNERS.length) % BANNERS.length)}
+            onClick={() => setSlide((s) => (s - 1 + heroSlides.length) % heroSlides.length)}
             className="absolute left-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-gray-800 shadow hover:bg-white"
             aria-label="Previous"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
           <button
-            onClick={() => setSlide((s) => (s + 1) % BANNERS.length)}
+            onClick={() => setSlide((s) => (s + 1) % heroSlides.length)}
             className="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-gray-800 shadow hover:bg-white"
             aria-label="Next"
           >
             <ChevronRight className="h-5 w-5" />
           </button>
           <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
-            {BANNERS.map((_, i) => (
+            {heroSlides.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setSlide(i)}
-                className={`h-1.5 rounded-full transition-all ${i === slide ? "w-6 bg-white" : "w-1.5 bg-white/60"}`}
+                className={`h-1.5 rounded-full transition-all ${i === activeSlide ? "w-6 bg-white" : "w-1.5 bg-white/60"}`}
                 aria-label={`Slide ${i + 1}`}
               />
             ))}
