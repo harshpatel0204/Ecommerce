@@ -164,9 +164,12 @@ export default function Checkout() {
   return (
     <div className="min-h-screen bg-muted/20">
       <div className="border-b border-border bg-white dark:bg-gray-950">
-        <div className="container flex items-center gap-2 py-5">
-          <Lock className="h-5 w-5 text-primary" />
-          <h1 className="text-2xl font-bold">Secure Checkout</h1>
+        <div className="container py-5">
+          <div className="flex items-center gap-2">
+            <Lock className="h-5 w-5 text-primary" />
+            <h1 className="text-2xl font-bold">Secure Checkout</h1>
+          </div>
+          <CheckoutSteps current={1} />
         </div>
       </div>
 
@@ -339,6 +342,36 @@ export default function Checkout() {
           </div>
         </aside>
       </div>
+    </div>
+  );
+}
+
+const CHECKOUT_STEPS = ["Cart", "Address & Payment", "Confirmation"];
+
+/** Purely presentational progress indicator for the checkout flow. */
+function CheckoutSteps({ current }: { current: number }) {
+  return (
+    <div className="mt-4 flex items-center gap-2 overflow-x-auto">
+      {CHECKOUT_STEPS.map((label, i) => {
+        const done = i < current;
+        const active = i === current;
+        return (
+          <div key={label} className="flex shrink-0 items-center gap-2">
+            <span
+              className={cn(
+                "flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold",
+                done && "bg-green-600 text-white",
+                active && "bg-primary text-white",
+                !done && !active && "bg-muted text-muted-foreground",
+              )}
+            >
+              {done ? <Check className="h-3.5 w-3.5" /> : i + 1}
+            </span>
+            <span className={cn("text-sm font-medium", active ? "text-foreground" : "text-muted-foreground")}>{label}</span>
+            {i < CHECKOUT_STEPS.length - 1 && <span className="mx-1 h-px w-6 bg-border sm:w-10" />}
+          </div>
+        );
+      })}
     </div>
   );
 }
