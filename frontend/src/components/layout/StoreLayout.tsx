@@ -6,7 +6,9 @@ import { toast } from "sonner";
 import { BrandLoader } from "@/components/ui/BrandLoader";
 
 import { subscribeNewsletter } from "@/api/newsletter";
+import { CartDrawer } from "@/components/cart/CartDrawer";
 import { Navbar } from "@/components/layout/Navbar";
+import { QuickViewModal } from "@/components/product/QuickViewModal";
 import { Facebook, Instagram, Twitter, Youtube, Mail, Phone, MapPin, ArrowRight, Shield, Truck, RefreshCcw, CreditCard } from "lucide-react";
 
 const FOOTER_LINKS = {
@@ -85,6 +87,9 @@ export function StoreLayout() {
   return (
     <div className="flex min-h-screen flex-col bg-mesh">
       <Navbar />
+      {/* Global overlays (portal to body); driven by uiStore. */}
+      <CartDrawer />
+      <QuickViewModal />
       <main className="flex-1">
         {/* Page-level Suspense: on a direct load/refresh of a store page the
             navbar + footer render immediately and only the content area shows
