@@ -29,6 +29,7 @@ import { Input } from "@/components/ui/input";
 import { useAddToCart } from "@/hooks/useCart";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useProduct, useProducts } from "@/hooks/useProducts";
+import { recordRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { useToggleWishlist } from "@/hooks/useWishlist";
 import { trackAddToCart, trackViewProduct } from "@/lib/analytics";
 import { formatPrice } from "@/lib/format";
@@ -73,6 +74,21 @@ export default function ProductDetail() {
   useEffect(() => {
     if (product) {
       trackViewProduct({ item_id: product.id, item_name: product.name, price: product.selling_price });
+      recordRecentlyViewed({
+        id: product.id,
+        name: product.name,
+        slug: product.slug,
+        brand: product.brand,
+        base_price: product.base_price,
+        selling_price: product.selling_price,
+        is_active: product.is_active,
+        is_featured: product.is_featured,
+        primary_image: product.images[0] ?? null,
+        total_stock: product.variants.reduce((a, v) => a + v.stock_quantity, 0),
+        avg_rating: product.avg_rating,
+        review_count: product.review_count,
+        discount_percent: product.discount_percent,
+      });
     }
   }, [product]);
 

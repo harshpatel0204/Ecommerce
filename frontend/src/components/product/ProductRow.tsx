@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useRef } from "react";
+import { useRef, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 import { ProductCard } from "@/components/product/ProductCard";
@@ -12,10 +12,11 @@ interface Props {
   products: ProductListItem[] | undefined;
   isLoading?: boolean;
   viewAllTo?: string;
+  accessory?: ReactNode;
 }
 
 /** Flipkart/Amazon-style titled horizontal product carousel. */
-export function ProductRow({ title, subtitle, products, isLoading, viewAllTo }: Props) {
+export function ProductRow({ title, subtitle, products, isLoading, viewAllTo, accessory }: Props) {
   const scroller = useRef<HTMLDivElement>(null);
   const scroll = (dir: number) =>
     scroller.current?.scrollBy({ left: dir * 340, behavior: "smooth" });
@@ -25,9 +26,12 @@ export function ProductRow({ title, subtitle, products, isLoading, viewAllTo }: 
   return (
     <section className="rounded-2xl border border-border bg-white shadow-card dark:bg-gray-950">
       <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 sm:px-5">
-        <div>
-          <h2 className="text-base font-bold sm:text-lg">{title}</h2>
-          {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
+        <div className="flex min-w-0 items-center gap-4">
+          <div className="min-w-0">
+            <h2 className="text-base font-bold sm:text-lg">{title}</h2>
+            {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
+          </div>
+          {accessory}
         </div>
         <div className="flex items-center gap-2">
           {viewAllTo && (

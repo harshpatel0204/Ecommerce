@@ -9,13 +9,16 @@ import {
   Wallet,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { getBanners } from "@/api/banners";
 import { ProductRow } from "@/components/product/ProductRow";
+import { Countdown } from "@/components/ui/Countdown";
+import { SectionReveal } from "@/components/ui/SectionReveal";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useCategories, useFeatured, useProducts } from "@/hooks/useProducts";
+import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { imageUrlById } from "@/lib/image";
 
 // ---- Bright promotional hero banners (Flipkart/Amazon style) ----
@@ -80,6 +83,14 @@ export default function Home() {
   const { data: featured, isLoading: featuredLoading } = useFeatured();
   const { data: newest, isLoading: newestLoading } = useProducts({ sort: "newest", limit: 12 });
   const { data: budget, isLoading: budgetLoading } = useProducts({ sort: "price_asc", limit: 12 });
+  const recentlyViewed = useRecentlyViewed();
+
+  // Deal timer resets at local midnight; computed once so it doesn't reset each render.
+  const endOfDay = useMemo(() => {
+    const d = new Date();
+    d.setHours(23, 59, 59, 999);
+    return d;
+  }, []);
 
   // Admin-managed banners drive the hero; fall back to the static promo set when
   // none are configured (or the banners table isn't migrated yet → []).
@@ -214,27 +225,44 @@ export default function Home() {
         </section>
 
         {/* Product carousels */}
-        <ProductRow
-          title="Deals of the Day"
-          subtitle="Handpicked & certified"
-          products={featured}
-          isLoading={featuredLoading}
-          viewAllTo="/products"
-        />
-        <ProductRow
-          title="New Arrivals"
-          subtitle="Fresh in the vault"
-          products={newest?.items}
-          isLoading={newestLoading}
-          viewAllTo="/products?sort=newest"
-        />
-        <ProductRow
-          title="Best Value Picks"
-          subtitle="Great starters under budget"
-          products={budget?.items}
-          isLoading={budgetLoading}
-          viewAllTo="/products?sort=price_asc"
-        />
+        <SectionReveal>
+          <ProductRow
+            title="Deals of the Day"
+            subtitle="Handpicked & certified"
+            products={featured}
+            isLoading={featuredLoading}
+            viewAllTo="/products"
+            accessory={
+              <span className="hidden items-center gap-2 rounded-full bg-red-50 px-3 py-1 dark:bg-red-950/30 sm:flex">
+                <span className="text-xs font-semibold text-red-600">Ends in</span>
+                <Countdown to={endOfDay} />
+              </span>
+            }
+          />
+        </SectionReveal>
+        <SectionReveal>
+          <ProductRow
+            title="New Arrivals"
+            subtitle="Fresh in the vault"
+            products={newest?.items}
+            isLoading={newestLoading}
+            viewAllTo="/products?sort=newest"
+          />
+        </SectionReveal>
+        <SectionReveal>
+          <ProductRow
+            title="Best Value Picks"
+            subtitle="Great starters under budget"
+            products={budget?.items}
+            isLoading={budgetLoading}
+            viewAllTo="/products?sort=price_asc"
+          />
+        </SectionReveal>
+        {recentlyViewed.length > 0 && (
+          <SectionReveal>
+            <ProductRow title="Recently Viewed" subtitle="Pick up where you left off" products={recentlyViewed} />
+          </SectionReveal>
+        )}
 
         {/* Trust strip */}
         <section className="grid grid-cols-2 gap-3 rounded-2xl border border-border bg-white p-4 dark:bg-gray-950 sm:grid-cols-4">
