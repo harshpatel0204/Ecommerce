@@ -23,6 +23,10 @@ class BannerUpdate(BaseModel):
     is_active: bool | None = None
 
 
+class BannerReorder(BaseModel):
+    ids: list[uuid.UUID]
+
+
 class BannerAdmin(BaseModel):
     id: uuid.UUID
     title: str

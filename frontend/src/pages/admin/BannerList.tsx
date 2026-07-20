@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ImageIcon, Images, Plus, Search, Trash2, X } from "lucide-react";
+import { GripVertical, ImageIcon, Images, Plus, Search, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -8,6 +8,7 @@ import {
   adminCreateBanner,
   adminDeleteBanner,
   adminListBanners,
+  adminReorderBanners,
   adminUpdateBanner,
 } from "@/api/banners";
 import { Badge } from "@/components/ui/badge";
@@ -76,6 +77,30 @@ export default function AdminBannerList() {
       invalidate();
     },
   });
+
+  // Drag-and-drop reordering (native HTML5 DnD, no extra dependency).
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const reorder = useMutation({
+    mutationFn: adminReorderBanners,
+    onSuccess: invalidate,
+    onError: () => {
+      toast.error("Could not reorder banners");
+      invalidate();
+    },
+  });
+
+  const onDrop = (targetIndex: number) => {
+    if (dragIndex === null || dragIndex === targetIndex || !banners) {
+      setDragIndex(null);
+      return;
+    }
+    const next = [...banners];
+    const [moved] = next.splice(dragIndex, 1);
+    next.splice(targetIndex, 0, moved);
+    setDragIndex(null);
+    qc.setQueryData(["admin", "banners"], next); // optimistic
+    reorder.mutate(next.map((b) => b.id));
+  };
 
   return (
     <div className="animate-fade-in-up px-6 py-8">
@@ -178,8 +203,20 @@ export default function AdminBannerList() {
         </div>
       ) : (
         <div className="space-y-3">
-          {banners.map((b) => (
-            <div key={b.id} className="admin-glass flex items-center gap-4 rounded-2xl p-4">
+          {banners.map((b, i) => (
+            <div
+              key={b.id}
+              draggable
+              onDragStart={() => setDragIndex(i)}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={() => onDrop(i)}
+              className={`admin-glass flex items-center gap-4 rounded-2xl p-4 transition-opacity ${
+                dragIndex === i ? "opacity-40" : ""
+              }`}
+            >
+              <span className="cursor-grab text-slate-600 hover:text-slate-400" title="Drag to reorder">
+                <GripVertical className="h-5 w-5" />
+              </span>
               <div className="h-16 w-28 shrink-0 overflow-hidden rounded-xl bg-white/5">
                 {b.image_id ? (
                   <img src={imageUrlById(b.image_id, 200)} alt="" className="h-full w-full object-cover" />

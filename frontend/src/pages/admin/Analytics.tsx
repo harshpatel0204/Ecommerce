@@ -2,7 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import { BarChart3, IndianRupee, ShoppingBag, TrendingUp, Users } from "lucide-react";
 import { useState } from "react";
 
-import { adminGetAnalyticsSummary, adminGetSalesByCategory, adminGetTopProducts } from "@/api/adminOps";
+import {
+  adminGetAnalyticsSummary,
+  adminGetSalesByCategory,
+  adminGetTopProducts,
+  getSalesChart,
+} from "@/api/adminOps";
+import { AreaChart } from "@/components/admin/AreaChart";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/lib/format";
 
@@ -26,6 +32,11 @@ export default function AdminAnalytics() {
   const { data: byCat } = useQuery({
     queryKey: ["admin", "analytics", "cat", days],
     queryFn: () => adminGetSalesByCategory(days),
+  });
+  const period = days === 7 ? "7d" : days === 30 ? "30d" : "90d";
+  const { data: chart } = useQuery({
+    queryKey: ["admin", "analytics", "chart", period],
+    queryFn: () => getSalesChart(period),
   });
 
   const cards = [
@@ -74,6 +85,16 @@ export default function AdminAnalytics() {
             <div className="mt-3 text-2xl font-bold text-white">{c.value}</div>
           </div>
         ))}
+      </div>
+
+      {/* Revenue trend */}
+      <div className="admin-glass mb-6 rounded-2xl p-6">
+        <h2 className="mb-4 font-bold text-white">Revenue trend</h2>
+        {chart ? (
+          <AreaChart values={chart.revenue} labels={chart.labels} />
+        ) : (
+          <Skeleton className="shimmer h-48 w-full rounded-xl" />
+        )}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

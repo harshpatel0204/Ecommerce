@@ -1,7 +1,7 @@
 """Customer order + checkout + payment endpoints (all require authentication)."""
 import uuid
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query, Response, status
 
 from app.core.deps import CurrentUser, DbSession
 from app.schemas.order import (
@@ -15,7 +15,7 @@ from app.schemas.order import (
     VerifyPaymentRequest,
     VerifyPaymentResponse,
 )
-from app.services import order_service
+from app.services import invoice_service, order_service
 
 router = APIRouter(prefix="/orders", tags=["orders"])
 
@@ -76,6 +76,23 @@ async def list_orders(
 async def get_order(order_number: str, current_user: CurrentUser, db: DbSession) -> OrderResponse:
     order = await order_service.get_order(db, current_user, order_number)
     return OrderResponse.model_validate(order)
+
+
+@router.get("/{order_number}/invoice.pdf")
+async def get_invoice(order_number: str, current_user: CurrentUser, db: DbSession) -> Response:
+    """Download the tax invoice for the customer's own order (once paid)."""
+    order = await order_service.get_order(db, current_user, order_number)
+    if order.payment_status != "paid":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invoice is available once payment is completed",
+        )
+    pdf = invoice_service.build_invoice_pdf(order)
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename=invoice_{order.order_number}.pdf"},
+    )
 
 
 @router.get("/{order_number}/tracking", response_model=TrackingResponse)

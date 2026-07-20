@@ -48,3 +48,14 @@ export async function requestReturn(orderId: string, reason?: string): Promise<O
   const { data } = await apiClient.post<Order>(`/orders/${orderId}/return`, { reason });
   return data;
 }
+
+/** Download the tax invoice PDF for one of the customer's own paid orders. */
+export async function downloadInvoice(orderNumber: string): Promise<void> {
+  const { data } = await apiClient.get(`/orders/${orderNumber}/invoice.pdf`, { responseType: "blob" });
+  const url = URL.createObjectURL(data as Blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `invoice_${orderNumber}.pdf`;
+  a.click();
+  URL.revokeObjectURL(url);
+}

@@ -4,7 +4,7 @@ import uuid
 from fastapi import APIRouter, Depends, status
 
 from app.core.deps import DbSession, get_current_admin
-from app.schemas.banner import BannerAdmin, BannerCreate, BannerUpdate
+from app.schemas.banner import BannerAdmin, BannerCreate, BannerReorder, BannerUpdate
 from app.services import banner_service
 
 router = APIRouter(prefix="/admin/banners", tags=["admin:banners"], dependencies=[Depends(get_current_admin)])
@@ -19,6 +19,13 @@ async def list_banners(db: DbSession) -> list[BannerAdmin]:
 async def create_banner(data: BannerCreate, db: DbSession) -> dict[str, str]:
     banner_id = await banner_service.create(db, data)
     return {"id": str(banner_id)}
+
+
+# Declared before "/{banner_id}" so "reorder" isn't parsed as a banner UUID.
+@router.patch("/reorder")
+async def reorder_banners(data: BannerReorder, db: DbSession) -> dict[str, bool]:
+    await banner_service.reorder(db, data.ids)
+    return {"ok": True}
 
 
 @router.patch("/{banner_id}")

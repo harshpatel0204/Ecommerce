@@ -1,9 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, ChevronRight, MapPin, Truck } from "lucide-react";
+import { CheckCircle2, ChevronRight, FileText, MapPin, Truck } from "lucide-react";
+import { useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
-import { cancelOrder, getOrder, requestReturn } from "@/api/orders";
+import { cancelOrder, downloadInvoice, getOrder, requestReturn } from "@/api/orders";
 import { TrackingTimeline } from "@/components/order/TrackingTimeline";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -21,10 +22,23 @@ export default function OrderDetail() {
   const justPlaced = params.get("placed") === "1";
   const qc = useQueryClient();
 
+  const [downloadingInvoice, setDownloadingInvoice] = useState(false);
+
   const { data: order, isLoading } = useQuery({
     queryKey: ["order", orderNumber],
     queryFn: () => getOrder(orderNumber),
   });
+
+  const onDownloadInvoice = async () => {
+    setDownloadingInvoice(true);
+    try {
+      await downloadInvoice(orderNumber);
+    } catch {
+      toast.error("Could not download invoice.");
+    } finally {
+      setDownloadingInvoice(false);
+    }
+  };
 
   const cancel = useMutation({
     mutationFn: () => cancelOrder(order!.id),
@@ -168,6 +182,18 @@ export default function OrderDetail() {
                 Payment status: <span className="font-medium text-foreground">{order.payment_status}</span>
               </p>
             </section>
+
+            {order.payment_status === "paid" && (
+              <Button
+                variant="outline"
+                className="w-full gap-2"
+                disabled={downloadingInvoice}
+                onClick={onDownloadInvoice}
+              >
+                <FileText className="h-4 w-4" />
+                {downloadingInvoice ? "Preparing…" : "Download invoice"}
+              </Button>
+            )}
 
             {CANCELLABLE.has(order.status) && (
               <Button

@@ -92,6 +92,15 @@ async def update(db: AsyncSession, banner_id: uuid.UUID, data: BannerUpdate) -> 
     await db.commit()
 
 
+async def reorder(db: AsyncSession, ordered_ids: list[uuid.UUID]) -> None:
+    """Assign sort_order by position in the given id list."""
+    for index, banner_id in enumerate(ordered_ids):
+        banner = await db.get(Banner, banner_id)
+        if banner is not None:
+            banner.sort_order = index
+    await db.commit()
+
+
 async def delete(db: AsyncSession, banner_id: uuid.UUID) -> None:
     banner = await db.get(Banner, banner_id)
     if banner is None:

@@ -50,3 +50,7 @@ export async function adminUpdateBanner(id: string, payload: Partial<BannerPaylo
 export async function adminDeleteBanner(id: string): Promise<void> {
   await apiClient.delete(`/admin/banners/${id}`);
 }
+
+export async function adminReorderBanners(ids: string[]): Promise<void> {
+  await apiClient.patch("/admin/banners/reorder", { ids });
+}
