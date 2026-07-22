@@ -85,7 +85,7 @@ function NewsletterForm() {
 /** Shared storefront chrome (navbar + footer) wrapping public + customer pages. */
 export function StoreLayout() {
   return (
-    <div className="flex min-h-screen flex-col bg-mesh">
+    <div className="store-theme flex min-h-screen flex-col bg-mesh">
       <Navbar />
       {/* Global overlays (portal to body); driven by uiStore. */}
       <CartDrawer />
@@ -106,7 +106,7 @@ export function StoreLayout() {
       </main>
 
       {/* Trust Badges Bar */}
-      <div className="border-t border-border bg-white dark:bg-gray-950">
+      <div className="border-t border-border bg-card">
         <div className="container py-8">
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             {TRUST_BADGES.map(({ icon: Icon, label, sub }) => (
@@ -125,7 +125,7 @@ export function StoreLayout() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-gray-950 text-gray-300">
+      <footer className="bg-emerald-950 text-emerald-100/70">
         {/* Newsletter */}
         <div className="border-b border-white/10">
           <div className="container py-10">
@@ -223,7 +223,7 @@ export function StoreLayout() {
                   key={label}
                   href={href}
                   aria-label={label}
-                  className="h-8 w-8 rounded-lg bg-white/10 flex items-center justify-center hover:bg-primary hover:text-white transition-all"
+                  className="h-8 w-8 rounded-lg bg-white/10 flex items-center justify-center hover:bg-gold hover:text-emerald-950 transition-all"
                 >
                   <Icon className="h-4 w-4" />
                 </a>

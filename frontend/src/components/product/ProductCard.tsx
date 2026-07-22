@@ -16,7 +16,7 @@ export function ProductCard({ product }: { product: ProductListItem }) {
   const soldOut = product.total_stock === 0;
 
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-card product-card-hover dark:bg-gray-900">
+    <div className="group relative flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-card product-card-hover hover:border-gold/50">
       {/* Image */}
       <div className="relative aspect-square overflow-hidden bg-muted/50">
         {!imageLoaded && <div className="absolute inset-0 shimmer" />}
@@ -35,12 +35,12 @@ export function ProductCard({ product }: { product: ProductListItem }) {
         {/* Badges */}
         <div className="absolute left-2.5 top-2.5 flex flex-col gap-1.5">
           {product.discount_percent > 0 && (
-            <span className="inline-flex items-center rounded-full bg-red-500 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">
+            <span className="inline-flex items-center rounded-sm bg-destructive px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-destructive-foreground shadow-sm">
               -{product.discount_percent}%
             </span>
           )}
           {soldOut && (
-            <span className="inline-flex items-center rounded-full bg-gray-800/80 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm backdrop-blur-sm">
+            <span className="inline-flex items-center rounded-sm bg-foreground/80 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-background shadow-sm backdrop-blur-sm">
               Sold Out
             </span>
           )}
@@ -51,8 +51,8 @@ export function ProductCard({ product }: { product: ProductListItem }) {
           onClick={() => toggle(product.id)}
           className={`absolute right-2.5 top-2.5 flex h-8 w-8 items-center justify-center rounded-full shadow-sm transition-all duration-200 ${
             isWishlisted
-              ? "scale-110 bg-red-500 text-white"
-              : "bg-white/90 text-gray-500 opacity-0 hover:bg-white hover:text-red-500 group-hover:opacity-100"
+              ? "scale-110 bg-primary text-primary-foreground"
+              : "bg-card/90 text-muted-foreground opacity-0 hover:bg-card hover:text-primary group-hover:opacity-100"
           }`}
           aria-label="Add to wishlist"
         >
@@ -63,7 +63,7 @@ export function ProductCard({ product }: { product: ProductListItem }) {
         {!soldOut && (
           <button
             onClick={() => openQuickView(product.slug)}
-            className="absolute bottom-3 left-1/2 inline-flex -translate-x-1/2 translate-y-2 items-center gap-2 whitespace-nowrap rounded-full bg-white/95 px-4 py-2 text-xs font-semibold text-gray-800 opacity-0 shadow-card-hover transition-all duration-300 hover:bg-white group-hover:translate-y-0 group-hover:opacity-100"
+            className="absolute bottom-3 left-1/2 inline-flex -translate-x-1/2 translate-y-2 items-center gap-2 whitespace-nowrap rounded-full bg-card/95 px-4 py-2 text-xs font-semibold text-foreground opacity-0 shadow-card-hover transition-all duration-300 hover:bg-card group-hover:translate-y-0 group-hover:opacity-100"
           >
             <Eye className="h-3.5 w-3.5" /> Quick View
           </button>
@@ -73,14 +73,14 @@ export function ProductCard({ product }: { product: ProductListItem }) {
       {/* Body */}
       <Link to={`/products/${product.slug}`} className="flex flex-1 flex-col gap-2 p-3.5">
         {product.brand && (
-          <span className="text-[11px] font-semibold uppercase tracking-widest text-primary">{product.brand}</span>
+          <span className="text-[11px] font-semibold uppercase tracking-widest text-gold">{product.brand}</span>
         )}
         <h3 className="line-clamp-2 text-sm font-medium leading-snug text-foreground transition-colors group-hover:text-primary">
           {product.name}
         </h3>
         {product.review_count > 0 && (
           <div className="flex items-center gap-1.5">
-            <div className="flex items-center gap-0.5 rounded bg-green-600 px-1.5 py-0.5 text-[11px] font-bold text-white">
+            <div className="flex items-center gap-0.5 rounded-sm bg-primary px-1.5 py-0.5 text-[11px] font-bold text-primary-foreground">
               {product.avg_rating.toFixed(1)} <Star className="h-2.5 w-2.5 fill-current" />
             </div>
             <span className="text-[11px] text-muted-foreground">({product.review_count})</span>

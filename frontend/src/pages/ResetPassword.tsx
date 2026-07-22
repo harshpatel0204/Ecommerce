@@ -56,7 +56,7 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 bg-background">
+    <div className="store-theme min-h-screen flex items-center justify-center px-6 bg-background">
       <div className="w-full max-w-sm animate-fade-in-up">
         <Link to="/" className="flex items-center gap-2 mb-8">
           <div className="h-9 w-9 rounded-xl bg-gradient-hero flex items-center justify-center">

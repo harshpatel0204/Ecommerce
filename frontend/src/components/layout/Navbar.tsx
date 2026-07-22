@@ -93,17 +93,17 @@ export function Navbar() {
 
       <header
         className={`sticky top-0 z-50 border-b border-border transition-all duration-300 ${
-          scrolled ? "bg-white/95 shadow-md backdrop-blur-xl dark:bg-gray-950/95" : "bg-white dark:bg-gray-950"
+          scrolled ? "bg-card/95 shadow-md backdrop-blur-xl" : "bg-card"
         }`}
       >
         {/* Main row */}
         <div className="container">
           <div className="flex h-16 items-center gap-4 lg:gap-6">
             <Link to="/" className="group flex shrink-0 items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-hero shadow-glow transition-shadow group-hover:shadow-lg">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-hero shadow-glow ring-1 ring-gold/40 transition-shadow group-hover:shadow-lg">
                 <span className="text-lg font-bold leading-none text-white">🪙</span>
               </div>
-              <span className="hidden text-lg font-bold tracking-tight sm:block">
+              <span className="hidden font-display text-xl font-bold tracking-tight sm:block">
                 Hariom<span className="text-gradient">Coins</span>
               </span>
             </Link>
@@ -116,7 +116,7 @@ export function Navbar() {
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
                   placeholder="Search coins, notes, era, country…"
-                  className="h-10 rounded-xl border-transparent bg-muted/60 pl-10 pr-4 transition-all focus:border-primary focus:bg-white dark:focus:bg-gray-900"
+                  className="h-10 rounded-xl border-transparent bg-muted/60 pl-10 pr-4 transition-all focus:border-primary focus:bg-card"
                 />
               </div>
             </form>
@@ -173,7 +173,7 @@ export function Navbar() {
                   </button>
 
                   {userMenuOpen && (
-                    <div className="absolute right-0 top-full mt-2 w-52 animate-scale-in overflow-hidden rounded-2xl border border-border bg-white shadow-card-hover dark:bg-gray-900">
+                    <div className="absolute right-0 top-full mt-2 w-52 animate-scale-in overflow-hidden rounded-lg border border-border bg-card shadow-card-hover">
                       <div className="border-b border-border px-4 py-3">
                         <p className="truncate text-sm font-semibold">{user?.full_name}</p>
                         <p className="truncate text-xs text-muted-foreground">{user?.email}</p>
@@ -259,7 +259,7 @@ export function Navbar() {
               </button>
 
               {megaOpen && categories && categories.length > 0 && (
-                <div className="absolute left-0 top-full z-50 mt-1 w-[560px] animate-scale-in rounded-2xl border border-border bg-white p-4 shadow-card-hover dark:bg-gray-900">
+                <div className="absolute left-0 top-full z-50 mt-1 w-[560px] animate-scale-in rounded-lg border border-border bg-card p-4 shadow-card-hover">
                   <div className="grid grid-cols-2 gap-x-6 gap-y-1">
                     {categories.map((c) => (
                       <div key={c.id} className="py-1">
@@ -316,13 +316,13 @@ export function Navbar() {
       {mobileOpen && (
         <div className="fixed inset-0 z-[60] lg:hidden">
           <div className="absolute inset-0 animate-fade-in bg-black/50 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-          <div className="absolute right-0 top-0 h-full w-80 max-w-full animate-slide-in-right bg-white shadow-2xl dark:bg-gray-950">
+          <div className="absolute right-0 top-0 h-full w-80 max-w-full animate-slide-in-right bg-card shadow-2xl">
             <div className="flex items-center justify-between border-b border-border p-4">
               <Link to="/" className="flex items-center gap-2" onClick={() => setMobileOpen(false)}>
                 <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-hero">
                   <span className="text-sm font-bold text-white">🪙</span>
                 </div>
-                <span className="font-bold">HariomCoins</span>
+                <span className="font-display text-lg font-bold">HariomCoins</span>
               </Link>
               <button onClick={() => setMobileOpen(false)} className={buttonVariants({ variant: "ghost", size: "icon", className: "rounded-xl" })}>
                 <X className="h-5 w-5" />

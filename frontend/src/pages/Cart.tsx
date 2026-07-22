@@ -35,7 +35,7 @@ export default function Cart() {
     return (
       <div className="container py-8 lg:py-12">
         <h1 className="text-2xl font-bold mb-8">Shopping Cart</h1>
-        <div className="flex min-h-[40vh] items-center justify-center rounded-2xl border border-border bg-white p-8 dark:bg-gray-900 shadow-card">
+        <div className="flex min-h-[40vh] items-center justify-center rounded-2xl border border-border bg-card p-8 shadow-card">
           <BrandLoader />
         </div>
       </div>
@@ -66,7 +66,7 @@ export default function Cart() {
 
   return (
     <div className="min-h-screen bg-muted/20">
-      <div className="border-b border-border bg-white dark:bg-gray-950">
+      <div className="border-b border-border bg-card">
         <div className="container py-5">
           <h1 className="text-2xl font-bold">Shopping Cart</h1>
           <p className="text-sm text-muted-foreground mt-0.5">{cart.item_count} {cart.item_count === 1 ? "item" : "items"}</p>
@@ -80,7 +80,7 @@ export default function Cart() {
             {cart.items.map((item, i) => (
               <div
                 key={item.id}
-                className={`flex gap-4 rounded-2xl border border-border bg-white dark:bg-gray-900 p-4 shadow-card animate-fade-in-up ${!item.available ? "opacity-60" : ""}`}
+                className={`flex gap-4 rounded-2xl border border-border bg-card p-4 shadow-card animate-fade-in-up ${!item.available ? "opacity-60" : ""}`}
                 style={{ animationDelay: `${i * 0.05}s` }}
               >
                 {/* Product image */}
@@ -165,7 +165,7 @@ export default function Cart() {
 
           {/* Order summary */}
           <div className="h-fit">
-            <div className="rounded-2xl border border-border bg-white dark:bg-gray-900 p-6 shadow-card sticky top-24 space-y-5">
+            <div className="rounded-2xl border border-border bg-card p-6 shadow-card sticky top-24 space-y-5">
               <h2 className="text-lg font-bold">Order Summary</h2>
 
               <div className="space-y-3 text-sm">
@@ -173,7 +173,7 @@ export default function Cart() {
                   <span className="text-muted-foreground">Subtotal ({cart.item_count} items)</span>
                   <span className="font-medium">{formatPrice(cart.subtotal)}</span>
                 </div>
-                <div className="flex justify-between text-green-600">
+                <div className="flex justify-between text-primary">
                   <span className="flex items-center gap-1"><Tag className="h-3.5 w-3.5" /> Shipping</span>
                   <span className="font-medium">
                     {cart.subtotal >= 99900 ? "FREE" : formatPrice(4900)}

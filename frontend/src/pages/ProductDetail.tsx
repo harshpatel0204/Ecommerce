@@ -149,7 +149,7 @@ export default function ProductDetail() {
   return (
     <div className="min-h-screen pb-24 lg:pb-0">
       {/* Breadcrumb */}
-      <div className="border-b border-border bg-white dark:bg-gray-950">
+      <div className="border-b border-border bg-card">
         <div className="container py-3">
           <nav className="flex items-center gap-2 text-sm text-muted-foreground">
             <Link to="/" className="transition-colors hover:text-primary">Home</Link>
@@ -182,7 +182,7 @@ export default function ProductDetail() {
               <h1 className="mt-1 text-2xl font-bold leading-tight sm:text-3xl">{product.name}</h1>
               {product.review_count > 0 && (
                 <div className="mt-2 flex items-center gap-2">
-                  <div className="flex items-center gap-1 rounded bg-green-600 px-1.5 py-0.5 text-xs font-bold text-white">
+                  <div className="flex items-center gap-1 rounded bg-primary px-1.5 py-0.5 text-xs font-bold text-white">
                     {product.avg_rating.toFixed(1)} <Star className="h-3 w-3 fill-current" />
                   </div>
                   <span className="text-sm text-muted-foreground">{product.review_count} reviews</span>
@@ -197,14 +197,14 @@ export default function ProductDetail() {
                 {product.discount_percent > 0 && (
                   <>
                     <span className="text-lg text-muted-foreground line-through">{formatPrice(product.base_price)}</span>
-                    <span className="rounded-full bg-green-100 px-2.5 py-1 text-sm font-bold text-green-700">
+                    <span className="rounded-full bg-primary/10 px-2.5 py-1 text-sm font-bold text-primary">
                       {product.discount_percent}% OFF
                     </span>
                   </>
                 )}
               </div>
               {product.discount_percent > 0 && (
-                <p className="mt-1 text-sm font-medium text-green-600">
+                <p className="mt-1 text-sm font-medium text-primary">
                   You save {formatPrice(product.base_price - product.selling_price)}!
                 </p>
               )}
@@ -247,7 +247,7 @@ export default function ProductDetail() {
               <Button
                 size="lg"
                 className={`h-12 flex-1 rounded-xl text-base font-semibold transition-all ${
-                  justAdded ? "bg-green-600 hover:bg-green-600" : "bg-primary hover:bg-primary/90 hover:shadow-glow"
+                  justAdded ? "bg-primary hover:bg-primary" : "bg-primary hover:bg-primary/90 hover:shadow-glow"
                 }`}
                 disabled={addToCart.isPending || totalStock === 0}
                 onClick={handleAddToCart}
@@ -265,7 +265,7 @@ export default function ProductDetail() {
               <button
                 onClick={() => toggleWishlist(product.id)}
                 className={`flex h-12 w-12 items-center justify-center rounded-xl border transition-all ${
-                  wishlistedIds.has(product.id) ? "border-red-200 bg-red-50 text-red-500" : "border-border hover:border-red-200 hover:text-red-500"
+                  wishlistedIds.has(product.id) ? "border-destructive/30 bg-destructive/10 text-destructive" : "border-border hover:border-destructive/30 hover:text-destructive"
                 }`}
                 aria-label="Add to wishlist"
               >
@@ -294,7 +294,7 @@ export default function ProductDetail() {
               <ul className="space-y-1.5">
                 {OFFERS.map((o) => (
                   <li key={o} className="flex items-start gap-2 text-sm text-muted-foreground">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-600" /> {o}
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" /> {o}
                   </li>
                 ))}
               </ul>
@@ -369,7 +369,7 @@ function DeliveryCheck({ weightGrams }: { weightGrams: number }) {
         </Button>
       </div>
       {check.data && (
-        <p className={`mt-2 text-sm font-medium ${check.data.serviceable ? "text-green-600" : "text-destructive"}`}>
+        <p className={`mt-2 text-sm font-medium ${check.data.serviceable ? "text-primary" : "text-destructive"}`}>
           {check.data.serviceable
             ? check.data.cheapest
               ? `Deliverable · from ${formatPrice(check.data.cheapest.rate)}${

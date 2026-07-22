@@ -163,7 +163,7 @@ export default function Checkout() {
 
   return (
     <div className="min-h-screen bg-muted/20">
-      <div className="border-b border-border bg-white dark:bg-gray-950">
+      <div className="border-b border-border bg-card">
         <div className="container py-5">
           <div className="flex items-center gap-2">
             <Lock className="h-5 w-5 text-primary" />
@@ -175,7 +175,7 @@ export default function Checkout() {
 
       <div className="container grid gap-8 py-8 lg:grid-cols-[1fr_360px]">
         <div className="space-y-6">
-          <section className="rounded-2xl border border-border bg-white p-6 shadow-card dark:bg-gray-900">
+          <section className="rounded-2xl border border-border bg-card p-6 shadow-card">
             <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
               <MapPin className="h-5 w-5 text-primary" /> Delivery address
             </h2>
@@ -239,7 +239,7 @@ export default function Checkout() {
                   "mt-4 flex items-center gap-2 rounded-xl p-3 text-sm font-medium",
                   serviceable === "not-serviceable"
                     ? "bg-destructive/10 text-destructive"
-                    : "bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-400",
+                    : "bg-primary/10 text-primary",
                 )}
               >
                 <Truck className="h-4 w-4" />
@@ -252,7 +252,7 @@ export default function Checkout() {
         </div>
 
         <aside className="h-fit">
-          <div className="sticky top-24 space-y-5 rounded-2xl border border-border bg-white p-6 shadow-card dark:bg-gray-900">
+          <div className="sticky top-24 space-y-5 rounded-2xl border border-border bg-card p-6 shadow-card">
             <h2 className="text-lg font-bold">Order summary</h2>
             <div className="max-h-64 space-y-3 overflow-y-auto">
               {cart.items.map((i) => (
@@ -281,7 +281,7 @@ export default function Checkout() {
                 </Button>
               </div>
               {appliedCoupon?.valid && (
-                <p className="mt-2 text-xs font-medium text-green-600">
+                <p className="mt-2 text-xs font-medium text-primary">
                   ✓ {appliedCoupon.code} applied
                 </p>
               )}
@@ -293,7 +293,7 @@ export default function Checkout() {
                 <span className="font-semibold">{formatPrice(cart.subtotal)}</span>
               </div>
               {appliedCoupon?.valid && appliedCoupon.discount_amount > 0 && (
-                <div className="flex justify-between text-green-600">
+                <div className="flex justify-between text-primary">
                   <span>Discount</span>
                   <span>- {formatPrice(appliedCoupon.discount_amount)}</span>
                 </div>
@@ -336,7 +336,7 @@ export default function Checkout() {
               {placing ? "Processing…" : paymentMethod === "cod" ? "Place order (COD)" : "Place order & pay"}
             </Button>
             <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-              <ShieldCheck className="h-4 w-4 text-green-600" />
+              <ShieldCheck className="h-4 w-4 text-primary" />
               {paymentMethod === "cod" ? "Pay in cash when your order arrives" : "Secured by Razorpay · 100% safe payments"}
             </div>
           </div>
@@ -360,7 +360,7 @@ function CheckoutSteps({ current }: { current: number }) {
             <span
               className={cn(
                 "flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold",
-                done && "bg-green-600 text-white",
+                done && "bg-primary text-white",
                 active && "bg-primary text-white",
                 !done && !active && "bg-muted text-muted-foreground",
               )}

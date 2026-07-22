@@ -48,7 +48,7 @@ export function ProductReviews({ productId }: { productId: string }) {
       ) : (
         <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
           {/* Summary */}
-          <div className="rounded-2xl border border-border bg-white p-6 text-center shadow-card dark:bg-gray-900">
+          <div className="rounded-lg border border-border bg-card p-6 text-center shadow-card">
             <div className="text-4xl font-bold">{data?.avg_rating.toFixed(1) ?? "0.0"}</div>
             <StarRating value={data?.avg_rating ?? 0} className="mt-2 justify-center" />
             <div className="mt-1 text-sm text-muted-foreground">{data?.review_count ?? 0} reviews</div>
@@ -60,7 +60,7 @@ export function ProductReviews({ productId }: { productId: string }) {
                   <div key={star} className="flex items-center gap-2 text-xs">
                     <span className="w-3">{star}</span>
                     <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-                      <div className="h-full rounded-full bg-yellow-400" style={{ width: `${pct}%` }} />
+                      <div className="h-full rounded-full bg-gold" style={{ width: `${pct}%` }} />
                     </div>
                     <span className="w-6 text-right text-muted-foreground">{count}</span>
                   </div>
@@ -72,7 +72,7 @@ export function ProductReviews({ productId }: { productId: string }) {
           {/* List + form */}
           <div className="space-y-6">
             {isAuthenticated && (
-              <div className="rounded-2xl border border-border bg-white p-5 shadow-card dark:bg-gray-900">
+              <div className="rounded-lg border border-border bg-card p-5 shadow-card">
                 <h3 className="mb-3 font-semibold">Write a review</h3>
                 <StarRating value={rating} onChange={setRating} size={24} />
                 <Input
@@ -101,11 +101,11 @@ export function ProductReviews({ productId }: { productId: string }) {
             {data && data.reviews.length > 0 ? (
               <div className="space-y-4">
                 {data.reviews.map((r) => (
-                  <div key={r.id} className="rounded-2xl border border-border bg-white p-5 shadow-card dark:bg-gray-900">
+                  <div key={r.id} className="rounded-lg border border-border bg-card p-5 shadow-card">
                     <div className="flex items-center justify-between">
                       <StarRating value={r.rating} size={16} />
                       {r.is_verified && (
-                        <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                           Verified purchase
                         </span>
                       )}

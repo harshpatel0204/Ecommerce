@@ -242,12 +242,12 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2">
+    <div className="store-theme min-h-screen grid lg:grid-cols-2">
       {/* Left: Decorative panel */}
-      <div className="hidden lg:flex flex-col justify-center relative overflow-hidden bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 p-12">
-        <div className="absolute inset-0">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/15 rounded-full blur-3xl" />
+      <div className="hidden lg:flex flex-col justify-center relative overflow-hidden bg-gradient-hero p-12">
+        <div className="absolute inset-0 opacity-80">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gold/25 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-gold/10 rounded-full blur-3xl" />
         </div>
 
         <div className="relative">
@@ -274,14 +274,14 @@ export default function Register() {
             ))}
           </div>
 
-          <div className="mt-12 p-4 rounded-2xl bg-white/5 border border-white/10">
+          <div className="mt-12 p-4 rounded-2xl bg-card/5 border border-white/10">
             <p className="text-xs text-gray-400 mb-2">Trusted by shoppers across India</p>
             <div className="flex items-center gap-2">
               <div className="flex -space-x-2">
-                {["#f97316", "#8b5cf6", "#3b82f6", "#22c55e"].map((color, i) => (
+                {["#1f6b4d", "#b8860b", "#8b2f3a", "#2f6b52"].map((color, i) => (
                   <div
                     key={i}
-                    className="h-8 w-8 rounded-full border-2 border-gray-900 flex items-center justify-center text-white text-xs font-bold"
+                    className="h-8 w-8 rounded-full border-2 border-white/20 flex items-center justify-center text-white text-xs font-bold"
                     style={{ backgroundColor: color }}
                   >
                     {["A", "P", "R", "S"][i]}

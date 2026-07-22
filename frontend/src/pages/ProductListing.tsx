@@ -112,7 +112,7 @@ export default function ProductListing() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <div className="border-b border-border bg-white dark:bg-gray-950">
+      <div className="border-b border-border bg-card">
         <div className="container py-6">
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -167,7 +167,7 @@ export default function ProductListing() {
               <select
                 value={filters.sort}
                 onChange={(e) => update("sort", e.target.value)}
-                className="h-9 cursor-pointer appearance-none rounded-xl border border-border bg-white pl-3 pr-8 text-sm font-medium transition-all hover:border-primary/50 focus:border-primary focus:outline-none dark:bg-gray-900"
+                className="h-9 cursor-pointer appearance-none rounded-xl border border-border bg-card pl-3 pr-8 text-sm font-medium transition-all hover:border-primary/50 focus:border-primary focus:outline-none"
               >
                 {SORTS.map((s) => (
                   <option key={s.value} value={s.value}>
@@ -197,7 +197,7 @@ export default function ProductListing() {
 
         <div className="flex gap-7">
           <aside className="hidden w-56 shrink-0 lg:block">
-            <div className="sticky top-32 rounded-2xl border border-border bg-white p-5 dark:bg-gray-900">
+            <div className="sticky top-32 rounded-2xl border border-border bg-card p-5">
               <FilterSidebar />
             </div>
           </aside>
@@ -205,7 +205,7 @@ export default function ProductListing() {
           {sidebarOpen && (
             <div className="fixed inset-0 z-[70] lg:hidden">
               <div className="absolute inset-0 animate-fade-in bg-black/50" onClick={() => setSidebarOpen(false)} />
-              <div className="absolute left-0 top-0 h-full w-72 animate-slide-in-right overflow-y-auto bg-white p-5 shadow-2xl dark:bg-gray-950">
+              <div className="absolute left-0 top-0 h-full w-72 animate-slide-in-right overflow-y-auto bg-card p-5 shadow-2xl">
                 <div className="mb-6 flex items-center justify-between">
                   <h2 className="text-base font-bold">Filters</h2>
                   <button onClick={() => setSidebarOpen(false)} className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-muted">

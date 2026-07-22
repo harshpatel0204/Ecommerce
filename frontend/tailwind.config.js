@@ -43,6 +43,7 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        gold: "hsl(var(--gold))",
         surface: {
           1: "hsl(var(--surface-1))",
           2: "hsl(var(--surface-2))",

@@ -33,6 +33,9 @@
     --surface-1: 0 0% 100%;
     --surface-2: 220 14% 98%;
     --surface-3: 220 14% 96%;
+
+    /* Antique gold accent (heritage storefront; safe default globally). */
+    --gold: 40 62% 44%;
   }
 
   .dark {
@@ -57,6 +60,45 @@
     --surface-1: 220 25% 10%;
     --surface-2: 220 25% 12%;
     --surface-3: 220 20% 15%;
+  }
+
+  /* ---------------------------------------------------------------------
+     Heritage / vintage-numismatic storefront theme.
+     Scoped to `.store-theme` (applied on StoreLayout) so the dark admin
+     panel keeps its own look. Parchment canvas, deep banknote-emerald
+     primary, antique-gold accent, sepia ink, classic serif headings.
+     --------------------------------------------------------------------- */
+  .store-theme {
+    --background: 40 33% 95%;        /* parchment */
+    --foreground: 28 24% 16%;        /* sepia ink */
+    --card: 42 44% 98%;              /* warm ivory */
+    --card-foreground: 28 24% 16%;
+    --primary: 158 46% 21%;          /* deep emerald (banknote green) */
+    --primary-foreground: 42 44% 96%;
+    --secondary: 40 26% 90%;
+    --secondary-foreground: 28 22% 24%;
+    --muted: 40 24% 91%;
+    --muted-foreground: 30 12% 40%;
+    --accent: 43 52% 89%;            /* pale gold wash */
+    --accent-foreground: 30 45% 24%;
+    --destructive: 0 55% 38%;        /* oxblood */
+    --destructive-foreground: 42 44% 96%;
+    --border: 38 24% 82%;
+    --input: 38 24% 82%;
+    --ring: 158 46% 24%;
+    --radius: 0.4rem;                /* sharper, classic */
+
+    --gold: 40 62% 42%;              /* antique gold */
+
+    --surface-1: 42 44% 98%;
+    --surface-2: 40 33% 95%;
+    --surface-3: 40 28% 92%;
+  }
+
+  /* Serif display headings give the catalogue / museum-label feel. */
+  .store-theme :is(h1, h2, h3) {
+    font-family: "Playfair Display", Georgia, serif;
+    letter-spacing: -0.01em;
   }
 
   * {
@@ -223,6 +265,41 @@
       radial-gradient(at 40% 20%, hsl(24 60% 12%) 0px, transparent 50%),
       radial-gradient(at 80% 0%, hsl(280 40% 10%) 0px, transparent 50%),
       radial-gradient(at 0% 50%, hsl(24 50% 8%) 0px, transparent 50%);
+  }
+
+  /* Heritage storefront: reskin the brand gradients + mesh within scope. */
+  .store-theme .bg-mesh {
+    background-color: hsl(var(--background));
+    background-image:
+      radial-gradient(at 12% 8%, hsl(158 30% 86% / 0.55) 0px, transparent 45%),
+      radial-gradient(at 88% 0%, hsl(43 55% 84% / 0.7) 0px, transparent 45%),
+      radial-gradient(at 50% 100%, hsl(40 28% 88% / 0.5) 0px, transparent 50%);
+  }
+  .store-theme .bg-gradient-hero {
+    background-image: linear-gradient(135deg, hsl(158 46% 18%) 0%, hsl(158 52% 12%) 55%, hsl(40 50% 30%) 135%);
+  }
+  .store-theme .text-gradient {
+    background: linear-gradient(135deg, hsl(158 46% 24%), hsl(40 60% 42%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Ornamental centered rule with a gold diamond motif (heritage sections). */
+  .ornament-rule {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    color: hsl(var(--gold));
+  }
+  .ornament-rule::before,
+  .ornament-rule::after {
+    content: "";
+    height: 1px;
+    width: 100%;
+    max-width: 4.5rem;
+    background: linear-gradient(to right, transparent, hsl(var(--gold) / 0.55), transparent);
   }
 
   .line-clamp-2 {

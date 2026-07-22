@@ -63,7 +63,7 @@ export function VariantSelector({ variants, selectedId, onSelect }: Props) {
       </div>
 
       {selected && selected.stock_quantity > 0 && selected.stock_quantity < selected.low_stock_threshold && (
-        <p className="flex items-center gap-1.5 text-sm font-medium text-orange-600">
+        <p className="flex items-center gap-1.5 text-sm font-medium text-destructive">
           <AlertCircle className="h-4 w-4" />
           Hurry! Only {selected.stock_quantity} left in stock
         </p>

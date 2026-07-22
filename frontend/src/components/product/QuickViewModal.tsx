@@ -106,7 +106,7 @@ function QuickViewBody({ slug, onClose, onAdded }: { slug: string; onClose: () =
           {product.discount_percent > 0 && (
             <>
               <span className="text-sm text-muted-foreground line-through">{formatPrice(product.base_price)}</span>
-              <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-bold text-green-700">
+              <span className="rounded-sm bg-destructive/10 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-destructive">
                 {product.discount_percent}% OFF
               </span>
             </>
@@ -144,7 +144,7 @@ function QuickViewBody({ slug, onClose, onAdded }: { slug: string; onClose: () =
 
         <div className="mt-auto space-y-2 pt-5">
           <Button
-            className={`h-11 w-full rounded-xl font-semibold ${justAdded ? "bg-green-600 hover:bg-green-600" : ""}`}
+            className={`h-11 w-full rounded-md font-semibold ${justAdded ? "bg-primary hover:bg-primary" : ""}`}
             disabled={addToCart.isPending}
             onClick={handleAdd}
           >

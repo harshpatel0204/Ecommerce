@@ -52,7 +52,7 @@ function ProfileSection() {
   });
 
   return (
-    <section className="rounded-2xl border border-border bg-white p-6 shadow-card dark:bg-gray-900">
+    <section className="rounded-2xl border border-border bg-card p-6 shadow-card">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="flex items-center gap-2 font-bold">
           <UserIcon className="h-4 w-4 text-primary" /> Profile
@@ -137,7 +137,7 @@ function PasswordSection() {
   });
 
   return (
-    <section className="rounded-2xl border border-border bg-white p-6 shadow-card dark:bg-gray-900">
+    <section className="rounded-2xl border border-border bg-card p-6 shadow-card">
       <div className="mb-1 flex items-center justify-between">
         <h2 className="flex items-center gap-2 font-bold">
           <KeyRound className="h-4 w-4 text-primary" /> Password
@@ -266,7 +266,7 @@ function AddressSection() {
   });
 
   return (
-    <section className="rounded-2xl border border-border bg-white p-6 shadow-card dark:bg-gray-900">
+    <section className="rounded-2xl border border-border bg-card p-6 shadow-card">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="flex items-center gap-2 font-bold">
           <Home className="h-4 w-4 text-primary" /> Saved Addresses
@@ -345,7 +345,7 @@ function AddressSection() {
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
                   <button
-                    className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-red-50 hover:text-destructive"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                     onClick={() => remove.mutate(a.id)}
                     aria-label="Delete address"
                   >
@@ -379,7 +379,7 @@ export default function Account() {
 
   return (
     <div className="min-h-screen bg-muted/20">
-      <div className="border-b border-border bg-white dark:bg-gray-950">
+      <div className="border-b border-border bg-card">
         <div className="container py-5">
           <h1 className="text-2xl font-bold">My Account</h1>
         </div>
@@ -393,7 +393,7 @@ export default function Account() {
             <Link
               key={to}
               to={to}
-              className="group flex items-start gap-3 rounded-2xl border border-border bg-white p-5 shadow-card transition-all hover:shadow-card-hover dark:bg-gray-900"
+              className="group flex items-start gap-3 rounded-2xl border border-border bg-card p-5 shadow-card transition-all hover:shadow-card-hover"
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Icon className="h-5 w-5" />
@@ -407,7 +407,7 @@ export default function Account() {
           {user?.is_admin && (
             <Link
               to="/admin"
-              className="group flex items-start gap-3 rounded-2xl border border-border bg-white p-5 shadow-card transition-all hover:shadow-card-hover dark:bg-gray-900"
+              className="group flex items-start gap-3 rounded-2xl border border-border bg-card p-5 shadow-card transition-all hover:shadow-card-hover"
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Shield className="h-5 w-5" />
@@ -424,7 +424,7 @@ export default function Account() {
         <PasswordSection />
 
         <div className="flex justify-end">
-          <Button variant="outline" className="gap-2 rounded-xl text-destructive hover:bg-red-50 hover:text-destructive" onClick={onLogout}>
+          <Button variant="outline" className="gap-2 rounded-xl text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={onLogout}>
             <LogOut className="h-4 w-4" /> Sign out
           </Button>
         </div>

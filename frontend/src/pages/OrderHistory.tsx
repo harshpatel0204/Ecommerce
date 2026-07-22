@@ -20,7 +20,7 @@ export default function OrderHistory() {
 
   return (
     <div className="min-h-screen bg-muted/20">
-      <div className="border-b border-border bg-white dark:bg-gray-950">
+      <div className="border-b border-border bg-card">
         <div className="container py-5">
           <h1 className="flex items-center gap-2 text-2xl font-bold">
             <Package className="h-6 w-6 text-primary" /> My Orders
@@ -31,7 +31,7 @@ export default function OrderHistory() {
 
       <div className="container py-8">
         {isLoading ? (
-          <div className="flex min-h-[40vh] items-center justify-center rounded-2xl border border-border bg-white p-8 dark:bg-gray-900 shadow-card">
+          <div className="flex min-h-[40vh] items-center justify-center rounded-2xl border border-border bg-card p-8 shadow-card">
             <BrandLoader />
           </div>
         ) : !data || data.items.length === 0 ? (
@@ -54,7 +54,7 @@ export default function OrderHistory() {
               <Link
                 key={o.id}
                 to={`/orders/${o.order_number}`}
-                className="group flex items-center gap-4 rounded-2xl border border-border bg-white p-4 shadow-card transition-all hover:shadow-card-hover animate-fade-in-up dark:bg-gray-900"
+                className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-card transition-all hover:shadow-card-hover animate-fade-in-up"
                 style={{ animationDelay: `${i * 0.05}s` }}
               >
                 <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-muted">

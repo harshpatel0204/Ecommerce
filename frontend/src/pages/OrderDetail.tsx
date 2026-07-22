@@ -61,7 +61,7 @@ export default function OrderDetail() {
 
   if (isLoading) {
     return (
-      <div className="container py-8 flex min-h-[50vh] items-center justify-center rounded-2xl border border-border bg-white p-8 dark:bg-gray-900 shadow-card">
+      <div className="container py-8 flex min-h-[50vh] items-center justify-center rounded-2xl border border-border bg-card p-8 shadow-card">
         <BrandLoader />
       </div>
     );
@@ -76,13 +76,13 @@ export default function OrderDetail() {
     <div className="min-h-screen bg-muted/20">
       <div className="container max-w-5xl space-y-6 py-8">
         {(justPaid || justPlaced) && (
-          <div className="flex items-center gap-3 rounded-2xl border border-green-200 bg-green-50 p-5 shadow-card animate-scale-in dark:border-green-900 dark:bg-green-950/40">
-            <CheckCircle2 className="h-8 w-8 shrink-0 text-green-600" />
+          <div className="flex items-center gap-3 rounded-2xl border border-primary/30 bg-primary/10 p-5 shadow-card animate-scale-in">
+            <CheckCircle2 className="h-8 w-8 shrink-0 text-primary" />
             <div>
-              <div className="font-bold text-green-800 dark:text-green-300">
+              <div className="font-bold text-primary">
                 {justPaid ? "Payment successful! 🎉" : "Order placed! 🎉"}
               </div>
-              <div className="text-sm text-green-700 dark:text-green-400">
+              <div className="text-sm text-primary">
                 Your order {order.order_number} is confirmed
                 {justPlaced ? " — pay cash on delivery." : " and being processed."}
               </div>
@@ -115,7 +115,7 @@ export default function OrderDetail() {
 
         <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
           <div className="space-y-6">
-            <section className="rounded-2xl border border-border bg-white p-5 shadow-card dark:bg-gray-900">
+            <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
               <h2 className="mb-4 font-bold">Items in this order</h2>
               <div className="space-y-4">
                 {order.items.map((it, idx) => (
@@ -135,7 +135,7 @@ export default function OrderDetail() {
               </div>
             </section>
 
-            <section className="rounded-2xl border border-border bg-white p-5 shadow-card dark:bg-gray-900">
+            <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
               <h2 className="mb-5 flex items-center gap-2 font-bold">
                 <Truck className="h-5 w-5 text-primary" /> Order tracking
               </h2>
@@ -154,7 +154,7 @@ export default function OrderDetail() {
           </div>
 
           <aside className="space-y-6">
-            <section className="rounded-2xl border border-border bg-white p-5 text-sm shadow-card dark:bg-gray-900">
+            <section className="rounded-2xl border border-border bg-card p-5 text-sm shadow-card">
               <h2 className="mb-3 flex items-center gap-2 font-bold">
                 <MapPin className="h-4 w-4 text-primary" /> Delivery address
               </h2>
@@ -166,7 +166,7 @@ export default function OrderDetail() {
               <p className="mt-1 text-muted-foreground">{addr.phone}</p>
             </section>
 
-            <section className="rounded-2xl border border-border bg-white p-5 text-sm shadow-card dark:bg-gray-900">
+            <section className="rounded-2xl border border-border bg-card p-5 text-sm shadow-card">
               <h2 className="mb-3 font-bold">Payment summary</h2>
               <Row label="Subtotal" value={formatPrice(order.subtotal)} />
               <Row label="Shipping" value={order.shipping_fee > 0 ? formatPrice(order.shipping_fee) : "Free"} />

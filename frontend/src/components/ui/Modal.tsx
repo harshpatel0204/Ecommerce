@@ -27,7 +27,7 @@ export function Modal({ open, onClose, children, widthClass = "max-w-3xl" }: Pro
   if (!open) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" role="dialog" aria-modal="true">
+    <div className="store-theme fixed inset-0 z-[100] flex items-center justify-center p-4" role="dialog" aria-modal="true">
       <div className="absolute inset-0 animate-fade-in bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className={`relative max-h-[90vh] w-full overflow-y-auto rounded-2xl bg-background shadow-2xl animate-scale-in ${widthClass}`}>
         <button

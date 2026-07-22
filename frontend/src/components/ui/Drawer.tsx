@@ -29,7 +29,7 @@ export function Drawer({ open, onClose, title, children, footer, widthClass = "m
   if (!open) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[100]" role="dialog" aria-modal="true">
+    <div className="store-theme fixed inset-0 z-[100]" role="dialog" aria-modal="true">
       <div className="absolute inset-0 animate-fade-in bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <div
         className={`absolute right-0 top-0 flex h-full w-full flex-col bg-background shadow-2xl animate-slide-in-right ${widthClass}`}

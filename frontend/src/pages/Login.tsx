@@ -228,16 +228,16 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2">
+    <div className="store-theme min-h-screen grid lg:grid-cols-2">
       {/* Left: Decorative panel */}
       <div className="hidden lg:flex flex-col items-center justify-center relative overflow-hidden bg-gradient-hero p-12">
         <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-10 left-10 w-40 h-40 rounded-full bg-white blur-3xl" />
-          <div className="absolute bottom-20 right-10 w-60 h-60 rounded-full bg-white blur-3xl" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-white blur-3xl" />
+          <div className="absolute top-10 left-10 w-40 h-40 rounded-full bg-card blur-3xl" />
+          <div className="absolute bottom-20 right-10 w-60 h-60 rounded-full bg-card blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-card blur-3xl" />
         </div>
         <div className="relative text-center text-white">
-          <div className="h-20 w-20 rounded-3xl bg-white/20 backdrop-blur-sm flex items-center justify-center mx-auto mb-6 border border-white/30">
+          <div className="h-20 w-20 rounded-3xl bg-card/20 backdrop-blur-sm flex items-center justify-center mx-auto mb-6 border border-white/30">
             <span className="text-4xl font-bold">🪙</span>
           </div>
           <h2 className="text-3xl font-bold mb-3">Welcome Back, Collector!</h2>
@@ -251,7 +251,7 @@ export default function Login() {
               { value: "4.9★", label: "Rating" },
               { value: "100%", label: "Authentic" },
             ].map((s) => (
-              <div key={s.label} className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+              <div key={s.label} className="bg-card/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
                 <div className="text-xl font-bold">{s.value}</div>
                 <div className="text-xs text-white/70 mt-0.5">{s.label}</div>
               </div>

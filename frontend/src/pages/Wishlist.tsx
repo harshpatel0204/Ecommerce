@@ -17,7 +17,7 @@ export default function Wishlist() {
 
   return (
     <div className="min-h-screen">
-      <div className="border-b border-border bg-white dark:bg-gray-950">
+      <div className="border-b border-border bg-card">
         <div className="container py-5">
           <h1 className="flex items-center gap-2 text-2xl font-bold">
             <Heart className="h-6 w-6 text-primary" /> My Wishlist
@@ -28,7 +28,7 @@ export default function Wishlist() {
 
       <div className="container py-8">
         {isLoading ? (
-          <div className="flex min-h-[40vh] items-center justify-center rounded-2xl border border-border bg-white p-8 dark:bg-gray-900 shadow-card">
+          <div className="flex min-h-[40vh] items-center justify-center rounded-2xl border border-border bg-card p-8 shadow-card">
             <BrandLoader />
           </div>
         ) : !data || data.length === 0 ? (
@@ -51,7 +51,7 @@ export default function Wishlist() {
               <div key={p.id} className="relative animate-fade-in-up" style={{ animationDelay: `${i * 0.05}s` }}>
                 <button
                   onClick={() => remove.mutate(p.id)}
-                  className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-muted-foreground shadow-card transition-colors hover:text-destructive"
+                  className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-card/95 text-muted-foreground shadow-card transition-colors hover:text-destructive"
                   aria-label="Remove from wishlist"
                 >
                   <X className="h-4 w-4" />

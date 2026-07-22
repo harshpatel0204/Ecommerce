@@ -24,11 +24,11 @@ export function ProductRow({ title, subtitle, products, isLoading, viewAllTo, ac
   if (!isLoading && (!products || products.length === 0)) return null;
 
   return (
-    <section className="rounded-2xl border border-border bg-white shadow-card dark:bg-gray-950">
+    <section className="rounded-lg border border-border bg-card shadow-card">
       <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 sm:px-5">
         <div className="flex min-w-0 items-center gap-4">
           <div className="min-w-0">
-            <h2 className="text-base font-bold sm:text-lg">{title}</h2>
+            <h2 className="text-lg font-bold sm:text-xl">{title}</h2>
             {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
           </div>
           {accessory}
